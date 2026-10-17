@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:40:28Z",
+  "generatedAt": "2026-10-17T14:52:26Z",
   "data": {
     "players": [
       {
@@ -19,14 +19,7 @@
         "podiumFinishes": 9,
         "awardCount": 6,
         "bestPlacement": 1,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 2,
-          "points": 23
-        }
+        "current": null
       },
       {
         "slug": "echo",
@@ -44,14 +37,7 @@
         "podiumFinishes": 6,
         "awardCount": 3,
         "bestPlacement": 2,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 3,
-          "points": 17
-        }
+        "current": null
       },
       {
         "slug": "kite",
@@ -68,15 +54,8 @@
         "gameWins": 0,
         "podiumFinishes": 1,
         "awardCount": 0,
-        "bestPlacement": null,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 6,
-          "points": 5
-        }
+        "bestPlacement": 6,
+        "current": null
       },
       {
         "slug": "rook",
@@ -94,14 +73,7 @@
         "podiumFinishes": 4,
         "awardCount": 2,
         "bestPlacement": 4,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 5,
-          "points": 10
-        }
+        "current": null
       },
       {
         "slug": "tnoy",
@@ -118,15 +90,8 @@
         "gameWins": 3,
         "podiumFinishes": 11,
         "awardCount": 4,
-        "bestPlacement": 3,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 1,
-          "points": 30
-        }
+        "bestPlacement": 1,
+        "current": null
       },
       {
         "slug": "vex",
@@ -143,15 +108,8 @@
         "gameWins": 1,
         "podiumFinishes": 2,
         "awardCount": 2,
-        "bestPlacement": 5,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 4,
-          "points": 11
-        }
+        "bestPlacement": 4,
+        "current": null
       }
     ]
   }

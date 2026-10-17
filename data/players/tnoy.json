@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:40:28Z",
+  "generatedAt": "2026-10-17T14:52:26Z",
   "data": {
     "player": {
       "slug": "tnoy",
@@ -17,15 +17,8 @@
       "gameWins": 3,
       "podiumFinishes": 11,
       "awardCount": 4,
-      "bestPlacement": 3,
-      "current": {
-        "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
-        },
-        "rank": 1,
-        "points": 30
-      },
+      "bestPlacement": 1,
+      "current": null,
       "tournaments": [
         {
           "tournament": {
@@ -33,9 +26,9 @@
             "name": "Demo LAN 2026"
           },
           "startDate": "2026-10-16",
-          "status": "ongoing",
+          "status": "completed",
           "placement": 1,
-          "points": 30,
+          "points": 123258,
           "gamesWon": 2,
           "wasChallenger": true,
           "wasChampion": false
@@ -105,7 +98,7 @@
       "nemesis": {
         "defeated": 3,
         "defeatedBy": 2,
-        "timesAssigned": 3
+        "timesAssigned": 4
       },
       "doubleDown": {
         "used": 1,
@@ -128,11 +121,14 @@
             "slug": "fall-guys",
             "name": "Fall Guys"
           },
-          "placement": 3,
-          "points": 3,
+          "placement": 2,
+          "points": 123231,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "defeatedNemesis": false
         },
         {
           "tournament": {

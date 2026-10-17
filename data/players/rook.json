@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:38:20Z",
+  "generatedAt": "2026-10-17T14:52:26Z",
   "data": {
     "player": {
       "slug": "rook",
@@ -18,14 +18,7 @@
       "podiumFinishes": 4,
       "awardCount": 2,
       "bestPlacement": 4,
-      "current": {
-        "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
-        },
-        "rank": 5,
-        "points": 10
-      },
+      "current": null,
       "tournaments": [
         {
           "tournament": {
@@ -33,7 +26,7 @@
             "name": "Demo LAN 2026"
           },
           "startDate": "2026-10-16",
-          "status": "ongoing",
+          "status": "completed",
           "placement": 5,
           "points": 10,
           "gamesWon": 0,
