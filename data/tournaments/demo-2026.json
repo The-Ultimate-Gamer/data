@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:32:26Z",
+  "generatedAt": "2026-10-17T14:38:20Z",
   "data": {
     "tournament": {
       "slug": "demo-2026",
@@ -21,8 +21,8 @@
         {
           "rank": 1,
           "player": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           },
           "points": 30
         },
@@ -47,8 +47,8 @@
         {
           "award": "challenger",
           "player": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           },
           "detail": null
         },
@@ -71,8 +71,8 @@
         {
           "award": "believer",
           "player": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           },
           "detail": null
         },
@@ -137,8 +137,8 @@
         {
           "rank": 1,
           "player": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           },
           "points": 30,
           "isChallenger": true,
@@ -283,8 +283,8 @@
             "name": "Age of Empires II"
           },
           "winner": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           }
         },
         {
@@ -325,8 +325,8 @@
             "name": "Super Mario Bros. Wonder"
           },
           "winner": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           }
         },
         {
@@ -385,14 +385,14 @@
           },
           "playedAt": "2026-10-16T14:00:00Z",
           "winner": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           },
           "results": [
             {
               "player": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "placement": 1,
               "points": 7,
@@ -506,8 +506,8 @@
             },
             {
               "player": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "placement": 2,
               "points": 4,
@@ -604,15 +604,15 @@
               "nemesisBonus": 1,
               "doubleDown": false,
               "nemesis": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "defeatedNemesis": true
             },
             {
               "player": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "placement": 2,
               "points": 4,
@@ -691,14 +691,14 @@
           },
           "playedAt": "2026-10-16T20:30:00Z",
           "winner": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           },
           "results": [
             {
               "player": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "placement": 1,
               "points": 12,
@@ -776,8 +776,8 @@
           ],
           "newChallengers": [
             {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             }
           ],
           "decidedTournament": false
@@ -810,8 +810,8 @@
               "nemesisBonus": 1,
               "doubleDown": false,
               "nemesis": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "defeatedNemesis": true
             },
@@ -830,8 +830,8 @@
             },
             {
               "player": {
-                "slug": "nova",
-                "name": "Nova"
+                "slug": "tnoy",
+                "name": "Tnoy"
               },
               "placement": 3,
               "points": 3,
@@ -895,8 +895,8 @@
           "label": "Biggest single-game haul",
           "value": "12 pts",
           "player": {
-            "slug": "nova",
-            "name": "Nova"
+            "slug": "tnoy",
+            "name": "Tnoy"
           }
         }
       ]

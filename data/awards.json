@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:32:26Z",
+  "generatedAt": "2026-10-17T14:38:20Z",
   "data": {
     "awards": [
       {
@@ -34,8 +34,8 @@
           {
             "award": "challenger",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "tournament": {
               "slug": "demo-2026",
@@ -82,8 +82,8 @@
           {
             "award": "challenger",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -178,8 +178,8 @@
           {
             "award": "believer",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "tournament": {
               "slug": "demo-2026",
@@ -264,8 +264,8 @@
           {
             "award": "nemesis",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "tournament": {
               "slug": "demo-2025",

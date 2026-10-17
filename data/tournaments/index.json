@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:32:26Z",
+  "generatedAt": "2026-10-17T14:38:20Z",
   "data": {
     "tournaments": [
       {
@@ -22,8 +22,8 @@
           {
             "rank": 1,
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "points": 30
           },
@@ -48,8 +48,8 @@
           {
             "award": "challenger",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "detail": null
           },
@@ -72,8 +72,8 @@
           {
             "award": "believer",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "detail": null
           },
@@ -125,8 +125,8 @@
           {
             "rank": 3,
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "points": 23
           }
@@ -159,8 +159,8 @@
           {
             "award": "challenger",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "detail": null
           },
@@ -207,8 +207,8 @@
           {
             "award": "nemesis",
             "player": {
-              "slug": "nova",
-              "name": "Nova"
+              "slug": "tnoy",
+              "name": "Tnoy"
             },
             "detail": "2 Nemesis wins"
           },

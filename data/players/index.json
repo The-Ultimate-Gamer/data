@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:32:26Z",
+  "generatedAt": "2026-10-17T14:40:28Z",
   "data": {
     "players": [
       {
@@ -79,31 +79,6 @@
         }
       },
       {
-        "slug": "nova",
-        "name": "Nova",
-        "initials": null,
-        "avatarUrl": null,
-        "firstTournament": {
-          "slug": "demo-2025",
-          "name": "Demo LAN 2025"
-        },
-        "tournamentsPlayed": 2,
-        "ultimateGamerWins": 0,
-        "challengerAppearances": 2,
-        "gameWins": 3,
-        "podiumFinishes": 11,
-        "awardCount": 4,
-        "bestPlacement": 3,
-        "current": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "rank": 1,
-          "points": 30
-        }
-      },
-      {
         "slug": "rook",
         "name": "Rook",
         "initials": null,
@@ -126,6 +101,31 @@
           },
           "rank": 5,
           "points": 10
+        }
+      },
+      {
+        "slug": "tnoy",
+        "name": "Tnoy",
+        "initials": null,
+        "avatarUrl": "https://cdn.discordapp.com/attachments/425351828780351488/1561025795907002468/ER927aNXsAA8KQO.jpg?ex=6ad4da10&is=6ad38890&hm=dc7c21828ee39f51ea6b10093dab71e9782019546dd25169abef99b3f9cb799b&",
+        "firstTournament": {
+          "slug": "demo-2025",
+          "name": "Demo LAN 2025"
+        },
+        "tournamentsPlayed": 2,
+        "ultimateGamerWins": 0,
+        "challengerAppearances": 2,
+        "gameWins": 3,
+        "podiumFinishes": 11,
+        "awardCount": 4,
+        "bestPlacement": 3,
+        "current": {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "rank": 1,
+          "points": 30
         }
       },
       {
