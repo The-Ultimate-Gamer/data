@@ -3,7 +3,7 @@ __pycache__/
 .venv/
 
 # Fictional demo database and export (scripts/seed.py --demo)
-demo/
+/demo/
 
 # SQLite temporary files
 *.sqlite-journal
