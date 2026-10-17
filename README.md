@@ -27,7 +27,7 @@ database/ultimate-gamer.sqlite   authoritative database (committed)
 schema/schema.sql                table definitions
 scripts/ugdata.py                shared rules + JSON builders (used by all scripts)
 scripts/init_db.py               create an empty database from the schema
-scripts/seed.py                  load reference data (categories, awards); --demo for fictional data
+scripts/seed.py                  reference data; --add-demo / --remove-demo; --demo (separate demo DB)
 scripts/export_json.py           generate data/ from the database
 scripts/validate.py              check the database and that data/ is up to date
 scripts/migrate.py               add new tables from the schema to an existing database
@@ -145,7 +145,18 @@ UPDATE rounds SET completed = 1, played_at = '2026-11-14T15:00:00Z' WHERE tourna
 
 ## Demo data and local development
 
-`scripts/seed.py --demo` builds a **fictional** dataset in a separate database. The script refuses to write it into the real one.
+To **show the website off before the first real tournament**, use the admin's **Demo data** page, or run:
+
+```sh
+python3 scripts/seed.py --add-demo      # fictional players, games and 2 tournaments, all flagged is_demo
+python3 scripts/export_json.py && git add database data && git commit -m "Add demo data" && git push
+```
+
+- **What visitors see:** a "fictional demo data" banner, with demo tournaments marked "Demo".
+- **Removing it:** `python3 scripts/seed.py --remove-demo` removes exactly the flagged rows. Your real players, games and tournaments are never touched. Re-export and push afterwards.
+- **Clashes:** adding the demo is refused if a real player or tournament already uses one of the demo slugs. Games with the same slug are shared, not duplicated.
+
+For development, `scripts/seed.py --demo` builds a separate **demo-only** database instead:
 
 ```sh
 python3 scripts/seed.py --demo --db demo/demo.sqlite

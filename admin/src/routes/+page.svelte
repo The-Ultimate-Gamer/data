@@ -40,27 +40,30 @@
 {/if}
 
 <section class="panel">
-	<div class="spread">
-		<h2>{nextIndex === -1 ? '✓ All set' : 'Getting started'}</h2>
-		<span class="subtle">{data.steps.filter((s) => s.done).length} of {data.steps.length} done</span
-		>
-	</div>
-	<ol class="checklist">
-		{#each data.steps as step, i (step.title)}
-			<li class:done={step.done} class:next={i === nextIndex}>
-				<span class="mark">{step.done ? '✓' : i + 1}</span>
-				<div class="text">
-					<strong>{step.title}</strong>
-					<span class="subtle">{step.detail}</span>
-				</div>
-				{#if i === nextIndex}
-					<a class="btn primary" href={step.href}>{step.action} →</a>
-				{:else}
-					<a class="btn quiet" href={step.href}>{step.done ? 'Open' : step.action}</a>
-				{/if}
-			</li>
-		{/each}
-	</ol>
+	<details open={nextIndex !== -1}>
+		<summary class="spread">
+			<h2>{nextIndex === -1 ? '✓ All set — show the checklist' : 'Getting started'}</h2>
+			<span class="subtle"
+				>{data.steps.filter((s) => s.done).length} of {data.steps.length} done</span
+			>
+		</summary>
+		<ol class="checklist">
+			{#each data.steps as step, i (step.title)}
+				<li class:done={step.done} class:next={i === nextIndex}>
+					<span class="mark">{step.done ? '✓' : i + 1}</span>
+					<div class="text">
+						<strong>{step.title}</strong>
+						<span class="subtle">{step.detail}</span>
+					</div>
+					{#if i === nextIndex}
+						<a class="btn primary" href={step.href}>{step.action} →</a>
+					{:else}
+						<a class="btn quiet" href={step.href}>{step.done ? 'Open' : step.action}</a>
+					{/if}
+				</li>
+			{/each}
+		</ol>
+	</details>
 	<p class="hint">
 		During the LAN you mostly live on the game screen: open it with “Enter game”, record the result,
 		press Finish game, and publish whenever you want the website updated.
@@ -147,6 +150,16 @@
 
 	.quiet {
 		background: transparent;
+	}
+
+	summary {
+		cursor: pointer;
+		list-style: none;
+		margin-bottom: var(--sp-3);
+	}
+
+	summary::-webkit-details-marker {
+		display: none;
 	}
 
 	.demo {

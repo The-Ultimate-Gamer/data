@@ -22,13 +22,15 @@ npm install        # first time only
 npm start          # opens http://127.0.0.1:5174 on the real database
 ```
 
-To practise on the **fictional demo data** without touching the real database:
+To practise in a **separate practice database** (publishing is disabled there):
 
 ```sh
 cd ..   # data repo root
 python3 scripts/seed.py --demo --db demo/demo.sqlite
 cd admin && npm run demo
 ```
+
+To show friends what the website will look like, use the **Demo data** page in the normal app instead. It adds fictional data to the real database, flagged so that **Remove demo data** takes it out again exactly. Publish after adding and after removing.
 
 | Env variable | Default | Purpose |
 | --- | --- | --- |
@@ -39,19 +41,22 @@ cd admin && npm run demo
 
 ## Workflow
 
+The **Dashboard** has a *Getting started* checklist that always highlights the next step. In short:
+
 1. **Before the LAN:**
    - **Players** → add everyone.
    - **Games** → build the library and tag each game with its categories.
    - **Tournaments** → create the tournament with its threshold, tokens and points per placement.
-   - Open the tournament → tick the participants → add categories in play order.
-2. **Start:** press **Start tournament (go live)**. The website homepage now shows it.
-3. **Every game:** open **▶ Round N** from the dashboard.
-   1. Record nominations (winner's pick, votes, Nominate tokens), then **🎲 Draw at random**, or **Set game** if you drew in person.
+   - On the tournament page, follow **Set up this tournament**: tick the players (each box saves instantly), add categories in play order, then **▶ Start tournament**.
+2. **Every game:** press **▶ Enter game N** on the dashboard.
+   1. Record nominations (winner's pick, votes, Nominate tokens), then **🎲 Draw at random**, or pick the game in **Game being played** if you drew in person.
    2. **Tap players in finishing order.** Placements and base points fill in from the points table, and you can edit both for ties.
    3. Tick **Double Down** and choose each player's **Nemesis**. The `= Points` column previews the total.
    4. Press **✓ Finish game**. The app shows the winner, any new Challengers, or the new Ultimate Gamer.
-4. **Publish** whenever the website should update. Pages usually redeploys within a few minutes.
-5. **The end:** when a Challenger wins, mark the tournament completed. Then grant the awards and add any fun records on the tournament page.
+3. **Publish** whenever the website should update. A gold bar on every page reminds you when there are unpublished changes. The Publish page shows what will change, sends it with one button, and tracks the website update (that last part needs the GitHub CLI `gh`).
+4. **The end:** when a Challenger wins, mark the tournament completed. Then grant the awards and add any fun records on the tournament page.
+
+Web addresses (slugs) of players, games and tournaments can be edited. The website updates its own links, but links that people have already shared will stop working.
 
 Mistakes are easy to fix:
 - **Reopen to edit** works on the most recent finished round.

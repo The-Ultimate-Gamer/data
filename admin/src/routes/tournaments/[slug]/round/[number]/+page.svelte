@@ -167,7 +167,12 @@
 		<form method="POST" action="?/setGame" use:enhance={keep} class="row">
 			<label
 				>Game being played
-				<select name="game" value={data.round?.game_id ?? ''} disabled={completed}>
+				<select
+					name="game"
+					value={data.round?.game_id ?? ''}
+					disabled={completed}
+					onchange={(e) => e.currentTarget.form?.requestSubmit()}
+				>
 					<option value="">— not decided —</option>
 					<optgroup label="{data.category.name} games">
 						{#each inCategory as g (g.id)}<option value={g.id}>{g.name}</option>{/each}

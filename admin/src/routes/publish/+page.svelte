@@ -34,6 +34,27 @@
 	});
 
 	const statusText = { new: 'New', changed: 'Updated', removed: 'Removed' } as const;
+
+	// "Player profile: nova" + "Player profile: kite" → one line "Player profiles: nova, kite".
+	const grouped = $derived.by(() => {
+		const lines = new Map<
+			string,
+			{ key: string; status: keyof typeof statusText; title: string; items: string[] }
+		>();
+		for (const c of data.git?.changes ?? []) {
+			const m = c.label.match(/^(Player profile|Tournament page): (.+)$/);
+			const key = `${c.status}|${m ? m[1] : 'pages'}`;
+			const line = lines.get(key) ?? {
+				key,
+				status: c.status,
+				title: m ? `${m[1]}s` : 'Pages',
+				items: []
+			};
+			line.items.push(m ? m[2] : c.label);
+			lines.set(key, line);
+		}
+		return [...lines.values()];
+	});
 </script>
 
 <h1>Publish to the website</h1>
@@ -114,15 +135,16 @@
 	{#if data.unpublished}
 		<section class="panel">
 			<h2>What will change on the website</h2>
-			{#if data.git.changes.length}
+			{#if grouped.length}
 				<ul class="changes">
-					{#each data.git.changes as c (c.file)}
+					{#each grouped as g (g.key)}
 						<li>
 							<span
-								class="badge {c.status === 'removed' ? 'danger' : c.status === 'new' ? 'live' : ''}"
-								>{statusText[c.status]}</span
+								class="badge {g.status === 'removed' ? 'danger' : g.status === 'new' ? 'live' : ''}"
+								>{statusText[g.status]}</span
 							>
-							{c.label}
+							<strong>{g.title}:</strong>
+							{g.items.join(', ')}
 						</li>
 					{/each}
 				</ul>

@@ -19,8 +19,11 @@ Guidance for developers and AI coding agents working in this repository. The REA
 4. **Never invent results or tie-breaks.**
    - Ties in points share a rank.
    - Award recipients are entered by the organisers in `award_grants`, because the data repo has no authority to decide ambiguous awards.
-5. **Never put demo or fictional data in the real database.** `seed.py --demo` refuses the default path. Keep it that way. Demo output goes in the gitignored `demo/`.
-6. **Slugs are permanent URLs.** They must be lowercase kebab-case. Don't rename a published slug unless the user asks.
+5. **Fictional data must be flagged.**
+   - Demo data goes into the real database only through `seed.py --add-demo` (or the admin's Demo data page). Every demo row has `is_demo = 1`, and `--remove-demo` deletes exactly those rows.
+   - While demo data exists, `site.json` exports `demo: true` and the website shows a banner.
+   - Never insert unflagged fictional data. `seed.py --demo` builds a separate demo-only database in the gitignored `demo/`.
+6. **Slugs are URLs.** They must be lowercase kebab-case. Renaming is allowed (the admin warns about it), because the website regenerates its links, but previously shared links break. Don't rename one unless the user asks.
 7. **Use only the standard library.** Python ≥ 3.10, with no third-party packages, so the scripts run anywhere and in CI.
 
 ## Game rules as implemented
@@ -38,7 +41,7 @@ Guidance for developers and AI coding agents working in this repository. The REA
 schema/schema.sql            tables + constraints (raw facts)
 scripts/ugdata.py            connect(), compute_tournament(), Exporter (all JSON builders), write_documents()
 scripts/init_db.py           create the DB from the schema
-scripts/seed.py              reference data (categories, awards) + --demo fictional dataset
+scripts/seed.py              reference data (categories, awards); --add-demo / --remove-demo (flagged); --demo (separate demo DB)
 scripts/export_json.py       DB -> data/ (keeps generatedAt for unchanged files, removes stale files)
 scripts/validate.py          DB consistency checks + "data/ matches a fresh export"
 scripts/migrate.py           add new tables/indexes from schema.sql to an existing DB

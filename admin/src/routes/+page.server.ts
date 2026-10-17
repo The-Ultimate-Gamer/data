@@ -34,6 +34,7 @@ export const load: PageServerLoad = async () => {
 	const focusNext = focus ? withNext(focus) : null;
 	const git = config.canPublish ? await status() : null;
 	const realPlayers = players.filter((p) => !p.is_demo).length;
+	const realGames = games.filter((g) => !g.is_demo).length;
 
 	const steps: Step[] = [
 		{
@@ -45,8 +46,8 @@ export const load: PageServerLoad = async () => {
 		},
 		{
 			title: 'Build the game library',
-			detail: `${games.length} game${games.length === 1 ? '' : 's'}, each tagged with categories`,
-			done: games.length > 0,
+			detail: `${realGames} game${realGames === 1 ? '' : 's'}, each tagged with categories`,
+			done: realGames > 0,
 			href: '/games',
 			action: 'Add games'
 		},
