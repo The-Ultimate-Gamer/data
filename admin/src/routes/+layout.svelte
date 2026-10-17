@@ -12,8 +12,11 @@
 		{ href: resolve('/tournaments'), label: 'Tournaments' },
 		{ href: resolve('/players'), label: 'Players' },
 		{ href: resolve('/games'), label: 'Games' },
+		{ href: resolve('/demo'), label: 'Demo data' },
 		{ href: resolve('/publish'), label: 'Publish' }
 	];
+
+	const onPublish = $derived(page.url.pathname.startsWith(resolve('/publish')));
 
 	function active(href: string) {
 		const path = page.url.pathname;
@@ -36,19 +39,30 @@
 			{#each links as link (link.href)}
 				<a href={link.href} aria-current={active(link.href) ? 'page' : undefined}>
 					{link.label}
-					{#if link.label === 'Publish' && data.pendingChanges > 0}
-						<span class="count" title="Unpublished changes">{data.pendingChanges}</span>
+					{#if link.label === 'Publish' && data.unpublished}
+						<span class="dot" title="Changes not on the website yet"></span>
+					{:else if link.label === 'Demo data' && data.demo}
+						<span class="badge">On</span>
 					{/if}
 				</a>
 			{/each}
 		</nav>
+		<a class="site-link" href={data.siteUrl} target="_blank" rel="noreferrer">View website ↗</a>
 		<p class="db" title={data.dbPath}>
-			{#if data.isAlternateDb}<span class="badge danger">Not the real database</span>{/if}
+			{#if data.isAlternateDb}<span class="badge danger">Practice database</span>{/if}
 			<span class="subtle">{data.dbPath.split('/').slice(-2).join('/')}</span>
 		</p>
 	</aside>
 
 	<main>
+		{#if data.unpublished && !onPublish}
+			<div class="unpublished" role="status">
+				<span
+					><strong>Saved on this laptop.</strong> The website won’t show these changes until you publish.</span
+				>
+				<a class="btn primary" href={resolve('/publish')}>Publish →</a>
+			</div>
+		{/if}
 		{@render children()}
 	</main>
 </div>
@@ -120,14 +134,30 @@
 		box-shadow: inset 3px 0 0 var(--c-gold);
 	}
 
-	.count {
-		min-width: 1.4rem;
-		padding: 0 0.35rem;
-		border-radius: 999px;
+	.dot {
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 50%;
 		background: var(--c-gold);
-		color: var(--c-on-gold);
-		font-size: var(--fs-xs);
-		text-align: center;
+		box-shadow: 0 0 8px var(--c-gold);
+	}
+
+	.site-link {
+		font-size: var(--fs-sm);
+		padding: 0 0.75rem;
+	}
+
+	.unpublished {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--sp-3);
+		padding: var(--sp-3) var(--sp-4);
+		border: 1px solid var(--c-gold-line);
+		background: var(--c-gold-soft);
+		border-radius: var(--radius-md);
+		font-size: var(--fs-sm);
 	}
 
 	.db {

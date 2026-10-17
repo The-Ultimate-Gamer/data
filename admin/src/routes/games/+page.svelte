@@ -23,6 +23,10 @@
 </script>
 
 <h1>Games</h1>
+<p class="intro muted">
+	The library of games that can be nominated. Tag each game with the categories it fits, so it shows
+	up when that category is played.
+</p>
 <Feedback {form} />
 
 {#snippet gameForm(g?: (typeof data.games)[number])}
@@ -30,7 +34,19 @@
 		{#if g}<input type="hidden" name="id" value={g.id} />{/if}
 		<div class="row">
 			<label>Name <input name="name" value={g?.name ?? ''} required /></label>
-			{#if !g}<label>Slug <input name="slug" placeholder="auto from name" /></label>{/if}
+			{#if g}
+				<label
+					>Web address <input
+						name="slug"
+						value={g.slug}
+						required
+						pattern="[a-z0-9]+(-[a-z0-9]+)*"
+						title="Changing it breaks links people already shared"
+					/></label
+				>
+			{:else}
+				<label>Web address <input name="slug" placeholder="made from the name" /></label>
+			{/if}
 			<label
 				>Min players <input
 					name="min_players"
@@ -132,6 +148,10 @@
 </section>
 
 <style>
+	.intro {
+		max-width: 65ch;
+	}
+
 	.cats {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));

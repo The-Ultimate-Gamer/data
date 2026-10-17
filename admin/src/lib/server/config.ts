@@ -10,6 +10,7 @@ export const config = {
 	db,
 	out: path.resolve(repo, process.env.UG_OUT ?? 'data'),
 	python: process.env.UG_PYTHON ?? 'python3',
+	siteUrl: process.env.UG_SITE_URL ?? 'https://the-ultimate-gamer.github.io/',
 	/** True when working on a database other than the authoritative one (e.g. the demo). */
 	isAlternateDb: db !== defaultDb,
 	/** Git commit/push is only offered for the authoritative database. */

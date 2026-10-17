@@ -42,13 +42,18 @@
 <div class="spread">
 	<div class="stack head">
 		<a href={resolve('/tournaments/[slug]', { slug: t.slug })} class="subtle">← {t.name}</a>
-		<h1>Round {data.number} · {data.category.icon} {data.category.name}</h1>
+		<h1>Game {data.number} · {data.category.icon} {data.category.name}</h1>
+		{#if !completed}
+			<p class="subtle">
+				① Pick the game · ② Enter the results · ③ Finish game · then publish when you like
+			</p>
+		{/if}
 	</div>
-	<nav class="row" aria-label="Rounds">
-		{#if data.number > 1}<a class="btn" href={route(data.number - 1)}>← Round {data.number - 1}</a
+	<nav class="row" aria-label="Games">
+		{#if data.number > 1}<a class="btn" href={route(data.number - 1)}>← Game {data.number - 1}</a
 			>{/if}
 		{#if data.number < data.lastPosition}<a class="btn" href={route(data.number + 1)}
-				>Round {data.number + 1} →</a
+				>Game {data.number + 1} →</a
 			>{/if}
 	</nav>
 </div>
@@ -65,7 +70,7 @@
 				>Finish the tournament →</a
 			>
 		{:else}
-			<p class="big-line">🏆 {data.outcome.winner?.name} won round {data.number}.</p>
+			<p class="big-line">🏆 {data.outcome.winner?.name} won game {data.number}.</p>
 			{#if data.outcome.newChallengers.length}
 				<p>
 					⚔ New Challenger{data.outcome.newChallengers.length > 1 ? 's' : ''}:
@@ -73,7 +78,7 @@
 				</p>
 			{/if}
 			{#if data.number < data.lastPosition && !data.champion}
-				<a class="btn primary" href={route(data.number + 1)}>Next: round {data.number + 1} →</a>
+				<a class="btn primary" href={route(data.number + 1)}>Next: game {data.number + 1} →</a>
 			{/if}
 		{/if}
 	</div>

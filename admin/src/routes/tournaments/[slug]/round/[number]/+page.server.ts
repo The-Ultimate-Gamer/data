@@ -100,6 +100,8 @@ export const actions: Actions = {
 	},
 	reopen: async ({ params }) => {
 		const { t, number } = context(params.slug, params.number);
-		return mutate('Round reopened for editing.', () => repo.reopenRound(t.id, number));
+		return mutate('Game reopened — you can edit the results again.', () =>
+			repo.reopenRound(t.id, number)
+		);
 	}
 };

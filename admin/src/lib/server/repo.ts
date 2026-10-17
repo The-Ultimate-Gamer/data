@@ -7,6 +7,7 @@ export interface Player {
 	name: string;
 	initials: string | null;
 	avatar_url: string | null;
+	is_demo: number;
 }
 
 export interface Game {
@@ -17,6 +18,7 @@ export interface Game {
 	min_players: number | null;
 	max_players: number | null;
 	available: number;
+	is_demo: number;
 	categories: string[];
 }
 
@@ -46,6 +48,7 @@ export interface Tournament {
 	challenger_threshold: number;
 	double_down_tokens: number;
 	nominate_tokens: number;
+	is_demo: number;
 }
 
 export interface Round {
@@ -91,6 +94,27 @@ export function checkSlug(slug: string): string {
 	return slug;
 }
 
+const NOUN = { players: 'player', games: 'game', tournaments: 'tournament' } as const;
+
+/** Change a URL slug. Website links follow automatically; old bookmarks/shared links stop working. */
+export function changeSlug(table: keyof typeof NOUN, id: number, slug: string) {
+	checkSlug(slug);
+	if (get(`SELECT 1 FROM ${table} WHERE slug = ? AND id <> ?`, slug, id)) {
+		throw new UserError(`Another ${NOUN[table]} already uses the slug "${slug}".`);
+	}
+	run(`UPDATE ${table} SET slug = ? WHERE id = ?`, slug, id);
+}
+
+// ------------------------------------------------------------------- demo
+
+export function demoPresent(): boolean {
+	return !!get(
+		`SELECT 1 WHERE EXISTS (SELECT 1 FROM players WHERE is_demo = 1)
+		   OR EXISTS (SELECT 1 FROM games WHERE is_demo = 1)
+		   OR EXISTS (SELECT 1 FROM tournaments WHERE is_demo = 1)`
+	);
+}
+
 // ---------------------------------------------------------------- reference
 
 export const listCategories = () =>
@@ -124,15 +148,18 @@ export function createPlayer(p: {
 
 export function updatePlayer(
 	id: number,
-	p: { name: string; initials?: string | null; avatar_url?: string | null }
+	p: { name: string; slug?: string | null; initials?: string | null; avatar_url?: string | null }
 ) {
-	run(
-		'UPDATE players SET name = ?, initials = ?, avatar_url = ? WHERE id = ?',
-		p.name,
-		p.initials || null,
-		p.avatar_url || null,
-		id
-	);
+	transaction(() => {
+		if (p.slug) changeSlug('players', id, p.slug);
+		run(
+			'UPDATE players SET name = ?, initials = ?, avatar_url = ? WHERE id = ?',
+			p.name,
+			p.initials || null,
+			p.avatar_url || null,
+			id
+		);
+	});
 }
 
 export function deletePlayer(id: number) {
@@ -189,6 +216,7 @@ export function saveGame(id: number | null, g: GameInput) {
 				).lastInsertRowid
 			);
 		} else {
+			if (g.slug) changeSlug('games', gameId, g.slug);
 			run(
 				'UPDATE games SET name = ?, description = ?, min_players = ?, max_players = ?, available = ? WHERE id = ?',
 				g.name,
@@ -235,7 +263,7 @@ export function getTournament(slug: string) {
 	return get<Tournament>('SELECT * FROM tournaments WHERE slug = ?', slug);
 }
 
-export type TournamentInput = Omit<Tournament, 'id' | 'slug'>;
+export type TournamentInput = Omit<Tournament, 'id' | 'slug' | 'is_demo'>;
 
 export function createTournament(
 	t: TournamentInput & { slug?: string; points: number[]; copyPlayersFrom?: number | null }
@@ -272,7 +300,8 @@ export function createTournament(
 	});
 }
 
-export function updateTournament(id: number, t: TournamentInput) {
+export function updateTournament(id: number, t: TournamentInput & { slug?: string | null }) {
+	if (t.slug) changeSlug('tournaments', id, t.slug);
 	run(
 		`UPDATE tournaments SET name = ?, edition = ?, start_date = ?, end_date = ?, location = ?, status = ?,
 		 challenger_threshold = ?, double_down_tokens = ?, nominate_tokens = ? WHERE id = ?`,

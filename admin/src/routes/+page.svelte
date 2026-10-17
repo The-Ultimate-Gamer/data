@@ -4,76 +4,82 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	const nextIndex = $derived(data.steps.findIndex((s) => !s.done));
 </script>
 
 <h1>Dashboard</h1>
 
-{#if data.live.length}
+{#if data.active.length}
 	<section class="stack">
-		{#each data.live as t (t.id)}
+		{#each data.active as t (t.id)}
 			<div class="panel spread live">
 				<div>
-					<p><span class="badge {t.status}">{statusLabel[t.status]}</span></p>
+					<p class="row">
+						<span class="badge {t.status}">{statusLabel[t.status]}</span>
+						{#if t.is_demo}<span class="badge">Demo</span>{/if}
+					</p>
 					<h2>{t.name}</h2>
-					<p class="subtle">{t.players} players · {t.rounds_done}/{t.positions} rounds played</p>
+					<p class="subtle">{t.players} players · {t.rounds_done}/{t.positions} games played</p>
 				</div>
 				<div class="row">
 					<a class="btn" href={resolve('/tournaments/[slug]', { slug: t.slug })}>Manage</a>
-					{#if t.nextRound}
+					{#if t.nextRound && t.status === 'ongoing'}
 						<a
 							class="btn primary big"
 							href={resolve('/tournaments/[slug]/round/[number]', {
 								slug: t.slug,
 								number: String(t.nextRound)
-							})}>▶ Round {t.nextRound}</a
+							})}>▶ Enter game {t.nextRound}</a
 						>
 					{/if}
 				</div>
 			</div>
 		{/each}
 	</section>
-{:else}
-	<section class="panel">
-		<p class="muted">No upcoming or live tournament.</p>
-		<p><a class="btn primary" href={resolve('/tournaments')}>Create a tournament</a></p>
-	</section>
 {/if}
 
-<div class="cols">
-	<a class="panel tile" href={resolve('/tournaments')}
-		><span class="n num">{data.counts.tournaments}</span> Tournaments</a
-	>
-	<a class="panel tile" href={resolve('/players')}
-		><span class="n num">{data.counts.players}</span> Players</a
-	>
-	<a class="panel tile" href={resolve('/games')}
-		><span class="n num">{data.counts.games}</span> Games</a
-	>
-	<a class="panel tile" href={resolve('/publish')}>
-		{#if data.errors}<span class="n num err">{data.errors}</span> Validation errors
-		{:else}<span class="n ok">✓</span> Data valid{#if data.warnings}
-				({data.warnings} warnings){/if}{/if}
-	</a>
-</div>
-
 <section class="panel">
-	<h2>Typical flow</h2>
-	<ol class="muted flow">
-		<li>
-			<strong>Before the LAN:</strong> add players and games, create the tournament, register players,
-			set the category order.
-		</li>
-		<li><strong>Start:</strong> open the tournament and press “Start tournament (go live)”.</li>
-		<li>
-			<strong>Each game:</strong> open the round, record nominations and the drawn game, tap players in
-			finishing order, tick Double Downs and Nemeses, then “Finish game”.
-		</li>
-		<li><strong>Publish</strong> whenever you want the website to update.</li>
-		<li>
-			<strong>The end:</strong> when a Challenger wins, mark the tournament completed and grant the awards.
-		</li>
+	<div class="spread">
+		<h2>{nextIndex === -1 ? '✓ All set' : 'Getting started'}</h2>
+		<span class="subtle">{data.steps.filter((s) => s.done).length} of {data.steps.length} done</span
+		>
+	</div>
+	<ol class="checklist">
+		{#each data.steps as step, i (step.title)}
+			<li class:done={step.done} class:next={i === nextIndex}>
+				<span class="mark">{step.done ? '✓' : i + 1}</span>
+				<div class="text">
+					<strong>{step.title}</strong>
+					<span class="subtle">{step.detail}</span>
+				</div>
+				{#if i === nextIndex}
+					<a class="btn primary" href={step.href}>{step.action} →</a>
+				{:else}
+					<a class="btn quiet" href={step.href}>{step.done ? 'Open' : step.action}</a>
+				{/if}
+			</li>
+		{/each}
 	</ol>
+	<p class="hint">
+		During the LAN you mostly live on the game screen: open it with “Enter game”, record the result,
+		press Finish game, and publish whenever you want the website updated.
+	</p>
 </section>
+
+{#if !data.hasReal}
+	<section class="panel demo">
+		<div>
+			<h2>{data.demo ? '🎭 Demo data is on' : 'Want to show it off first?'}</h2>
+			<p class="muted">
+				{data.demo
+					? 'Fictional players and tournaments are loaded. Publish to show them on the website; remove them before the real tournament.'
+					: 'Load a fictional demo tournament to show your friends what the website will look like — removable with one click.'}
+			</p>
+		</div>
+		<a class="btn" href={resolve('/demo')}>{data.demo ? 'Manage demo data' : 'Add demo data'}</a>
+	</section>
+{/if}
 
 <style>
 	.live {
@@ -85,36 +91,66 @@
 		font-size: var(--fs-md);
 	}
 
-	.tile {
-		color: var(--c-text);
-		font-weight: 600;
-		grid-template-columns: auto 1fr;
-		align-items: center;
-	}
-
-	.tile:hover {
-		border-color: var(--c-gold-line);
-		color: var(--c-text);
-	}
-
-	.n {
-		font-size: var(--fs-2xl);
-		font-weight: 800;
-		color: var(--c-gold);
-	}
-
-	.n.err {
-		color: var(--c-danger);
-	}
-
-	.n.ok {
-		color: var(--c-live);
-	}
-
-	.flow {
+	.checklist {
+		list-style: none;
 		margin: 0;
-		padding-left: 1.2rem;
+		padding: 0;
 		display: grid;
 		gap: var(--sp-2);
+	}
+
+	.checklist li {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: center;
+		gap: var(--sp-3);
+		padding: var(--sp-3) var(--sp-4);
+		border: var(--border);
+		border-radius: var(--radius-md);
+	}
+
+	.checklist li.next {
+		border-color: var(--c-gold-line);
+		background: var(--c-gold-soft);
+	}
+
+	.checklist li.done .text strong {
+		color: var(--c-text-muted);
+	}
+
+	.mark {
+		display: grid;
+		place-items: center;
+		width: 1.8rem;
+		height: 1.8rem;
+		border-radius: 50%;
+		border: var(--border-strong);
+		font-weight: 800;
+		font-size: var(--fs-sm);
+	}
+
+	.done .mark {
+		background: var(--c-live);
+		border-color: var(--c-live);
+		color: #04140b;
+	}
+
+	.next .mark {
+		background: var(--c-gold);
+		border-color: var(--c-gold);
+		color: var(--c-on-gold);
+	}
+
+	.text {
+		display: grid;
+	}
+
+	.quiet {
+		background: transparent;
+	}
+
+	.demo {
+		grid-template-columns: 1fr auto;
+		align-items: center;
 	}
 </style>

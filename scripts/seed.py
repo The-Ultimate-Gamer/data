@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Load reference data (categories and awards) and, optionally, a fictional demo dataset.
+"""Load reference data (categories and awards) and manage the fictional demo dataset.
 
-    python3 scripts/seed.py                       # reference data into the real database
-    python3 scripts/seed.py --demo --db demo/demo.sqlite
+    python3 scripts/seed.py                         # reference data into the real database
+    python3 scripts/seed.py --add-demo              # add flagged demo data (e.g. to show the site off)
+    python3 scripts/seed.py --remove-demo           # remove every flagged demo row again
+    python3 scripts/seed.py --demo --db demo/demo.sqlite   # separate database with only demo data
 
-Reference data is upserted, so running this again is safe. The demo dataset is fictional
-and is refused for the authoritative database.
+Reference data is upserted, so running this again is safe. Demo rows are marked
+is_demo = 1; the website shows a "fictional demo data" banner while any exist.
 """
 
 from __future__ import annotations
@@ -71,7 +73,7 @@ def seed_reference(conn: sqlite3.Connection) -> None:
 
 
 # ------------------------------------------------------------------------- demo
-# Entirely fictional. Used for local development and tests only.
+# Entirely fictional. Flagged is_demo = 1 so it can be removed again in one step.
 
 DEMO_PLAYERS = ["Nova", "Blitz", "Echo", "Rook", "Vex", "Kite"]
 
@@ -176,12 +178,20 @@ def seed_demo(conn: sqlite3.Connection) -> None:
     player = {}
     for name in DEMO_PLAYERS:
         slug = name.lower()
-        player[slug] = conn.execute("INSERT INTO players (slug, name) VALUES (?, ?)", (slug, name)).lastrowid
+        player[slug] = conn.execute(
+            "INSERT INTO players (slug, name, is_demo) VALUES (?, ?, 1)", (slug, name)
+        ).lastrowid
 
     game = {}
     for slug, name, cats, lo, hi, desc in DEMO_GAMES:
+        existing = conn.execute("SELECT id FROM games WHERE slug = ?", (slug,)).fetchone()
+        if existing:
+            # Reuse a real game with the same slug; it is never removed with the demo data.
+            game[slug] = existing[0]
+            continue
         gid = conn.execute(
-            "INSERT INTO games (slug, name, description, min_players, max_players, available) VALUES (?, ?, ?, ?, ?, ?)",
+            """INSERT INTO games (slug, name, description, min_players, max_players, available, is_demo)
+               VALUES (?, ?, ?, ?, ?, ?, 1)""",
             (slug, name, desc, lo, hi, 0 if slug in DEMO_UNAVAILABLE else 1),
         ).lastrowid
         game[slug] = gid
@@ -191,8 +201,8 @@ def seed_demo(conn: sqlite3.Connection) -> None:
 
     for t in DEMO_TOURNAMENTS:
         tid = conn.execute(
-            """INSERT INTO tournaments (slug, name, edition, start_date, end_date, location, status, challenger_threshold)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO tournaments (slug, name, edition, start_date, end_date, location, status, challenger_threshold, is_demo)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)""",
             (t["slug"], t["name"], t["edition"], t["start_date"], t["end_date"], t["location"], t["status"], t["threshold"]),
         ).lastrowid
         conn.executemany(
@@ -238,31 +248,92 @@ def seed_demo(conn: sqlite3.Connection) -> None:
             "INSERT INTO tournament_records (tournament_id, position, label, value, player_id) VALUES (?, ?, ?, ?, ?)",
             [(tid, i, label, value, player[p] if p else None) for i, (label, value, p) in enumerate(t["records"], start=1)],
         )
-    conn.execute(
-        "INSERT OR REPLACE INTO meta (key, value) VALUES ('site_tagline', 'Fictional demo data — not real results')"
+
+
+def demo_present(conn: sqlite3.Connection) -> bool:
+    return any(
+        conn.execute(f"SELECT 1 FROM {table} WHERE is_demo = 1 LIMIT 1").fetchone()
+        for table in ("players", "games", "tournaments")
     )
+
+
+def add_demo(conn: sqlite3.Connection) -> None:
+    """Add the flagged demo dataset next to any real data. Fails without changes on slug clashes."""
+    if demo_present(conn):
+        raise ValueError("Demo data is already loaded.")
+    clashes = [
+        f"player '{name.lower()}'"
+        for name in DEMO_PLAYERS
+        if conn.execute("SELECT 1 FROM players WHERE slug = ?", (name.lower(),)).fetchone()
+    ] + [
+        f"tournament '{t['slug']}'"
+        for t in DEMO_TOURNAMENTS
+        if conn.execute("SELECT 1 FROM tournaments WHERE slug = ?", (t["slug"],)).fetchone()
+    ]
+    if clashes:
+        raise ValueError("Demo data would clash with existing " + ", ".join(clashes) + ".")
+    seed_demo(conn)
+
+
+def remove_demo(conn: sqlite3.Connection) -> dict[str, int]:
+    """Delete every demo-flagged tournament, player and unused demo game."""
+    mixed = conn.execute(
+        """SELECT p.name, t.name FROM tournament_players tp
+           JOIN players p ON p.id = tp.player_id JOIN tournaments t ON t.id = tp.tournament_id
+           WHERE p.is_demo = 1 AND t.is_demo = 0 LIMIT 1"""
+    ).fetchone()
+    if mixed:
+        raise ValueError(f"Demo player {mixed[0]} is registered in the real tournament {mixed[1]}; remove them there first.")
+    counts = {
+        "tournaments": conn.execute("SELECT COUNT(*) FROM tournaments WHERE is_demo = 1").fetchone()[0],
+        "players": conn.execute("SELECT COUNT(*) FROM players WHERE is_demo = 1").fetchone()[0],
+    }
+    conn.execute("DELETE FROM award_grants WHERE player_id IN (SELECT id FROM players WHERE is_demo = 1)")
+    conn.execute("DELETE FROM tournaments WHERE is_demo = 1")
+    conn.execute("DELETE FROM players WHERE is_demo = 1")
+    counts["games"] = conn.execute(
+        """DELETE FROM games WHERE is_demo = 1
+           AND id NOT IN (SELECT game_id FROM rounds WHERE game_id IS NOT NULL)
+           AND id NOT IN (SELECT game_id FROM nominations)"""
+    ).rowcount
+    return counts
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--db", type=Path, default=DEFAULT_DB)
-    parser.add_argument("--demo", action="store_true", help="recreate --db with fictional demo data")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--demo", action="store_true", help="recreate --db (not the real one) with only demo data")
+    group.add_argument("--add-demo", action="store_true", help="add flagged demo data to --db")
+    group.add_argument("--remove-demo", action="store_true", help="remove all flagged demo data from --db")
     args = parser.parse_args(argv)
 
     if args.demo:
         if args.db.resolve() == DEFAULT_DB.resolve():
-            raise SystemExit("Refusing to load fictional demo data into the authoritative database.")
+            raise SystemExit("--demo recreates the database; use --add-demo for the real one.")
         init_db(args.db, force=True)
     elif not args.db.exists():
         raise SystemExit(f"{args.db} does not exist; run scripts/init_db.py first")
 
     conn = connect(args.db)
-    with conn:
-        seed_reference(conn)
-        if args.demo:
-            seed_demo(conn)
-    conn.close()
-    print(f"Seeded {args.db}{' with demo data' if args.demo else ''}")
+    try:
+        with conn:
+            seed_reference(conn)
+            if args.demo or args.add_demo:
+                add_demo(conn)
+                print(f"Added demo data to {args.db}")
+            elif args.remove_demo:
+                counts = remove_demo(conn)
+                print(
+                    f"Removed demo data from {args.db}: {counts['tournaments']} tournaments, "
+                    f"{counts['players']} players, {counts['games']} games"
+                )
+            else:
+                print(f"Seeded reference data into {args.db}")
+    except ValueError as exc:
+        raise SystemExit(f"error: {exc}") from exc
+    finally:
+        conn.close()
     return 0
 
 

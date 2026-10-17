@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import * as repo from '#lib/server/repo.ts';
 import { bool, int, mutate, optInt, optStr, parsePoints, str } from '#lib/server/forms.ts';
 import { readExported } from '#lib/server/scripts.ts';
@@ -35,9 +35,11 @@ export const actions: Actions = {
 	settings: async ({ request, params }) => {
 		const t = tournament(params.slug);
 		const form = await request.formData();
-		return mutate('Settings saved.', () =>
+		const slug = optStr(form, 'slug') ?? t.slug;
+		const result = await mutate('Settings saved.', () =>
 			repo.updateTournament(t.id, {
 				name: str(form, 'name'),
+				slug,
 				edition: optStr(form, 'edition'),
 				start_date: optStr(form, 'start_date'),
 				end_date: optStr(form, 'end_date'),
@@ -48,6 +50,8 @@ export const actions: Actions = {
 				nominate_tokens: int(form, 'nominate_tokens')
 			})
 		);
+		if (slug !== t.slug && 'message' in result) redirect(303, `/tournaments/${slug}`);
+		return result;
 	},
 	status: async ({ request, params }) => {
 		const t = tournament(params.slug);

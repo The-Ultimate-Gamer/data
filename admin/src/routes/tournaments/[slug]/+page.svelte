@@ -35,7 +35,7 @@
 			<span class="subtle">{participants.length} players</span>
 		</p>
 	</div>
-	{#if nextPosition && !champion && t.status !== 'completed'}
+	{#if nextPosition && !champion && t.status === 'ongoing'}
 		<a
 			class="btn primary big"
 			href={resolve('/tournaments/[slug]/round/[number]', {
@@ -43,7 +43,7 @@
 				number: String(nextPosition.position)
 			})}
 		>
-			▶ Round {nextPosition.position}: {cat[nextPosition.category_slug]?.icon}
+			▶ Enter game {nextPosition.position}: {cat[nextPosition.category_slug]?.icon}
 			{cat[nextPosition.category_slug]?.name}
 		</a>
 	{/if}
@@ -54,17 +54,38 @@
 {#if champion && t.status !== 'completed'}
 	<div class="panel champion">
 		<p><strong>👑 {champion.name} won as a Challenger and is the Ultimate Gamer!</strong></p>
+		<p class="muted">Mark the tournament as finished, then hand out the awards below.</p>
 		<form method="POST" action="?/status" use:enhance>
 			<input type="hidden" name="status" value="completed" />
 			<button class="primary">Mark tournament completed</button>
 		</form>
 	</div>
-{:else if t.status === 'upcoming' && participants.length > 1 && data.positions.length}
-	<form method="POST" action="?/status" use:enhance class="panel row">
-		<input type="hidden" name="status" value="ongoing" />
-		<p>Ready to start? Going live shows this tournament on the website’s homepage.</p>
-		<button class="primary">Start tournament (go live)</button>
-	</form>
+{:else if t.status === 'upcoming'}
+	{@const hasPlayers = participants.length >= 2}
+	{@const hasCategories = data.positions.length >= 1}
+	<section class="panel setup">
+		<h2>Set up this tournament</h2>
+		<ol class="setup-steps">
+			<li class:done={hasPlayers}>
+				<span class="mark">{hasPlayers ? '✓' : '1'}</span>
+				<a href="#players">Tick the players taking part</a>
+				<span class="subtle">{participants.length} selected</span>
+			</li>
+			<li class:done={hasCategories}>
+				<span class="mark">{hasCategories ? '✓' : '2'}</span>
+				<a href="#categories">Add the categories in the order they’ll be played</a>
+				<span class="subtle">{data.positions.length} added · you can add more later</span>
+			</li>
+			<li>
+				<span class="mark">3</span>
+				<span>Start the tournament — it becomes the live tournament on the website</span>
+			</li>
+		</ol>
+		<form method="POST" action="?/status" use:enhance>
+			<input type="hidden" name="status" value="ongoing" />
+			<button class="primary" disabled={!hasPlayers || !hasCategories}>▶ Start tournament</button>
+		</form>
+	</section>
 {/if}
 
 <div class="cols">
@@ -73,8 +94,9 @@
 		<Standings standings={data.exported?.standings ?? []} />
 	</section>
 
-	<section class="panel">
-		<h2>Rounds &amp; category order</h2>
+	<section class="panel" id="categories">
+		<h2>Games &amp; category order</h2>
+		<p class="hint">One game per category, played top to bottom.</p>
 		{#if data.positions.length}
 			<table>
 				<tbody>
@@ -148,7 +170,7 @@
 </div>
 
 <div class="cols">
-	<section class="panel">
+	<section class="panel" id="players">
 		<h2>Players in this tournament</h2>
 		<form method="POST" action="?/participants" use:enhance={keep} class="stack">
 			<div class="checks">
@@ -159,6 +181,7 @@
 							name="player"
 							value={p.id}
 							checked={data.participantIds.includes(p.id)}
+							onchange={(e) => e.currentTarget.form?.requestSubmit()}
 						/>
 						{p.name}</label
 					>
@@ -167,7 +190,7 @@
 			{#if !data.players.length}<p class="muted">
 					Add players on the <a href={resolve('/players')}>Players</a> page first.
 				</p>{/if}
-			<div><button class="primary">Save players</button></div>
+			<p class="hint">Ticking a box saves straight away.</p>
 		</form>
 	</section>
 
@@ -179,6 +202,14 @@
 				<label>Edition <input name="edition" value={t.edition ?? ''} /></label>
 				<label>Location <input name="location" value={t.location ?? ''} /></label>
 			</div>
+			<label
+				>Web address
+				<input name="slug" value={t.slug} required pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+			</label>
+			<p class="hint">
+				The tournament page is at <code>/tournaments/{t.slug}</code>. Changing it keeps the
+				website’s own links working, but links people already shared will break.
+			</p>
 			<div class="row">
 				<label>Start <input type="date" name="start_date" value={t.start_date ?? ''} /></label>
 				<label>End <input type="date" name="end_date" value={t.end_date ?? ''} /></label>
@@ -324,6 +355,46 @@
 	.champion {
 		border-color: var(--c-gold-line);
 		background: var(--c-gold-soft);
+	}
+
+	.setup {
+		border-color: var(--c-gold-line);
+	}
+
+	.setup-steps {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: var(--sp-2);
+	}
+
+	.setup-steps li {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--sp-3);
+	}
+
+	.setup-steps .mark {
+		display: grid;
+		place-items: center;
+		width: 1.6rem;
+		height: 1.6rem;
+		border-radius: 50%;
+		border: var(--border-strong);
+		font-size: var(--fs-xs);
+		font-weight: 800;
+	}
+
+	.setup-steps .done .mark {
+		background: var(--c-live);
+		border-color: var(--c-live);
+		color: #04140b;
+	}
+
+	section[id] {
+		scroll-margin-top: var(--sp-5);
 	}
 
 	.actions {

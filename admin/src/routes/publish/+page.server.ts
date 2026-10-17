@@ -1,53 +1,60 @@
 import { fail } from '@sveltejs/kit';
 import { config } from '#lib/server/config.ts';
 import * as git from '#lib/server/git.ts';
-import { afterChange, validate } from '#lib/server/scripts.ts';
+import { afterChange } from '#lib/server/scripts.ts';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => ({
-	validation: await validate(),
-	git: config.canPublish ? await git.status() : null,
-	defaultMessage: `Results update ${new Date().toISOString().slice(0, 16).replace('T', ' ')}`
-});
-
-async function commitAndMaybePush(form: FormData, push: boolean) {
-	if (!config.canPublish)
-		return fail(400, { error: 'Publishing is disabled when using an alternate database.' });
+export const load: PageServerLoad = async () => {
+	// Re-export first so the change list always reflects the latest database.
 	const validation = await afterChange();
-	if (validation.errors.length) {
-		return fail(400, {
-			error: 'Fix the validation errors before publishing.',
-			errors: validation.errors
-		});
-	}
-	const message = String(form.get('message') ?? '').trim() || 'Results update';
-	const before = await git.status();
-	try {
-		if (before.changes.length) await git.commit(message);
-		if (push) await git.push();
-	} catch (error) {
-		return fail(500, {
-			error: `Git failed: ${(error as { stderr?: string; message: string }).stderr || (error as Error).message}`
-		});
-	}
-	if (!before.changes.length && !push)
-		return { message: 'Nothing to commit — everything is already saved.' };
+	const status = config.canPublish ? await git.status() : null;
 	return {
-		message: push
-			? 'Published! GitHub Actions is validating and deploying; the site updates within a few minutes.'
-			: 'Committed locally. Push when you are ready to publish.'
+		validation: { errors: validation.errors, warnings: validation.warnings },
+		git: status,
+		unpublished: status ? git.isUnpublished(status) : false,
+		deployment: status?.head ? await git.deployment(status.head) : null,
+		siteUrl: config.siteUrl
 	};
+};
+
+function summary(changes: git.Change[]): string {
+	const labels = changes.map((c) => c.label);
+	if (!labels.length) return 'Update tournament data';
+	const head = labels.slice(0, 4).join(', ');
+	return `Update ${head}${labels.length > 4 ? ` and ${labels.length - 4} more` : ''}`;
 }
 
 export const actions: Actions = {
-	export: async () => {
+	publish: async ({ request }) => {
+		if (!config.canPublish) {
+			return fail(400, { error: 'Publishing is turned off while you use a practice database.' });
+		}
 		const validation = await afterChange();
+		if (validation.errors.length) {
+			return fail(400, { error: 'Some data needs fixing before it can be published (see below).' });
+		}
+		const before = await git.status();
+		const form = await request.formData();
+		const message = String(form.get('message') ?? '').trim() || summary(before.changes);
+		try {
+			await git.commit(message);
+			await git.push();
+		} catch (error) {
+			const e = error as { stderr?: string; message: string };
+			return fail(500, {
+				error: `Your changes are saved, but sending them to GitHub failed. Check your internet connection and try again.\n\n${(e.stderr || e.message).trim()}`
+			});
+		}
 		return {
-			message: 'Exported and validated.',
-			errors: validation.errors,
-			warnings: validation.warnings
+			message: 'Sent to GitHub! The website is updating now — this page will show when it’s live.'
 		};
 	},
-	commit: async ({ request }) => commitAndMaybePush(await request.formData(), false),
-	publish: async ({ request }) => commitAndMaybePush(await request.formData(), true)
+	check: async () => {
+		const validation = await afterChange();
+		return {
+			message: validation.errors.length
+				? 'Checked — some data needs fixing.'
+				: 'Checked — everything looks good.'
+		};
+	}
 };

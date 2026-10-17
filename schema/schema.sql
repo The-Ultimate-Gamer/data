@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS players (
 	slug TEXT NOT NULL UNIQUE,
 	name TEXT NOT NULL,
 	initials TEXT,
-	avatar_url TEXT CHECK (avatar_url IS NULL OR avatar_url LIKE 'https://%')
+	avatar_url TEXT CHECK (avatar_url IS NULL OR avatar_url LIKE 'https://%'),
+	-- 1 = fictional demo data (scripts/seed.py --add-demo); removed with --remove-demo.
+	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -42,7 +44,8 @@ CREATE TABLE IF NOT EXISTS games (
 	description TEXT,
 	min_players INTEGER CHECK (min_players IS NULL OR min_players >= 1),
 	max_players INTEGER CHECK (max_players IS NULL OR max_players >= 1),
-	available INTEGER NOT NULL DEFAULT 1 CHECK (available IN (0, 1))
+	available INTEGER NOT NULL DEFAULT 1 CHECK (available IN (0, 1)),
+	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))
 );
 
 CREATE TABLE IF NOT EXISTS game_categories (
@@ -62,7 +65,8 @@ CREATE TABLE IF NOT EXISTS tournaments (
 	status TEXT NOT NULL DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'completed')),
 	challenger_threshold INTEGER NOT NULL CHECK (challenger_threshold > 0),
 	double_down_tokens INTEGER NOT NULL DEFAULT 1 CHECK (double_down_tokens >= 0),
-	nominate_tokens INTEGER NOT NULL DEFAULT 1 CHECK (nominate_tokens >= 0)
+	nominate_tokens INTEGER NOT NULL DEFAULT 1 CHECK (nominate_tokens >= 0),
+	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))
 );
 
 CREATE TABLE IF NOT EXISTS tournament_players (

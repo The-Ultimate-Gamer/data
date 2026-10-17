@@ -16,15 +16,24 @@ export interface Validation extends ScriptResult {
 	warnings: string[];
 }
 
-async function python(script: string): Promise<ScriptResult> {
-	const args = [path.join(config.repo, 'scripts', script), '--db', config.db, '--out', config.out];
+async function python(
+	script: string,
+	args: string[] = ['--out', config.out]
+): Promise<ScriptResult> {
+	const argv = [path.join(config.repo, 'scripts', script), '--db', config.db, ...args];
 	try {
-		const { stdout, stderr } = await exec(config.python, args, { cwd: config.repo });
+		const { stdout, stderr } = await exec(config.python, argv, { cwd: config.repo });
 		return { ok: true, output: `${stdout}${stderr}`.trim() };
 	} catch (error) {
 		const e = error as { stdout?: string; stderr?: string; message: string };
 		return { ok: false, output: `${e.stdout ?? ''}${e.stderr ?? ''}`.trim() || e.message };
 	}
+}
+
+/** Add or remove the flagged fictional demo dataset (scripts/seed.py). */
+export async function demoData(action: 'add' | 'remove'): Promise<ScriptResult> {
+	const result = await python('seed.py', [action === 'add' ? '--add-demo' : '--remove-demo']);
+	return { ...result, output: result.output.replace(/^error: /, '') };
 }
 
 export async function exportJson(): Promise<ScriptResult> {

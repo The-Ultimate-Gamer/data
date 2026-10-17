@@ -403,6 +403,7 @@ class Exporter:
             "endDate": t["end_date"],
             "location": t["location"],
             "status": t["status"],
+            "isDemo": bool(t["is_demo"]),
             "challengerThreshold": t["challenger_threshold"],
             "playerCount": len(state.players),
             "gamesPlayed": len(completed),
@@ -630,6 +631,7 @@ class Exporter:
             "name": self.meta.get("site_name", "The Ultimate Gamer"),
             "tagline": self.meta.get("site_tagline"),
             "currentTournament": self.tournament_ref(ongoing.row) if ongoing else None,
+            "demo": any(t["is_demo"] for t in self.tournaments) or any(p["is_demo"] for p in self.players.values()),
         }
 
         featured = self.featured()

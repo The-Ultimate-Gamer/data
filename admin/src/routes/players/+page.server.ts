@@ -7,9 +7,10 @@ export const load: PageServerLoad = () => ({ players: repo.listPlayers() });
 export const actions: Actions = {
 	create: async ({ request }) => {
 		const form = await request.formData();
-		return mutate('Player added.', () =>
+		const name = str(form, 'name');
+		return mutate(`${name} added.`, () =>
 			repo.createPlayer({
-				name: str(form, 'name'),
+				name,
 				slug: optStr(form, 'slug') ?? undefined,
 				initials: optStr(form, 'initials'),
 				avatar_url: httpsUrl(optStr(form, 'avatar_url'))
@@ -18,9 +19,10 @@ export const actions: Actions = {
 	},
 	update: async ({ request }) => {
 		const form = await request.formData();
-		return mutate('Player updated.', () =>
+		return mutate('Player saved.', () =>
 			repo.updatePlayer(int(form, 'id'), {
 				name: str(form, 'name'),
+				slug: optStr(form, 'slug'),
 				initials: optStr(form, 'initials'),
 				avatar_url: httpsUrl(optStr(form, 'avatar_url'))
 			})

@@ -1,5 +1,6 @@
 import { config } from '#lib/server/config.ts';
-import { status } from '#lib/server/git.ts';
+import { isUnpublished, status } from '#lib/server/git.ts';
+import { demoPresent } from '#lib/server/repo.ts';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async () => {
@@ -8,6 +9,8 @@ export const load: LayoutServerLoad = async () => {
 		dbPath: config.db,
 		isAlternateDb: config.isAlternateDb,
 		canPublish: config.canPublish,
-		pendingChanges: git ? git.changes.length + git.ahead : 0
+		siteUrl: config.siteUrl,
+		unpublished: git ? isUnpublished(git) : false,
+		demo: demoPresent()
 	};
 };

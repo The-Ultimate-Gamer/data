@@ -1,4 +1,6 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { config } from './config.ts';
 
@@ -11,6 +13,12 @@ export function db(): DatabaseSync {
 				`Database not found at ${config.db}. Run "python3 scripts/init_db.py && python3 scripts/seed.py" in the data repository.`
 			);
 		}
+		// Bring older databases up to date with schema.sql before first use.
+		execFileSync(config.python, [
+			path.join(config.repo, 'scripts', 'migrate.py'),
+			'--db',
+			config.db
+		]);
 		connection = new DatabaseSync(config.db);
 		connection.exec('PRAGMA foreign_keys = ON');
 		connection.exec('PRAGMA busy_timeout = 3000');
