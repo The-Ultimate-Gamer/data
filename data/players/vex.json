@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:52:26Z",
+  "generatedAt": "2026-10-17T14:54:09Z",
   "data": {
     "player": {
       "slug": "vex",
@@ -17,8 +17,15 @@
       "gameWins": 1,
       "podiumFinishes": 2,
       "awardCount": 2,
-      "bestPlacement": 4,
-      "current": null,
+      "bestPlacement": 5,
+      "current": {
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "rank": 4,
+        "points": 11
+      },
       "tournaments": [
         {
           "tournament": {
@@ -26,7 +33,7 @@
             "name": "Demo LAN 2026"
           },
           "startDate": "2026-10-16",
-          "status": "completed",
+          "status": "ongoing",
           "placement": 4,
           "points": 11,
           "gamesWon": 1,

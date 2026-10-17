@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:52:26Z",
+  "generatedAt": "2026-10-17T14:54:09Z",
   "data": {
     "tournaments": [
       {
@@ -10,7 +10,7 @@
         "startDate": "2026-10-16",
         "endDate": "2026-10-17",
         "location": "Somewhere with good Wi-Fi",
-        "status": "completed",
+        "status": "ongoing",
         "isDemo": true,
         "challengerThreshold": 20,
         "playerCount": 6,

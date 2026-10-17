@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:52:26Z",
+  "generatedAt": "2026-10-17T14:54:09Z",
   "data": {
     "tournament": {
       "slug": "demo-2026",
@@ -9,7 +9,7 @@
       "startDate": "2026-10-16",
       "endDate": "2026-10-17",
       "location": "Somewhere with good Wi-Fi",
-      "status": "completed",
+      "status": "ongoing",
       "isDemo": true,
       "challengerThreshold": 20,
       "playerCount": 6,
@@ -85,9 +85,54 @@
           "detail": "Won Fall Guys from last place"
         }
       ],
-      "currentCategory": null,
-      "currentGame": null,
-      "nextSelection": null,
+      "currentCategory": "racing",
+      "currentGame": {
+        "slug": "mario-kart-8-deluxe",
+        "name": "Mario Kart 8 Deluxe"
+      },
+      "nextSelection": {
+        "status": "drawn",
+        "category": "racing",
+        "nominations": [
+          {
+            "game": {
+              "slug": "mario-kart-8-deluxe",
+              "name": "Mario Kart 8 Deluxe"
+            },
+            "nominatedBy": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "source": "winner",
+            "entries": 1
+          },
+          {
+            "game": {
+              "slug": "trackmania",
+              "name": "Trackmania"
+            },
+            "nominatedBy": null,
+            "source": "vote",
+            "entries": 1
+          },
+          {
+            "game": {
+              "slug": "rocket-league",
+              "name": "Rocket League"
+            },
+            "nominatedBy": {
+              "slug": "kite",
+              "name": "Kite"
+            },
+            "source": "token",
+            "entries": 1
+          }
+        ],
+        "selected": {
+          "slug": "mario-kart-8-deluxe",
+          "name": "Mario Kart 8 Deluxe"
+        }
+      },
       "standings": [
         {
           "rank": 1,
@@ -297,6 +342,33 @@
             "slug": "vex",
             "name": "Vex"
           }
+        },
+        {
+          "order": 6,
+          "category": "racing",
+          "status": "active",
+          "gameNumber": 6,
+          "game": {
+            "slug": "mario-kart-8-deluxe",
+            "name": "Mario Kart 8 Deluxe"
+          },
+          "winner": null
+        },
+        {
+          "order": 7,
+          "category": "knowledge",
+          "status": "upcoming",
+          "gameNumber": null,
+          "game": null,
+          "winner": null
+        },
+        {
+          "order": 8,
+          "category": "wildcard",
+          "status": "upcoming",
+          "gameNumber": null,
+          "game": null,
+          "winner": null
         }
       ],
       "games": [
