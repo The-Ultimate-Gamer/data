@@ -41,9 +41,20 @@ scripts/init_db.py           create the DB from the schema
 scripts/seed.py              reference data (categories, awards) + --demo fictional dataset
 scripts/export_json.py       DB -> data/ (keeps generatedAt for unchanged files, removes stale files)
 scripts/validate.py          DB consistency checks + "data/ matches a fresh export"
+scripts/migrate.py           add new tables/indexes from schema.sql to an existing DB
 tests/                       unittest suites (helpers.py builds in-memory DBs)
+admin/                       local SvelteKit admin app (node:sqlite); see admin/README.md
 .github/workflows/publish.yml  tests + validate, then deploy data/ to Pages
 ```
+
+## Admin app rules (`admin/`)
+
+- **Local only:** bound to 127.0.0.1 and with no auth. Never add a hosted deployment or remote access.
+- **All SQL goes in `src/lib/server/repo.ts`.** Every mutation runs through `mutate()` (`src/lib/server/forms.ts`), which re-exports and validates afterwards.
+- **No tournament rules in the admin.** Read derived values (standings, Challengers, champion) from the exported JSON (`readExported`). The only exception is the labelled `= Points` preview in `ResultsEntry.svelte`.
+- **Publishing is limited:** it only commits `database/` and `data/`, and only when validation reports no errors and the database is the real one.
+- **Shared conventions with the website:** SvelteKit 3 conventions, `#lib/...` imports with file extensions, and design tokens copied from the website.
+- **Checks:** run `npm run check` in `admin/` (0 errors), and test changes against a disposable copy of the demo database (`UG_DB=/tmp/x.sqlite UG_OUT=/tmp/x-data npm run dev`).
 
 ## Commands
 
@@ -57,7 +68,9 @@ python3 scripts/seed.py --demo --db demo/demo.sqlite && \
 
 ## Editing tournament data
 
-There is no admin UI yet. Edit the database with `sqlite3 database/ultimate-gamer.sqlite`, and always run `PRAGMA foreign_keys = ON;` first. The README has SQL examples. The skill at `.github/skills/record-results/SKILL.md` walks through the full workflow step by step.
+The usual way is the **admin app**: run `cd admin && npm start` and open http://127.0.0.1:5174. See [admin/README.md](admin/README.md). It writes SQLite, re-exports and validates after every change, and can commit and push from its Publish page.
+
+Without the admin app, edit the database with `sqlite3 database/ultimate-gamer.sqlite`, and always run `PRAGMA foreign_keys = ON;` first. The README has SQL examples. The skill at `.github/skills/record-results/SKILL.md` walks through the full workflow step by step.
 
 After every data change:
 
@@ -68,8 +81,8 @@ After every data change:
 
 ## Changing the schema or JSON contract
 
-1. Edit `schema/schema.sql`. For an existing database, also write and run an `ALTER TABLE` migration, because `CREATE TABLE IF NOT EXISTS` won't change existing tables.
-2. Update `seed.py` (demo data) and the `Exporter` in `ugdata.py`.
+1. Edit `schema/schema.sql`. New tables reach existing databases via `python3 scripts/migrate.py`. Column changes need an explicit `ALTER TABLE` step added to `migrate.py`.
+2. Update `seed.py` (demo data), the `Exporter` in `ugdata.py`, and the admin's `repo.ts` and pages if they touch the changed tables.
 3. Add or adjust tests, and add validation rules in `validate.py` if the new facts can be inconsistent.
 4. Re-export, then check that `validate.py` and the tests pass.
 5. Update the website: `src/lib/data/types.ts`, `validate.ts` if the field is essential, and `docs/data-contract.md`.

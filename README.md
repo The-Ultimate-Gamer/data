@@ -30,6 +30,8 @@ scripts/init_db.py               create an empty database from the schema
 scripts/seed.py                  load reference data (categories, awards); --demo for fictional data
 scripts/export_json.py           generate data/ from the database
 scripts/validate.py              check the database and that data/ is up to date
+scripts/migrate.py               add new tables from the schema to an existing database
+admin/                           local admin app (see admin/README.md)
 data/                            generated JSON (committed, published)
 tests/                           unit tests (standard library only)
 ```
@@ -37,6 +39,16 @@ tests/                           unit tests (standard library only)
 Requirements: Python 3.10 or newer. No third-party packages are needed.
 
 ## Updating the data
+
+**Easiest: the admin app.** It's a local web app for adding players, games and tournaments, recording each game during the LAN, and publishing with one click:
+
+```sh
+cd admin && nvm use && npm install && npm start   # http://127.0.0.1:5174
+```
+
+See [admin/README.md](admin/README.md) for the full workflow.
+
+By hand, the steps are:
 
 ```sh
 # 1. edit the database (see "Recording a tournament")

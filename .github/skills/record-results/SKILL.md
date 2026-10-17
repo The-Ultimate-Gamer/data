@@ -7,6 +7,8 @@ description: 'Record or edit tournament data in the SQLite database and republis
 
 Every change follows the same loop: **edit SQLite → export → validate → (preview) → commit**. Never edit `data/*.json` by hand.
 
+If the user just wants to enter data themselves, point them to the admin app (`cd admin && npm start`, see `admin/README.md`). It does this whole loop through forms. The steps below are for when you edit the database directly.
+
 ## 0. Open the database
 
 ```sh
@@ -25,7 +27,7 @@ Look up ids by slug instead of guessing them, for example `(SELECT id FROM playe
 | --- | --- |
 | New player | `players (slug, name, initials?, avatar_url? https only)` |
 | New game in the library | `games (slug, name, description?, min_players?, max_players?, available)` + `game_categories (game_id, category_slug)` |
-| New tournament | `tournaments (slug, name, edition?, start_date, end_date?, location?, status, challenger_threshold, double_down_tokens=1, nominate_tokens=1)` |
+| New tournament | `tournaments (slug, name, edition?, start_date, end_date?, location?, status, challenger_threshold, double_down_tokens=1, nominate_tokens=1)` + `tournament_points (tournament_id, placement, points)` for prefill |
 | Register participants | `tournament_players (tournament_id, player_id)` |
 | Announce category order | `tournament_categories (tournament_id, position, category_slug)` (add rows as categories are revealed) |
 | Next game drawn | `rounds (tournament_id, number, game_id, completed=0)` (`number` = category position) |

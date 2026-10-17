@@ -200,6 +200,10 @@ def seed_demo(conn: sqlite3.Connection) -> None:
             [(tid, player[p]) for p in t["players"]],
         )
         conn.executemany(
+            "INSERT INTO tournament_points (tournament_id, placement, points) VALUES (?, ?, ?)",
+            [(tid, i, pts) for i, pts in enumerate(t["points"], start=1)],
+        )
+        conn.executemany(
             "INSERT INTO tournament_categories (tournament_id, position, category_slug) VALUES (?, ?, ?)",
             [(tid, i, c) for i, c in enumerate(t["categories"], start=1)],
         )

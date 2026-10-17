@@ -71,6 +71,14 @@ CREATE TABLE IF NOT EXISTS tournament_players (
 	PRIMARY KEY (tournament_id, player_id)
 );
 
+-- Default base points per placement, used to prefill results (results still store the actual value).
+CREATE TABLE IF NOT EXISTS tournament_points (
+	tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
+	placement INTEGER NOT NULL CHECK (placement >= 1),
+	points INTEGER NOT NULL CHECK (points >= 0),
+	PRIMARY KEY (tournament_id, placement)
+);
+
 -- Category order for a tournament. Rows may be added as categories are announced.
 CREATE TABLE IF NOT EXISTS tournament_categories (
 	tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
