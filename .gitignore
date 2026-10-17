@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+
+# Fictional demo database and export (scripts/seed.py --demo)
+demo/
+
+# SQLite temporary files
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+.DS_Store

@@ -1,0 +1,2 @@
+# No third-party packages are required: the scripts and tests use only the
+# Python standard library (Python >= 3.10, sqlite3 included).

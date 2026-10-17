@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+"""Validate the database and check that the committed JSON matches a fresh export.
+
+Exits with status 1 when errors are found. Warnings are printed but do not fail.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sqlite3
+import sys
+from pathlib import Path
+
+from ugdata import DEFAULT_DB, DEFAULT_OUT, SCHEMA_VERSION, SLUG_RE, Exporter, compute_tournament, connect
+
+
+class Report:
+    def __init__(self) -> None:
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
+
+    def error(self, msg: str) -> None:
+        self.errors.append(msg)
+
+    def warn(self, msg: str) -> None:
+        self.warnings.append(msg)
+
+
+def validate_database(conn: sqlite3.Connection) -> Report:
+    report = Report()
+
+    integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
+    if integrity != "ok":
+        report.error(f"SQLite integrity check failed: {integrity}")
+    for row in conn.execute("PRAGMA foreign_key_check"):
+        report.error(f"Foreign key violation in {row[0]} (rowid {row[1]}) -> {row[2]}")
+
+    for table in ("players", "games", "tournaments", "categories", "awards"):
+        for (slug,) in conn.execute(f"SELECT slug FROM {table}"):
+            if not SLUG_RE.match(slug):
+                report.error(f"{table}: invalid slug {slug!r} (use lowercase kebab-case)")
+
+    names = {r["id"]: r["name"] for r in conn.execute("SELECT id, name FROM players")}
+    game_names = {r["id"]: r["name"] for r in conn.execute("SELECT id, name FROM games")}
+
+    for t in conn.execute("SELECT * FROM tournaments ORDER BY id"):
+        tid, label = t["id"], f"tournament {t['slug']}"
+        participants = {r[0] for r in conn.execute("SELECT player_id FROM tournament_players WHERE tournament_id = ?", (tid,))}
+        rounds = list(conn.execute("SELECT * FROM rounds WHERE tournament_id = ? ORDER BY number", (tid,)))
+        completed = [r["number"] for r in rounds if r["completed"]]
+        pending = [r["number"] for r in rounds if not r["completed"]]
+
+        if t["status"] == "upcoming" and completed:
+            report.error(f"{label}: status is 'upcoming' but has completed rounds")
+        if completed != list(range(1, len(completed) + 1)):
+            report.error(f"{label}: completed rounds must be numbered 1..n without gaps (got {completed})")
+        if len(pending) > 1:
+            report.error(f"{label}: more than one unfinished round ({pending})")
+        if pending and completed and pending[0] < max(completed):
+            report.error(f"{label}: unfinished round {pending[0]} comes before completed round {max(completed)}")
+
+        for r in rounds:
+            number = r["number"]
+            where = f"{label} round {number}"
+            results = list(
+                conn.execute(
+                    "SELECT * FROM results WHERE tournament_id = ? AND round_number = ?", (tid, number)
+                )
+            )
+            in_round = {res["player_id"] for res in results}
+            if r["completed"]:
+                if r["game_id"] is None:
+                    report.error(f"{where}: completed round has no game")
+                if len(results) < 2:
+                    report.error(f"{where}: completed round needs results for at least two players")
+                winners = [res for res in results if res["placement"] == 1]
+                if len(winners) != 1:
+                    report.error(f"{where}: needs exactly one winner (placement 1), found {len(winners)}")
+            elif results:
+                report.error(f"{where}: has results but is not marked completed")
+
+            for res in results:
+                who = names.get(res["player_id"], res["player_id"])
+                if res["player_id"] not in participants:
+                    report.error(f"{where}: {who} is not registered for the tournament")
+                nemesis = res["nemesis_player_id"]
+                if nemesis is not None and nemesis not in in_round:
+                    report.warn(f"{where}: {who}'s Nemesis {names.get(nemesis, nemesis)} has no result in this round")
+
+            noms = list(
+                conn.execute(
+                    "SELECT * FROM nominations WHERE tournament_id = ? AND round_number = ?", (tid, number)
+                )
+            )
+            for n in noms:
+                if n["player_id"] is not None and n["player_id"] not in participants:
+                    report.error(f"{where}: nomination by non-participant {names.get(n['player_id'])}")
+            if noms and r["game_id"] is not None and r["game_id"] not in {n["game_id"] for n in noms}:
+                report.error(
+                    f"{where}: selected game {game_names.get(r['game_id'])} is not among the recorded nominations"
+                )
+
+        for row in conn.execute(
+            """SELECT player_id, SUM(double_down) AS used FROM results WHERE tournament_id = ?
+               GROUP BY player_id HAVING used > ?""",
+            (tid, t["double_down_tokens"]),
+        ):
+            report.error(f"{label}: {names.get(row['player_id'])} used {row['used']} Double Down tokens (max {t['double_down_tokens']})")
+        for row in conn.execute(
+            """SELECT player_id, COUNT(*) AS used FROM nominations WHERE tournament_id = ? AND source = 'token'
+               GROUP BY player_id HAVING used > ?""",
+            (tid, t["nominate_tokens"]),
+        ):
+            report.error(f"{label}: {names.get(row['player_id'])} used {row['used']} Nominate tokens (max {t['nominate_tokens']})")
+
+        state = compute_tournament(conn, t, names)
+        if state.ignored_rounds:
+            report.error(
+                f"{label}: rounds {state.ignored_rounds} were played after the tournament was decided in round {state.deciding_round}"
+            )
+        if state.champion_id is not None and t["status"] != "completed":
+            report.error(
+                f"{label}: {names[state.champion_id]} won round {state.deciding_round} as a Challenger; set status to 'completed'"
+            )
+        if t["status"] == "completed" and state.champion_id is None:
+            report.warn(f"{label}: marked completed but no Challenger has won a game")
+        if pending and state.champion_id is not None:
+            report.error(f"{label}: has an unfinished round although the tournament is decided")
+
+    for g in conn.execute(
+        """SELECT g.id, g.award_slug, g.player_id, g.tournament_id, a.scope, t.slug AS t_slug
+           FROM award_grants g JOIN awards a ON a.slug = g.award_slug LEFT JOIN tournaments t ON t.id = g.tournament_id"""
+    ):
+        who = names.get(g["player_id"])
+        if g["scope"] == "tournament" and g["tournament_id"] is None:
+            report.error(f"award grant {g['id']}: '{g['award_slug']}' is a tournament award but has no tournament")
+        if g["tournament_id"] is not None and not conn.execute(
+            "SELECT 1 FROM tournament_players WHERE tournament_id = ? AND player_id = ?",
+            (g["tournament_id"], g["player_id"]),
+        ).fetchone():
+            report.error(f"award grant {g['id']}: {who} did not take part in {g['t_slug']}")
+
+    return report
+
+
+def validate_output(conn: sqlite3.Connection, out_dir: Path) -> Report:
+    """Check every JSON document's envelope and that it matches a fresh export of the database."""
+    report = Report()
+    expected = Exporter(conn).documents()
+    present = {p.relative_to(out_dir).as_posix(): p for p in out_dir.rglob("*.json")} if out_dir.exists() else {}
+
+    for rel in sorted(set(expected) - set(present)):
+        report.error(f"{rel}: missing — run scripts/export_json.py")
+    for rel in sorted(set(present) - set(expected)):
+        report.error(f"{rel}: not produced by the export — run scripts/export_json.py")
+
+    for rel in sorted(set(present) & set(expected)):
+        try:
+            doc = json.loads(present[rel].read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            report.error(f"{rel}: invalid JSON ({exc})")
+            continue
+        if doc.get("schemaVersion") != SCHEMA_VERSION:
+            report.error(f"{rel}: schemaVersion must be {SCHEMA_VERSION}")
+        if not isinstance(doc.get("generatedAt"), str) or not doc["generatedAt"].endswith("Z"):
+            report.error(f"{rel}: generatedAt must be an ISO 8601 UTC timestamp")
+        if doc.get("data") != expected[rel]:
+            report.error(f"{rel}: out of date with the database — run scripts/export_json.py")
+    return report
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--db", type=Path, default=DEFAULT_DB)
+    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--skip-json", action="store_true", help="only validate the database")
+    args = parser.parse_args(argv)
+
+    if not args.db.exists():
+        raise SystemExit(f"{args.db} does not exist")
+    conn = connect(args.db)
+    reports = [validate_database(conn)]
+    if not args.skip_json:
+        reports.append(validate_output(conn, args.out))
+    conn.close()
+
+    errors = [e for r in reports for e in r.errors]
+    warnings = [w for r in reports for w in r.warnings]
+    for w in warnings:
+        print(f"warning: {w}")
+    for e in errors:
+        print(f"error: {e}")
+    print(f"{len(errors)} error(s), {len(warnings)} warning(s)")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

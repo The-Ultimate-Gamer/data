@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-17T12:52:09Z",
+  "data": {
+    "categories": [
+      {
+        "slug": "strategy",
+        "name": "Strategy",
+        "icon": "♟️",
+        "description": "Planning, economy and long-term decisions."
+      },
+      {
+        "slug": "combat",
+        "name": "Combat",
+        "icon": "⚔️",
+        "description": "Direct confrontation: aim, reflexes and nerve."
+      },
+      {
+        "slug": "puzzle",
+        "name": "Puzzle",
+        "icon": "🧩",
+        "description": "Logic and pattern recognition under pressure."
+      },
+      {
+        "slug": "platform",
+        "name": "Platform",
+        "icon": "🍄",
+        "description": "Jumps, timing and precise movement."
+      },
+      {
+        "slug": "chaos",
+        "name": "Chaos",
+        "icon": "🌀",
+        "description": "Unpredictable party games where anything can happen."
+      },
+      {
+        "slug": "racing",
+        "name": "Racing",
+        "icon": "🏁",
+        "description": "First across the line wins."
+      },
+      {
+        "slug": "teamwork",
+        "name": "Teamwork",
+        "icon": "🤝",
+        "description": "Temporary alliances: cooperate now, compete later."
+      },
+      {
+        "slug": "wildcard",
+        "name": "Wildcard",
+        "icon": "🃏",
+        "description": "Anything goes."
+      },
+      {
+        "slug": "knowledge",
+        "name": "Knowledge",
+        "icon": "🧠",
+        "description": "Trivia and quizzes."
+      },
+      {
+        "slug": "tabletop",
+        "name": "Tabletop",
+        "icon": "🎲",
+        "description": "Board and card games, digital or physical."
+      },
+      {
+        "slug": "offline",
+        "name": "Offline",
+        "icon": "🎯",
+        "description": "Away from the screen."
+      },
+      {
+        "slug": "idle",
+        "name": "Idle",
+        "icon": "⏳",
+        "description": "Patience and optimisation over a longer timeframe."
+      },
+      {
+        "slug": "speedrun",
+        "name": "Speedrun",
+        "icon": "⏱️",
+        "description": "Fastest completion of a set goal wins."
+      },
+      {
+        "slug": "simulation",
+        "name": "Simulation",
+        "icon": "🛠️",
+        "description": "Build, manage or simulate better than everyone else."
+      }
+    ]
+  }
+}

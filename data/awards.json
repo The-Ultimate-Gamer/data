@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-17T12:52:09Z",
+  "data": {
+    "awards": [
+      {
+        "slug": "ultimate-gamer",
+        "name": "Ultimate Gamer",
+        "icon": "👑",
+        "description": "The tournament champion.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "challenger",
+        "name": "Challenger",
+        "icon": "⚔️",
+        "description": "Reached the Challenger threshold for the first time.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "dominator",
+        "name": "Dominator",
+        "icon": "📈",
+        "description": "Highest-scoring player when the tournament ends.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "contender",
+        "name": "Contender",
+        "icon": "🥊",
+        "description": "Highest-scoring player who never became a Challenger.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "podium",
+        "name": "Podium",
+        "icon": "🥉",
+        "description": "Most podium finishes across games.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "believer",
+        "name": "Believer",
+        "icon": "🙏",
+        "description": "Won a game while using a Double Down token.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "nominator",
+        "name": "Nominator",
+        "icon": "🗳️",
+        "description": "Had a game selected from one of their Nominate tokens.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "rookie",
+        "name": "Rookie",
+        "icon": "🌱",
+        "description": "Highest-placed player in their first tournament.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "underdog",
+        "name": "Underdog",
+        "icon": "🐕",
+        "description": "Largest improvement between consecutive tournaments.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "fallout",
+        "name": "Fallout",
+        "icon": "☢️",
+        "description": "Largest decline between consecutive tournaments.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "legend",
+        "name": "Legend",
+        "icon": "🏛️",
+        "description": "Won at least three Ultimate Gamer tournaments.",
+        "scope": "career",
+        "recipients": []
+      },
+      {
+        "slug": "nemesis",
+        "name": "Nemesis",
+        "icon": "😈",
+        "description": "Defeated their assigned Nemesis the most times.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "victim",
+        "name": "Victim",
+        "icon": "🎯",
+        "description": "Was defeated as someone else's Nemesis the most times.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "ghost",
+        "name": "Ghost",
+        "icon": "👻",
+        "description": "Never finished last in a game during the tournament.",
+        "scope": "tournament",
+        "recipients": []
+      },
+      {
+        "slug": "survivor",
+        "name": "Survivor",
+        "icon": "🩹",
+        "description": "Won a game while last in the overall standings.",
+        "scope": "tournament",
+        "recipients": []
+      }
+    ]
+  }
+}
