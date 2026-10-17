@@ -1,13 +1,895 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T12:52:09Z",
+  "generatedAt": "2026-10-17T14:32:26Z",
   "data": {
-    "tournament": null,
-    "currentCategory": null,
-    "currentGame": null,
-    "nextSelection": null,
-    "standings": [],
-    "categories": [],
-    "recentResults": []
+    "tournament": {
+      "slug": "demo-2026",
+      "name": "Demo LAN 2026",
+      "edition": "Demo edition",
+      "startDate": "2026-10-16",
+      "endDate": null,
+      "location": "Somewhere with good Wi-Fi",
+      "status": "ongoing",
+      "isDemo": true,
+      "challengerThreshold": 20,
+      "playerCount": 6,
+      "gamesPlayed": 5,
+      "categoriesCompleted": 5,
+      "categoriesPlanned": 8,
+      "champion": null,
+      "leaders": [
+        {
+          "rank": 1,
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "points": 30
+        },
+        {
+          "rank": 2,
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "points": 23
+        },
+        {
+          "rank": 3,
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "points": 17
+        }
+      ],
+      "awards": [
+        {
+          "award": "challenger",
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "detail": null
+        },
+        {
+          "award": "challenger",
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "detail": null
+        },
+        {
+          "award": "believer",
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "detail": null
+        },
+        {
+          "award": "believer",
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "detail": null
+        },
+        {
+          "award": "survivor",
+          "player": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "detail": "Won Fall Guys from last place"
+        }
+      ]
+    },
+    "currentCategory": "racing",
+    "currentGame": {
+      "slug": "mario-kart-8-deluxe",
+      "name": "Mario Kart 8 Deluxe"
+    },
+    "nextSelection": {
+      "status": "drawn",
+      "category": "racing",
+      "nominations": [
+        {
+          "game": {
+            "slug": "mario-kart-8-deluxe",
+            "name": "Mario Kart 8 Deluxe"
+          },
+          "nominatedBy": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "source": "winner",
+          "entries": 1
+        },
+        {
+          "game": {
+            "slug": "trackmania",
+            "name": "Trackmania"
+          },
+          "nominatedBy": null,
+          "source": "vote",
+          "entries": 1
+        },
+        {
+          "game": {
+            "slug": "rocket-league",
+            "name": "Rocket League"
+          },
+          "nominatedBy": {
+            "slug": "kite",
+            "name": "Kite"
+          },
+          "source": "token",
+          "entries": 1
+        }
+      ],
+      "selected": {
+        "slug": "mario-kart-8-deluxe",
+        "name": "Mario Kart 8 Deluxe"
+      }
+    },
+    "standings": [
+      {
+        "rank": 1,
+        "player": {
+          "slug": "nova",
+          "name": "Nova"
+        },
+        "points": 30,
+        "isChallenger": true,
+        "challengerSinceGame": 4,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 0,
+          "nominate": 1
+        },
+        "gamesPlayed": 5,
+        "gamesWon": 2,
+        "categoryWins": [
+          "strategy",
+          "platform"
+        ],
+        "awards": [
+          "challenger",
+          "believer"
+        ],
+        "isFirstTournament": false
+      },
+      {
+        "rank": 2,
+        "player": {
+          "slug": "blitz",
+          "name": "Blitz"
+        },
+        "points": 23,
+        "isChallenger": true,
+        "challengerSinceGame": 5,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 0,
+          "nominate": 1
+        },
+        "gamesPlayed": 5,
+        "gamesWon": 1,
+        "categoryWins": [
+          "combat"
+        ],
+        "awards": [
+          "challenger",
+          "believer"
+        ],
+        "isFirstTournament": false
+      },
+      {
+        "rank": 3,
+        "player": {
+          "slug": "echo",
+          "name": "Echo"
+        },
+        "points": 17,
+        "isChallenger": false,
+        "challengerSinceGame": null,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 1,
+          "nominate": 1
+        },
+        "gamesPlayed": 5,
+        "gamesWon": 1,
+        "categoryWins": [
+          "puzzle"
+        ],
+        "awards": [],
+        "isFirstTournament": false
+      },
+      {
+        "rank": 4,
+        "player": {
+          "slug": "vex",
+          "name": "Vex"
+        },
+        "points": 11,
+        "isChallenger": false,
+        "challengerSinceGame": null,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 1,
+          "nominate": 1
+        },
+        "gamesPlayed": 5,
+        "gamesWon": 1,
+        "categoryWins": [
+          "chaos"
+        ],
+        "awards": [
+          "survivor"
+        ],
+        "isFirstTournament": false
+      },
+      {
+        "rank": 5,
+        "player": {
+          "slug": "rook",
+          "name": "Rook"
+        },
+        "points": 10,
+        "isChallenger": false,
+        "challengerSinceGame": null,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 1,
+          "nominate": 1
+        },
+        "gamesPlayed": 5,
+        "gamesWon": 0,
+        "categoryWins": [],
+        "awards": [],
+        "isFirstTournament": false
+      },
+      {
+        "rank": 6,
+        "player": {
+          "slug": "kite",
+          "name": "Kite"
+        },
+        "points": 5,
+        "isChallenger": false,
+        "challengerSinceGame": null,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 1,
+          "nominate": 0
+        },
+        "gamesPlayed": 5,
+        "gamesWon": 0,
+        "categoryWins": [],
+        "awards": [],
+        "isFirstTournament": true
+      }
+    ],
+    "categories": [
+      {
+        "order": 1,
+        "category": "strategy",
+        "status": "completed",
+        "gameNumber": 1,
+        "game": {
+          "slug": "age-of-empires-2",
+          "name": "Age of Empires II"
+        },
+        "winner": {
+          "slug": "nova",
+          "name": "Nova"
+        }
+      },
+      {
+        "order": 2,
+        "category": "combat",
+        "status": "completed",
+        "gameNumber": 2,
+        "game": {
+          "slug": "counter-strike-2",
+          "name": "Counter-Strike 2"
+        },
+        "winner": {
+          "slug": "blitz",
+          "name": "Blitz"
+        }
+      },
+      {
+        "order": 3,
+        "category": "puzzle",
+        "status": "completed",
+        "gameNumber": 3,
+        "game": {
+          "slug": "tetris-99",
+          "name": "Tetris 99"
+        },
+        "winner": {
+          "slug": "echo",
+          "name": "Echo"
+        }
+      },
+      {
+        "order": 4,
+        "category": "platform",
+        "status": "completed",
+        "gameNumber": 4,
+        "game": {
+          "slug": "super-mario-bros-wonder",
+          "name": "Super Mario Bros. Wonder"
+        },
+        "winner": {
+          "slug": "nova",
+          "name": "Nova"
+        }
+      },
+      {
+        "order": 5,
+        "category": "chaos",
+        "status": "completed",
+        "gameNumber": 5,
+        "game": {
+          "slug": "fall-guys",
+          "name": "Fall Guys"
+        },
+        "winner": {
+          "slug": "vex",
+          "name": "Vex"
+        }
+      },
+      {
+        "order": 6,
+        "category": "racing",
+        "status": "active",
+        "gameNumber": 6,
+        "game": {
+          "slug": "mario-kart-8-deluxe",
+          "name": "Mario Kart 8 Deluxe"
+        },
+        "winner": null
+      },
+      {
+        "order": 7,
+        "category": "knowledge",
+        "status": "upcoming",
+        "gameNumber": null,
+        "game": null,
+        "winner": null
+      },
+      {
+        "order": 8,
+        "category": "wildcard",
+        "status": "upcoming",
+        "gameNumber": null,
+        "game": null,
+        "winner": null
+      }
+    ],
+    "recentResults": [
+      {
+        "number": 5,
+        "category": "chaos",
+        "game": {
+          "slug": "fall-guys",
+          "name": "Fall Guys"
+        },
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "playedAt": "2026-10-16T22:10:00Z",
+        "winner": {
+          "slug": "vex",
+          "name": "Vex"
+        },
+        "results": [
+          {
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "placement": 1,
+            "points": 7,
+            "basePoints": 6,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "placement": 2,
+            "points": 4,
+            "basePoints": 4,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "placement": 3,
+            "points": 3,
+            "basePoints": 3,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "placement": 4,
+            "points": 2,
+            "basePoints": 2,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "kite",
+              "name": "Kite"
+            },
+            "placement": 5,
+            "points": 1,
+            "basePoints": 1,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "placement": 6,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          }
+        ],
+        "newChallengers": [
+          {
+            "slug": "blitz",
+            "name": "Blitz"
+          }
+        ],
+        "decidedTournament": false
+      },
+      {
+        "number": 4,
+        "category": "platform",
+        "game": {
+          "slug": "super-mario-bros-wonder",
+          "name": "Super Mario Bros. Wonder"
+        },
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "playedAt": "2026-10-16T20:30:00Z",
+        "winner": {
+          "slug": "nova",
+          "name": "Nova"
+        },
+        "results": [
+          {
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "placement": 1,
+            "points": 12,
+            "basePoints": 6,
+            "nemesisBonus": 0,
+            "doubleDown": true,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "placement": 2,
+            "points": 4,
+            "basePoints": 4,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "placement": 3,
+            "points": 3,
+            "basePoints": 3,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "placement": 4,
+            "points": 2,
+            "basePoints": 2,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "placement": 5,
+            "points": 1,
+            "basePoints": 1,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "kite",
+              "name": "Kite"
+            },
+            "placement": 6,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          }
+        ],
+        "newChallengers": [
+          {
+            "slug": "nova",
+            "name": "Nova"
+          }
+        ],
+        "decidedTournament": false
+      },
+      {
+        "number": 3,
+        "category": "puzzle",
+        "game": {
+          "slug": "tetris-99",
+          "name": "Tetris 99"
+        },
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "playedAt": "2026-10-16T18:45:00Z",
+        "winner": {
+          "slug": "echo",
+          "name": "Echo"
+        },
+        "results": [
+          {
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "placement": 1,
+            "points": 7,
+            "basePoints": 6,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "placement": 2,
+            "points": 4,
+            "basePoints": 4,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "kite",
+              "name": "Kite"
+            },
+            "placement": 3,
+            "points": 3,
+            "basePoints": 3,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "placement": 4,
+            "points": 2,
+            "basePoints": 2,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "placement": 5,
+            "points": 1,
+            "basePoints": 1,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "placement": 6,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          }
+        ],
+        "newChallengers": [],
+        "decidedTournament": false
+      },
+      {
+        "number": 2,
+        "category": "combat",
+        "game": {
+          "slug": "counter-strike-2",
+          "name": "Counter-Strike 2"
+        },
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "playedAt": "2026-10-16T16:30:00Z",
+        "winner": {
+          "slug": "blitz",
+          "name": "Blitz"
+        },
+        "results": [
+          {
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "placement": 1,
+            "points": 12,
+            "basePoints": 6,
+            "nemesisBonus": 0,
+            "doubleDown": true,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "placement": 2,
+            "points": 4,
+            "basePoints": 4,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "placement": 3,
+            "points": 3,
+            "basePoints": 3,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "placement": 4,
+            "points": 3,
+            "basePoints": 2,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "kite",
+              "name": "Kite"
+            },
+            "placement": 5,
+            "points": 1,
+            "basePoints": 1,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "placement": 6,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          }
+        ],
+        "newChallengers": [],
+        "decidedTournament": false
+      },
+      {
+        "number": 1,
+        "category": "strategy",
+        "game": {
+          "slug": "age-of-empires-2",
+          "name": "Age of Empires II"
+        },
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "playedAt": "2026-10-16T14:00:00Z",
+        "winner": {
+          "slug": "nova",
+          "name": "Nova"
+        },
+        "results": [
+          {
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "placement": 1,
+            "points": 7,
+            "basePoints": 6,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "placement": 2,
+            "points": 4,
+            "basePoints": 4,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "placement": 3,
+            "points": 3,
+            "basePoints": 3,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "placement": 4,
+            "points": 2,
+            "basePoints": 2,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "placement": 5,
+            "points": 1,
+            "basePoints": 1,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          },
+          {
+            "player": {
+              "slug": "kite",
+              "name": "Kite"
+            },
+            "placement": 6,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": null,
+            "defeatedNemesis": null
+          }
+        ],
+        "newChallengers": [],
+        "decidedTournament": false
+      }
+    ]
   }
 }

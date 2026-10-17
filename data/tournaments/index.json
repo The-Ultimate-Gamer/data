@@ -1,7 +1,235 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T12:52:09Z",
+  "generatedAt": "2026-10-17T14:32:26Z",
   "data": {
-    "tournaments": []
+    "tournaments": [
+      {
+        "slug": "demo-2026",
+        "name": "Demo LAN 2026",
+        "edition": "Demo edition",
+        "startDate": "2026-10-16",
+        "endDate": null,
+        "location": "Somewhere with good Wi-Fi",
+        "status": "ongoing",
+        "isDemo": true,
+        "challengerThreshold": 20,
+        "playerCount": 6,
+        "gamesPlayed": 5,
+        "categoriesCompleted": 5,
+        "categoriesPlanned": 8,
+        "champion": null,
+        "leaders": [
+          {
+            "rank": 1,
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "points": 30
+          },
+          {
+            "rank": 2,
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "points": 23
+          },
+          {
+            "rank": 3,
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "points": 17
+          }
+        ],
+        "awards": [
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "detail": null
+          },
+          {
+            "award": "believer",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "detail": null
+          },
+          {
+            "award": "believer",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "detail": null
+          },
+          {
+            "award": "survivor",
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "detail": "Won Fall Guys from last place"
+          }
+        ]
+      },
+      {
+        "slug": "demo-2025",
+        "name": "Demo LAN 2025",
+        "edition": "Demo edition",
+        "startDate": "2025-11-07",
+        "endDate": "2025-11-08",
+        "location": "The basement",
+        "status": "completed",
+        "isDemo": true,
+        "challengerThreshold": 20,
+        "playerCount": 5,
+        "gamesPlayed": 6,
+        "categoriesCompleted": 6,
+        "categoriesPlanned": 7,
+        "champion": {
+          "slug": "echo",
+          "name": "Echo"
+        },
+        "leaders": [
+          {
+            "rank": 1,
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "points": 32
+          },
+          {
+            "rank": 2,
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "points": 30
+          },
+          {
+            "rank": 3,
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "points": 23
+          }
+        ],
+        "awards": [
+          {
+            "award": "ultimate-gamer",
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "detail": "Won Overcooked! 2 as a Challenger"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "detail": null
+          },
+          {
+            "award": "dominator",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "detail": "32 points"
+          },
+          {
+            "award": "contender",
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "detail": "17 points"
+          },
+          {
+            "award": "podium",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "detail": "6 podium finishes"
+          },
+          {
+            "award": "believer",
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "detail": null
+          },
+          {
+            "award": "nominator",
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "detail": null
+          },
+          {
+            "award": "nemesis",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "detail": "2 Nemesis wins"
+          },
+          {
+            "award": "victim",
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "detail": null
+          },
+          {
+            "award": "ghost",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "detail": null
+          }
+        ]
+      }
+    ]
   }
 }

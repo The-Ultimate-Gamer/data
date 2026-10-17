@@ -1,0 +1,973 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-17T14:32:26Z",
+  "data": {
+    "tournament": {
+      "slug": "demo-2025",
+      "name": "Demo LAN 2025",
+      "edition": "Demo edition",
+      "startDate": "2025-11-07",
+      "endDate": "2025-11-08",
+      "location": "The basement",
+      "status": "completed",
+      "isDemo": true,
+      "challengerThreshold": 20,
+      "playerCount": 5,
+      "gamesPlayed": 6,
+      "categoriesCompleted": 6,
+      "categoriesPlanned": 7,
+      "champion": {
+        "slug": "echo",
+        "name": "Echo"
+      },
+      "leaders": [
+        {
+          "rank": 1,
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "points": 32
+        },
+        {
+          "rank": 2,
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "points": 30
+        },
+        {
+          "rank": 3,
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "points": 23
+        }
+      ],
+      "awards": [
+        {
+          "award": "ultimate-gamer",
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "detail": "Won Overcooked! 2 as a Challenger"
+        },
+        {
+          "award": "challenger",
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "detail": null
+        },
+        {
+          "award": "challenger",
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "detail": null
+        },
+        {
+          "award": "challenger",
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "detail": null
+        },
+        {
+          "award": "dominator",
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "detail": "32 points"
+        },
+        {
+          "award": "contender",
+          "player": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "detail": "17 points"
+        },
+        {
+          "award": "podium",
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "detail": "6 podium finishes"
+        },
+        {
+          "award": "believer",
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "detail": null
+        },
+        {
+          "award": "nominator",
+          "player": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "detail": null
+        },
+        {
+          "award": "nemesis",
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "detail": "2 Nemesis wins"
+        },
+        {
+          "award": "victim",
+          "player": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "detail": null
+        },
+        {
+          "award": "ghost",
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "detail": null
+        }
+      ],
+      "currentCategory": null,
+      "currentGame": null,
+      "nextSelection": null,
+      "standings": [
+        {
+          "rank": 1,
+          "player": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "points": 32,
+          "isChallenger": true,
+          "challengerSinceGame": 4,
+          "isChampion": false,
+          "tokens": {
+            "doubleDown": 0,
+            "nominate": 1
+          },
+          "gamesPlayed": 6,
+          "gamesWon": 2,
+          "categoryWins": [
+            "wildcard",
+            "knowledge"
+          ],
+          "awards": [
+            "challenger",
+            "dominator",
+            "podium",
+            "ghost"
+          ],
+          "isFirstTournament": true
+        },
+        {
+          "rank": 2,
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "points": 30,
+          "isChallenger": true,
+          "challengerSinceGame": 5,
+          "isChampion": true,
+          "tokens": {
+            "doubleDown": 0,
+            "nominate": 1
+          },
+          "gamesPlayed": 6,
+          "gamesWon": 2,
+          "categoryWins": [
+            "tabletop",
+            "teamwork"
+          ],
+          "awards": [
+            "ultimate-gamer",
+            "challenger",
+            "believer"
+          ],
+          "isFirstTournament": true
+        },
+        {
+          "rank": 3,
+          "player": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "points": 23,
+          "isChallenger": true,
+          "challengerSinceGame": 6,
+          "isChampion": false,
+          "tokens": {
+            "doubleDown": 1,
+            "nominate": 1
+          },
+          "gamesPlayed": 6,
+          "gamesWon": 1,
+          "categoryWins": [
+            "racing"
+          ],
+          "awards": [
+            "challenger",
+            "nemesis"
+          ],
+          "isFirstTournament": true
+        },
+        {
+          "rank": 4,
+          "player": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "points": 17,
+          "isChallenger": false,
+          "challengerSinceGame": null,
+          "isChampion": false,
+          "tokens": {
+            "doubleDown": 1,
+            "nominate": 0
+          },
+          "gamesPlayed": 6,
+          "gamesWon": 1,
+          "categoryWins": [
+            "combat"
+          ],
+          "awards": [
+            "contender",
+            "nominator"
+          ],
+          "isFirstTournament": true
+        },
+        {
+          "rank": 5,
+          "player": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "points": 7,
+          "isChallenger": false,
+          "challengerSinceGame": null,
+          "isChampion": false,
+          "tokens": {
+            "doubleDown": 1,
+            "nominate": 1
+          },
+          "gamesPlayed": 6,
+          "gamesWon": 0,
+          "categoryWins": [],
+          "awards": [
+            "victim"
+          ],
+          "isFirstTournament": true
+        }
+      ],
+      "categories": [
+        {
+          "order": 1,
+          "category": "wildcard",
+          "status": "completed",
+          "gameNumber": 1,
+          "game": {
+            "slug": "golf-with-your-friends",
+            "name": "Golf With Your Friends"
+          },
+          "winner": {
+            "slug": "blitz",
+            "name": "Blitz"
+          }
+        },
+        {
+          "order": 2,
+          "category": "knowledge",
+          "status": "completed",
+          "gameNumber": 2,
+          "game": {
+            "slug": "trivia-murder-party",
+            "name": "Trivia Murder Party"
+          },
+          "winner": {
+            "slug": "blitz",
+            "name": "Blitz"
+          }
+        },
+        {
+          "order": 3,
+          "category": "racing",
+          "status": "completed",
+          "gameNumber": 3,
+          "game": {
+            "slug": "trackmania",
+            "name": "Trackmania"
+          },
+          "winner": {
+            "slug": "nova",
+            "name": "Nova"
+          }
+        },
+        {
+          "order": 4,
+          "category": "combat",
+          "status": "completed",
+          "gameNumber": 4,
+          "game": {
+            "slug": "brawlhalla",
+            "name": "Brawlhalla"
+          },
+          "winner": {
+            "slug": "rook",
+            "name": "Rook"
+          }
+        },
+        {
+          "order": 5,
+          "category": "tabletop",
+          "status": "completed",
+          "gameNumber": 5,
+          "game": {
+            "slug": "catan",
+            "name": "Catan"
+          },
+          "winner": {
+            "slug": "echo",
+            "name": "Echo"
+          }
+        },
+        {
+          "order": 6,
+          "category": "teamwork",
+          "status": "completed",
+          "gameNumber": 6,
+          "game": {
+            "slug": "overcooked-2",
+            "name": "Overcooked! 2"
+          },
+          "winner": {
+            "slug": "echo",
+            "name": "Echo"
+          }
+        }
+      ],
+      "games": [
+        {
+          "number": 1,
+          "category": "wildcard",
+          "game": {
+            "slug": "golf-with-your-friends",
+            "name": "Golf With Your Friends"
+          },
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "playedAt": "2025-11-07T15:00:00Z",
+          "winner": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "results": [
+            {
+              "player": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "placement": 1,
+              "points": 6,
+              "basePoints": 6,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "placement": 2,
+              "points": 4,
+              "basePoints": 4,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "placement": 3,
+              "points": 3,
+              "basePoints": 3,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "echo",
+                "name": "Echo"
+              },
+              "placement": 4,
+              "points": 2,
+              "basePoints": 2,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "placement": 5,
+              "points": 1,
+              "basePoints": 1,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            }
+          ],
+          "newChallengers": [],
+          "decidedTournament": false
+        },
+        {
+          "number": 2,
+          "category": "knowledge",
+          "game": {
+            "slug": "trivia-murder-party",
+            "name": "Trivia Murder Party"
+          },
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "playedAt": "2025-11-07T17:00:00Z",
+          "winner": {
+            "slug": "blitz",
+            "name": "Blitz"
+          },
+          "results": [
+            {
+              "player": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "placement": 1,
+              "points": 6,
+              "basePoints": 6,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "echo",
+                "name": "Echo"
+              },
+              "placement": 2,
+              "points": 4,
+              "basePoints": 4,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "placement": 3,
+              "points": 3,
+              "basePoints": 3,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "placement": 4,
+              "points": 2,
+              "basePoints": 2,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "placement": 5,
+              "points": 1,
+              "basePoints": 1,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            }
+          ],
+          "newChallengers": [],
+          "decidedTournament": false
+        },
+        {
+          "number": 3,
+          "category": "racing",
+          "game": {
+            "slug": "trackmania",
+            "name": "Trackmania"
+          },
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "playedAt": "2025-11-07T19:30:00Z",
+          "winner": {
+            "slug": "nova",
+            "name": "Nova"
+          },
+          "results": [
+            {
+              "player": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "placement": 1,
+              "points": 7,
+              "basePoints": 6,
+              "nemesisBonus": 1,
+              "doubleDown": false,
+              "nemesis": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "defeatedNemesis": true
+            },
+            {
+              "player": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "placement": 2,
+              "points": 4,
+              "basePoints": 4,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "echo",
+                "name": "Echo"
+              },
+              "placement": 3,
+              "points": 3,
+              "basePoints": 3,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "placement": 4,
+              "points": 2,
+              "basePoints": 2,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "placement": 5,
+              "points": 1,
+              "basePoints": 1,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "defeatedNemesis": false
+            }
+          ],
+          "newChallengers": [],
+          "decidedTournament": false
+        },
+        {
+          "number": 4,
+          "category": "combat",
+          "game": {
+            "slug": "brawlhalla",
+            "name": "Brawlhalla"
+          },
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "playedAt": "2025-11-07T22:00:00Z",
+          "winner": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "results": [
+            {
+              "player": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "placement": 1,
+              "points": 6,
+              "basePoints": 6,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "placement": 2,
+              "points": 4,
+              "basePoints": 4,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "placement": 3,
+              "points": 3,
+              "basePoints": 3,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "echo",
+                "name": "Echo"
+              },
+              "placement": 4,
+              "points": 3,
+              "basePoints": 2,
+              "nemesisBonus": 1,
+              "doubleDown": false,
+              "nemesis": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "defeatedNemesis": true
+            },
+            {
+              "player": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "placement": 5,
+              "points": 1,
+              "basePoints": 1,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            }
+          ],
+          "newChallengers": [
+            {
+              "slug": "blitz",
+              "name": "Blitz"
+            }
+          ],
+          "decidedTournament": false
+        },
+        {
+          "number": 5,
+          "category": "tabletop",
+          "game": {
+            "slug": "catan",
+            "name": "Catan"
+          },
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "playedAt": "2025-11-08T12:00:00Z",
+          "winner": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "results": [
+            {
+              "player": {
+                "slug": "echo",
+                "name": "Echo"
+              },
+              "placement": 1,
+              "points": 12,
+              "basePoints": 6,
+              "nemesisBonus": 0,
+              "doubleDown": true,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "placement": 2,
+              "points": 4,
+              "basePoints": 4,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "placement": 3,
+              "points": 3,
+              "basePoints": 3,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "placement": 4,
+              "points": 2,
+              "basePoints": 2,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "placement": 5,
+              "points": 1,
+              "basePoints": 1,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            }
+          ],
+          "newChallengers": [
+            {
+              "slug": "echo",
+              "name": "Echo"
+            }
+          ],
+          "decidedTournament": false,
+          "selection": {
+            "status": "drawn",
+            "category": "tabletop",
+            "nominations": [
+              {
+                "game": {
+                  "slug": "darts",
+                  "name": "Darts"
+                },
+                "nominatedBy": {
+                  "slug": "rook",
+                  "name": "Rook"
+                },
+                "source": "winner",
+                "entries": 1
+              },
+              {
+                "game": {
+                  "slug": "overcooked-2",
+                  "name": "Overcooked! 2"
+                },
+                "nominatedBy": null,
+                "source": "vote",
+                "entries": 1
+              },
+              {
+                "game": {
+                  "slug": "catan",
+                  "name": "Catan"
+                },
+                "nominatedBy": {
+                  "slug": "rook",
+                  "name": "Rook"
+                },
+                "source": "token",
+                "entries": 1
+              }
+            ],
+            "selected": {
+              "slug": "catan",
+              "name": "Catan"
+            }
+          }
+        },
+        {
+          "number": 6,
+          "category": "teamwork",
+          "game": {
+            "slug": "overcooked-2",
+            "name": "Overcooked! 2"
+          },
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "playedAt": "2025-11-08T15:00:00Z",
+          "winner": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "results": [
+            {
+              "player": {
+                "slug": "echo",
+                "name": "Echo"
+              },
+              "placement": 1,
+              "points": 6,
+              "basePoints": 6,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "blitz",
+                "name": "Blitz"
+              },
+              "placement": 2,
+              "points": 8,
+              "basePoints": 4,
+              "nemesisBonus": 0,
+              "doubleDown": true,
+              "nemesis": null,
+              "defeatedNemesis": null
+            },
+            {
+              "player": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "placement": 3,
+              "points": 4,
+              "basePoints": 3,
+              "nemesisBonus": 1,
+              "doubleDown": false,
+              "nemesis": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "defeatedNemesis": true
+            },
+            {
+              "player": {
+                "slug": "rook",
+                "name": "Rook"
+              },
+              "placement": 4,
+              "points": 2,
+              "basePoints": 2,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": {
+                "slug": "nova",
+                "name": "Nova"
+              },
+              "defeatedNemesis": false
+            },
+            {
+              "player": {
+                "slug": "vex",
+                "name": "Vex"
+              },
+              "placement": 5,
+              "points": 1,
+              "basePoints": 1,
+              "nemesisBonus": 0,
+              "doubleDown": false,
+              "nemesis": null,
+              "defeatedNemesis": null
+            }
+          ],
+          "newChallengers": [
+            {
+              "slug": "nova",
+              "name": "Nova"
+            }
+          ],
+          "decidedTournament": true
+        }
+      ],
+      "records": [
+        {
+          "label": "Games played",
+          "value": "6",
+          "player": null
+        },
+        {
+          "label": "Biggest single-game haul",
+          "value": "12 pts",
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          }
+        }
+      ]
+    }
+  }
+}

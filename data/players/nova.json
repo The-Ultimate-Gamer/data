@@ -1,0 +1,345 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-17T14:32:26Z",
+  "data": {
+    "player": {
+      "slug": "nova",
+      "name": "Nova",
+      "initials": null,
+      "avatarUrl": null,
+      "firstTournament": {
+        "slug": "demo-2025",
+        "name": "Demo LAN 2025"
+      },
+      "tournamentsPlayed": 2,
+      "ultimateGamerWins": 0,
+      "challengerAppearances": 2,
+      "gameWins": 3,
+      "podiumFinishes": 11,
+      "awardCount": 4,
+      "bestPlacement": 3,
+      "current": {
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "rank": 1,
+        "points": 30
+      },
+      "tournaments": [
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "startDate": "2026-10-16",
+          "status": "ongoing",
+          "placement": 1,
+          "points": 30,
+          "gamesWon": 2,
+          "wasChallenger": true,
+          "wasChampion": false
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "startDate": "2025-11-07",
+          "status": "completed",
+          "placement": 3,
+          "points": 23,
+          "gamesWon": 1,
+          "wasChallenger": true,
+          "wasChampion": false
+        }
+      ],
+      "awards": [
+        {
+          "award": "challenger",
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "detail": null
+        },
+        {
+          "award": "believer",
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "detail": null
+        },
+        {
+          "award": "challenger",
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "detail": null
+        },
+        {
+          "award": "nemesis",
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "detail": "2 Nemesis wins"
+        }
+      ],
+      "categoryWins": [
+        {
+          "category": "strategy",
+          "wins": 1
+        },
+        {
+          "category": "platform",
+          "wins": 1
+        },
+        {
+          "category": "racing",
+          "wins": 1
+        }
+      ],
+      "nemesis": {
+        "defeated": 3,
+        "defeatedBy": 2,
+        "timesAssigned": 3
+      },
+      "doubleDown": {
+        "used": 1,
+        "wins": 1,
+        "bonusPoints": 6
+      },
+      "nominate": {
+        "used": 0,
+        "selected": 0
+      },
+      "matches": [
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 5,
+          "category": "chaos",
+          "game": {
+            "slug": "fall-guys",
+            "name": "Fall Guys"
+          },
+          "placement": 3,
+          "points": 3,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 4,
+          "category": "platform",
+          "game": {
+            "slug": "super-mario-bros-wonder",
+            "name": "Super Mario Bros. Wonder"
+          },
+          "placement": 1,
+          "points": 12,
+          "doubleDown": true,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 3,
+          "category": "puzzle",
+          "game": {
+            "slug": "tetris-99",
+            "name": "Tetris 99"
+          },
+          "placement": 2,
+          "points": 4,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 2,
+          "category": "combat",
+          "game": {
+            "slug": "counter-strike-2",
+            "name": "Counter-Strike 2"
+          },
+          "placement": 2,
+          "points": 4,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 1,
+          "category": "strategy",
+          "game": {
+            "slug": "age-of-empires-2",
+            "name": "Age of Empires II"
+          },
+          "placement": 1,
+          "points": 7,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 6,
+          "category": "teamwork",
+          "game": {
+            "slug": "overcooked-2",
+            "name": "Overcooked! 2"
+          },
+          "placement": 3,
+          "points": 4,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 5,
+          "category": "tabletop",
+          "game": {
+            "slug": "catan",
+            "name": "Catan"
+          },
+          "placement": 3,
+          "points": 3,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 4,
+          "category": "combat",
+          "game": {
+            "slug": "brawlhalla",
+            "name": "Brawlhalla"
+          },
+          "placement": 3,
+          "points": 3,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 3,
+          "category": "racing",
+          "game": {
+            "slug": "trackmania",
+            "name": "Trackmania"
+          },
+          "placement": 1,
+          "points": 7,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 2,
+          "category": "knowledge",
+          "game": {
+            "slug": "trivia-murder-party",
+            "name": "Trivia Murder Party"
+          },
+          "placement": 3,
+          "points": 3,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 1,
+          "category": "wildcard",
+          "game": {
+            "slug": "golf-with-your-friends",
+            "name": "Golf With Your Friends"
+          },
+          "placement": 3,
+          "points": 3,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        }
+      ],
+      "rivals": [
+        {
+          "player": {
+            "slug": "echo",
+            "name": "Echo"
+          },
+          "nemesisWins": 0,
+          "nemesisLosses": 1
+        },
+        {
+          "player": {
+            "slug": "rook",
+            "name": "Rook"
+          },
+          "nemesisWins": 2,
+          "nemesisLosses": 0
+        },
+        {
+          "player": {
+            "slug": "vex",
+            "name": "Vex"
+          },
+          "nemesisWins": 1,
+          "nemesisLosses": 1
+        }
+      ]
+    }
+  }
+}

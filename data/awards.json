@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T12:52:09Z",
+  "generatedAt": "2026-10-17T14:32:26Z",
   "data": {
     "awards": [
       {
@@ -9,7 +9,20 @@
         "icon": "👑",
         "description": "The tournament champion.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "ultimate-gamer",
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "Won Overcooked! 2 as a Challenger"
+          }
+        ]
       },
       {
         "slug": "challenger",
@@ -17,7 +30,68 @@
         "icon": "⚔️",
         "description": "Reached the Challenger threshold for the first time.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          }
+        ]
       },
       {
         "slug": "dominator",
@@ -25,7 +99,20 @@
         "icon": "📈",
         "description": "Highest-scoring player when the tournament ends.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "dominator",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "32 points"
+          }
+        ]
       },
       {
         "slug": "contender",
@@ -33,7 +120,20 @@
         "icon": "🥊",
         "description": "Highest-scoring player who never became a Challenger.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "contender",
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "17 points"
+          }
+        ]
       },
       {
         "slug": "podium",
@@ -41,7 +141,20 @@
         "icon": "🥉",
         "description": "Most podium finishes across games.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "podium",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "6 podium finishes"
+          }
+        ]
       },
       {
         "slug": "believer",
@@ -49,7 +162,44 @@
         "icon": "🙏",
         "description": "Won a game while using a Double Down token.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "believer",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": null
+          },
+          {
+            "award": "believer",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": null
+          },
+          {
+            "award": "believer",
+            "player": {
+              "slug": "echo",
+              "name": "Echo"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          }
+        ]
       },
       {
         "slug": "nominator",
@@ -57,7 +207,20 @@
         "icon": "🗳️",
         "description": "Had a game selected from one of their Nominate tokens.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "nominator",
+            "player": {
+              "slug": "rook",
+              "name": "Rook"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          }
+        ]
       },
       {
         "slug": "rookie",
@@ -97,7 +260,20 @@
         "icon": "😈",
         "description": "Defeated their assigned Nemesis the most times.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "nemesis",
+            "player": {
+              "slug": "nova",
+              "name": "Nova"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "2 Nemesis wins"
+          }
+        ]
       },
       {
         "slug": "victim",
@@ -105,7 +281,20 @@
         "icon": "🎯",
         "description": "Was defeated as someone else's Nemesis the most times.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "victim",
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          }
+        ]
       },
       {
         "slug": "ghost",
@@ -113,7 +302,20 @@
         "icon": "👻",
         "description": "Never finished last in a game during the tournament.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "ghost",
+            "player": {
+              "slug": "blitz",
+              "name": "Blitz"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          }
+        ]
       },
       {
         "slug": "survivor",
@@ -121,7 +323,20 @@
         "icon": "🩹",
         "description": "Won a game while last in the overall standings.",
         "scope": "tournament",
-        "recipients": []
+        "recipients": [
+          {
+            "award": "survivor",
+            "player": {
+              "slug": "vex",
+              "name": "Vex"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": "Won Fall Guys from last place"
+          }
+        ]
       }
     ]
   }

@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-17T14:32:26Z",
+  "data": {
+    "player": {
+      "slug": "kite",
+      "name": "Kite",
+      "initials": null,
+      "avatarUrl": null,
+      "firstTournament": {
+        "slug": "demo-2026",
+        "name": "Demo LAN 2026"
+      },
+      "tournamentsPlayed": 1,
+      "ultimateGamerWins": 0,
+      "challengerAppearances": 0,
+      "gameWins": 0,
+      "podiumFinishes": 1,
+      "awardCount": 0,
+      "bestPlacement": null,
+      "current": {
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "rank": 6,
+        "points": 5
+      },
+      "tournaments": [
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "startDate": "2026-10-16",
+          "status": "ongoing",
+          "placement": 6,
+          "points": 5,
+          "gamesWon": 0,
+          "wasChallenger": false,
+          "wasChampion": false
+        }
+      ],
+      "awards": [],
+      "categoryWins": [],
+      "nemesis": null,
+      "doubleDown": {
+        "used": 0,
+        "wins": 0,
+        "bonusPoints": 0
+      },
+      "nominate": {
+        "used": 1,
+        "selected": 0
+      },
+      "matches": [
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 5,
+          "category": "chaos",
+          "game": {
+            "slug": "fall-guys",
+            "name": "Fall Guys"
+          },
+          "placement": 5,
+          "points": 1,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 4,
+          "category": "platform",
+          "game": {
+            "slug": "super-mario-bros-wonder",
+            "name": "Super Mario Bros. Wonder"
+          },
+          "placement": 6,
+          "points": 0,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 3,
+          "category": "puzzle",
+          "game": {
+            "slug": "tetris-99",
+            "name": "Tetris 99"
+          },
+          "placement": 3,
+          "points": 3,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 2,
+          "category": "combat",
+          "game": {
+            "slug": "counter-strike-2",
+            "name": "Counter-Strike 2"
+          },
+          "placement": 5,
+          "points": 1,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 1,
+          "category": "strategy",
+          "game": {
+            "slug": "age-of-empires-2",
+            "name": "Age of Empires II"
+          },
+          "placement": 6,
+          "points": 0,
+          "doubleDown": false,
+          "nemesis": null,
+          "defeatedNemesis": null
+        }
+      ],
+      "rivals": []
+    }
+  }
+}
