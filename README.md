@@ -7,6 +7,19 @@ The authoritative results database for **The Ultimate Gamer** LAN tournament, pl
 - GitHub Pages publishes `data/` at **https://the-ultimate-gamer.github.io/data/** (for example `…/data/leaderboard.json`).
 - The website fetches these files in the browser at runtime, so publishing new data never requires a website rebuild.
 
+> Working with an AI coding agent? See [AGENTS.md](AGENTS.md). The skill [.github/skills/record-results](.github/skills/record-results/SKILL.md) guides an agent through recording results.
+
+## Quick start
+
+```sh
+git clone git@github.com:The-Ultimate-Gamer/data.git ultimate-gamer-data
+cd ultimate-gamer-data
+python3 -m unittest discover -s tests -t tests   # sanity check
+python3 scripts/validate.py                       # DB + JSON consistency
+```
+
+Clone the website next to this repository as `ultimate-gamer-website`. Then run `npm run dev:local` there to preview this repository's `data/` locally.
+
 ## Layout
 
 ```
