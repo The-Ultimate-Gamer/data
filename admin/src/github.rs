@@ -17,7 +17,7 @@ const API: &str = "https://api.github.com";
 const WEB: &str = "https://github.com";
 /// The client id of The-Ultimate-Gamer's OAuth App, once the organisation registers one
 /// (see README → "Sign in with GitHub"). `UG_GITHUB_CLIENT_ID` overrides it.
-const OAUTH_CLIENT_ID: Option<&str> = None;
+const OAUTH_CLIENT_ID: Option<&str> = Some("Ov23liMIivjp8MnAcxwd");
 const MAX_DOWNLOAD: u64 = 512 * 1024 * 1024;
 
 /// Which repository and branch hold the data.

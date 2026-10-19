@@ -113,9 +113,9 @@ Builds made with `--no-default-features` have no desktop window, which keeps CI 
 
 ### Sign in with GitHub (OAuth App)
 
-**Sign in with GitHub** uses GitHub's [device flow](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#device-flow), so nobody has to create or paste a token. It needs an OAuth App owned by the organisation. Until one exists the button stays hidden, and pasting a token or **Use my `gh` login** still work.
+**Sign in with GitHub** uses GitHub's [device flow](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#device-flow), so nobody has to create or paste a token. It uses the organisation's OAuth App **Ultimate Gamer Admin** (client id `Ov23liMIivjp8MnAcxwd`, in `OAUTH_CLIENT_ID` in `src/github.rs`), which has device flow on and non-expiring tokens. Pasting a token or **Use my `gh` login** still work as alternatives.
 
-To set it up (an organisation owner, once):
+To set up a replacement app (an organisation owner):
 
 1. GitHub → **The-Ultimate-Gamer** → Settings → Developer settings → **OAuth Apps** → **New OAuth App**.
    - **Application name:** Ultimate Gamer Admin.
