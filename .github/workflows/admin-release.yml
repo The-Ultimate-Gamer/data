@@ -1,0 +1,67 @@
+name: Release the admin app
+
+# Push a tag like `admin-v1.2.0` to build ug-admin for Linux, Windows and macOS and attach the
+# binaries to a GitHub release. Admins download one file and run it.
+on:
+  push:
+    tags: ['admin-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            file: ug-admin
+            asset: ug-admin-linux-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            file: ug-admin.exe
+            asset: ug-admin-windows-x86_64.exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            file: ug-admin
+            asset: ug-admin-macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --locked --release --target ${{ matrix.target }} --manifest-path admin/Cargo.toml
+
+      - name: Rename
+        shell: bash
+        run: cp admin/target/${{ matrix.target }}/release/${{ matrix.file }} ${{ matrix.asset }}
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/admin-v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download builds
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" ug-admin-* --repo "${GITHUB_REPOSITORY}" --title "Admin app ${GITHUB_REF_NAME#admin-v}" --generate-notes

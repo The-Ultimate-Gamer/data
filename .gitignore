@@ -1,8 +1,7 @@
-__pycache__/
-*.pyc
-.venv/
+# Rust build output of the admin tool
+/admin/target/
 
-# Fictional demo database and export (scripts/seed.py --demo)
+# Fictional demo database and export (ug-admin seed --demo)
 /demo/
 
 # SQLite temporary files
@@ -11,3 +10,7 @@ __pycache__/
 *.sqlite-shm
 
 .DS_Store
+
+# ug-admin sync bookkeeping (only in synced folders)
+.ug-admin-sync.json
+.ug-admin-download/

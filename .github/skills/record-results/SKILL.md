@@ -7,7 +7,7 @@ description: 'Record or edit tournament data in the SQLite database and republis
 
 Every change follows the same loop: **edit SQLite → export → validate → (preview) → commit**. Never edit `data/*.json` by hand.
 
-If the user just wants to enter data themselves, point them to the admin app (`cd admin && npm start`, see `admin/README.md`). It does this whole loop through forms. The steps below are for when you edit the database directly.
+If the user just wants to enter data themselves, point them to the admin app (`ug-admin`, see `admin/README.md`). It does this whole loop through forms and publishes with one button. The steps below are for when you edit the database directly.
 
 ## 0. Open the database
 
@@ -34,20 +34,22 @@ Look up ids by slug instead of guessing them, for example `(SELECT id FROM playe
 | Nominations for that draw | `nominations (tournament_id, round_number, game_id, player_id?, source 'winner'/'vote'/'token', entries)` (the drawn `game_id` must be among them) |
 | Nemeses announced | `nemesis_assignments (tournament_id, round_number, player_id, nemesis_player_id)` for the next round. Public on the website; shared and one-way Nemeses are allowed |
 | Game finished | one `results` row per player: `placement`, `base_points`, `double_down` (0/1), `nemesis_player_id` (the Nemesis assigned before the game). Then `UPDATE rounds SET completed = 1, played_at = '<ISO UTC>'` |
-| Tournament decided | `validate.py` reports when a Challenger has won. Set `status = 'completed'` and `end_date` |
+| Tournament decided | `ug-admin validate` reports when a Challenger has won. Set `status = 'completed'` and `end_date` |
 | Award winners | `award_grants (award_slug, player_id, tournament_id, detail?)`, as decided by the organisers |
 | Fun records | `tournament_records (tournament_id, position, label, value, player_id?)` |
 
-**Do not store derived values.** Points, Challenger and champion status, ranks, tokens left and statistics are all computed by `scripts/ugdata.py`.
+**Do not store derived values.** Points, Challenger and champion status, ranks, tokens left and statistics are all computed by the admin tool (`admin/src/rules.rs` and `admin/src/export.rs`).
 
 **Ask the user whenever a fact is unknown.** This includes placements, base points, who used Double Down and Nemesis assignments. Do not guess them.
 
 ## 2. Export and validate
 
 ```sh
-python3 scripts/export_json.py
-python3 scripts/validate.py
+cargo run --manifest-path admin/Cargo.toml --no-default-features -- export
+cargo run --manifest-path admin/Cargo.toml --no-default-features -- validate
 ```
+
+(With an installed binary: `ug-admin export` and `ug-admin validate`, run from the repository root.)
 
 Fix every `error:` line. Read every `warning:` and confirm with the user whether it is expected.
 
@@ -58,7 +60,7 @@ Run `npm run dev:local` in `../ultimate-gamer-website` and open http://localhost
 ## 4. Commit and publish
 
 ```sh
-git add database data
+git add database data avatars
 git commit -m "Results: <tournament> round <n>"
 git push   # only when the user asks; this publishes to the live site
 ```

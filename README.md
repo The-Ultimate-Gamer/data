@@ -3,7 +3,7 @@
 The authoritative results database for **The Ultimate Gamer** LAN tournament, plus the scripts that publish it as JSON for the website ([the-ultimate-gamer.github.io](https://the-ultimate-gamer.github.io/), source in [The-Ultimate-Gamer/the-ultimate-gamer.github.io](https://github.com/The-Ultimate-Gamer/the-ultimate-gamer.github.io)).
 
 - `database/ultimate-gamer.sqlite` is the **single source of truth**.
-- `data/` contains **generated** JSON. Never edit it by hand; regenerate it with `scripts/export_json.py`.
+- `data/` contains **generated** JSON. Never edit it by hand; regenerate it with `ug-admin export`.
 - GitHub Pages publishes `data/` at **https://the-ultimate-gamer.github.io/data/** (for example `…/data/leaderboard.json`).
 - The website fetches these files in the browser at runtime, so publishing new data never requires a website rebuild.
 
@@ -11,11 +11,15 @@ The authoritative results database for **The Ultimate Gamer** LAN tournament, pl
 
 ## Quick start
 
+**Organisers** don't need this repository at all: download the admin app from [Releases](https://github.com/The-Ultimate-Gamer/data/releases), sign in to GitHub once, and it downloads and publishes the data for you. See [admin/README.md](admin/README.md).
+
+**Developers:**
+
 ```sh
 git clone git@github.com:The-Ultimate-Gamer/data.git ultimate-gamer-data
 cd ultimate-gamer-data
-python3 -m unittest discover -s tests -t tests   # sanity check
-python3 scripts/validate.py                       # DB + JSON consistency
+cargo test --manifest-path admin/Cargo.toml                                  # tests
+cargo run --manifest-path admin/Cargo.toml --no-default-features -- validate # DB + JSON consistency
 ```
 
 Clone the website next to this repository as `ultimate-gamer-website`. Then run `npm run dev:local` there to preview this repository's `data/` locally.
@@ -24,42 +28,30 @@ Clone the website next to this repository as `ultimate-gamer-website`. Then run 
 
 ```
 database/ultimate-gamer.sqlite   authoritative database (committed)
-schema/schema.sql                table definitions
-scripts/ugdata.py                shared rules + JSON builders (used by all scripts)
-scripts/init_db.py               create an empty database from the schema
-scripts/seed.py                  reference data; --add-demo / --remove-demo; --demo (separate demo DB)
-scripts/export_json.py           generate data/ from the database
-scripts/validate.py              check the database and that data/ is up to date
-scripts/migrate.py               add new tables from the schema to an existing database
-admin/                           local admin app (see admin/README.md)
+schema/schema.sql                table definitions (compiled into the admin tool)
+avatars/                         player pictures, published with the data
+admin/                           ug-admin: desktop app, rules, export, validation, publishing (Rust)
 data/                            generated JSON (committed, published)
-tests/                           unit tests (standard library only)
 ```
 
-Requirements: Python 3.10 or newer. No third-party packages are needed.
+Requirements: the `ug-admin` binary, or Rust 1.88+ to build it.
 
 ## Updating the data
 
-**Easiest: the admin app.** It's a local web app for adding players, games and tournaments, recording each game during the LAN, and publishing with one click:
+**Easiest: the admin app.** It's a desktop app for adding players, games and tournaments, recording each game during the LAN, and publishing with one click. It works without a clone of this repository, git or Python. See [admin/README.md](admin/README.md) for the full workflow.
 
-```sh
-cd admin && nvm use && npm install && npm start   # http://127.0.0.1:5174
-```
-
-See [admin/README.md](admin/README.md) for the full workflow.
-
-By hand, the steps are:
+By hand, in a checkout of this repository:
 
 ```sh
 # 1. edit the database (see "Recording a tournament")
 # 2. regenerate and check
-python3 scripts/export_json.py
-python3 scripts/validate.py
+ug-admin export
+ug-admin validate
 # 3. publish
-git add database data && git commit -m "Results: <what changed>" && git push
+git add database data avatars && git commit -m "Results: <what changed>" && git push
 ```
 
-On every push to `main`, `.github/workflows/publish.yml` runs the tests and `validate.py`. Validation fails if the JSON is out of date with the database. If everything passes, the workflow deploys `data/` to GitHub Pages.
+On every push to `main`, `.github/workflows/publish.yml` runs the tests and `ug-admin validate`. Validation fails if the JSON is out of date with the database. If everything passes, the workflow deploys `data/` to GitHub Pages.
 
 Visitors see the update after the Pages deployment, which takes a minute or two. The CDN may also keep serving cached copies for up to about 10 minutes.
 
@@ -79,7 +71,7 @@ The database stores **facts only**:
 - Award recipients
 - Records
 
-`export_json.py` **derives** everything else:
+`ug-admin export` **derives** everything else (the rules live in `admin/src/rules.rs`):
 
 | Derived value | Rule |
 | --- | --- |
@@ -93,7 +85,7 @@ The database stores **facts only**:
 
 **Award recipients** are not computed. Several awards need tie-breaking or judgement calls that the rules don't settle, so the organisers record them in `award_grants`.
 
-### Validation rules (`scripts/validate.py`)
+### Validation rules (`ug-admin validate`, `admin/src/validate.rs`)
 
 **Errors:**
 - An invalid slug.
@@ -165,22 +157,22 @@ UPDATE rounds SET completed = 1, played_at = '2026-11-14T15:00:00Z' WHERE tourna
 
 ## Demo data and local development
 
-To **show the website off before the first real tournament**, use the admin's **Demo data** page, or run:
+To **show the website off before the first real tournament**, use **Settings → Demo data on the website** in the admin app, then publish. Or run:
 
 ```sh
-python3 scripts/seed.py --add-demo      # fictional players, games and 2 tournaments, all flagged is_demo
-python3 scripts/export_json.py && git add database data && git commit -m "Add demo data" && git push
+ug-admin seed --add-demo      # fictional players, games and 2 tournaments, all flagged is_demo
+ug-admin export && git add database data && git commit -m "Add demo data" && git push
 ```
 
 - **What visitors see:** a "fictional demo data" banner, with demo tournaments marked "Demo".
-- **Removing it:** `python3 scripts/seed.py --remove-demo` removes exactly the flagged rows. Your real players, games and tournaments are never touched. Re-export and push afterwards.
+- **Removing it:** `ug-admin seed --remove-demo` (or Settings → Remove demo data) removes exactly the flagged rows. Your real players, games and tournaments are never touched. Re-export and push afterwards.
 - **Clashes:** adding the demo is refused if a real player or tournament already uses one of the demo slugs. Games with the same slug are shared, not duplicated.
 
-For development, `scripts/seed.py --demo` builds a separate **demo-only** database instead:
+For development, `ug-admin seed --demo` builds a separate **demo-only** database instead. The admin app's **practice mode** uses one too.
 
 ```sh
-python3 scripts/seed.py --demo --db demo/demo.sqlite
-python3 scripts/export_json.py --db demo/demo.sqlite --out demo/data
+ug-admin seed --demo --repo demo   # demo/database/ultimate-gamer.sqlite
+ug-admin export --repo demo        # demo/data
 ```
 
 `demo/` is gitignored. To run the website against the demo data, use `DEV_DATA_DIR=../ultimate-gamer-data/demo/data npm run dev:local` in the website repository. Leave out `DEV_DATA_DIR` to use this repository's real `data/`.
@@ -188,7 +180,7 @@ python3 scripts/export_json.py --db demo/demo.sqlite --out demo/data
 ## Tests
 
 ```sh
-python3 -m unittest discover -s tests -t tests -v
+cargo test --manifest-path admin/Cargo.toml
 ```
 
 ## JSON contract
@@ -201,4 +193,4 @@ Every file has the same envelope:
 
 `generatedAt` only changes when that document's data changes. The files are `site.json`, `leaderboard.json`, `categories.json`, `awards.json`, `games/index.json`, `players/index.json`, `players/{slug}.json`, `tournaments/index.json` and `tournaments/{slug}.json`.
 
-The full field reference lives in the website repository: `docs/data-contract.md` and `src/lib/data/types.ts`. Increase `SCHEMA_VERSION` in `scripts/ugdata.py` only for breaking changes, and update the website first.
+The full field reference lives in the website repository: `docs/data-contract.md` and `src/lib/data/types.ts`. Increase `SCHEMA_VERSION` in `admin/src/db.rs` only for breaking changes, and update the website first.

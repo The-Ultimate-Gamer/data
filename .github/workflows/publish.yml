@@ -20,17 +20,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache the build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: admin
+
+      # The rules, export and validation live in the admin tool; CI uses them without the desktop window.
       - name: Unit tests
-        run: python -m unittest discover -s tests -t tests -v
+        run: cargo test --locked --no-default-features --manifest-path admin/Cargo.toml
 
       # Fails if the database is inconsistent or the committed JSON is out of date.
       - name: Validate database and JSON
-        run: python scripts/validate.py
+        run: cargo run --locked --no-default-features --manifest-path admin/Cargo.toml -- validate
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
@@ -53,22 +57,28 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
-  # Type-checks the local admin app; independent of publishing the data.
+  # Builds the full admin app (with the desktop window); independent of publishing the data.
   admin:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: admin
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Install Node.js
-        uses: actions/setup-node@v7
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          node-version-file: admin/.nvmrc
-          cache: npm
-          cache-dependency-path: admin/package-lock.json
+          components: clippy, rustfmt
 
-      - run: npm ci
-      - run: npm run check
+      - name: Cache the build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: admin
+
+      - name: Format
+        run: cargo fmt --manifest-path admin/Cargo.toml --check
+
+      - name: Lint
+        run: cargo clippy --locked --all-targets --manifest-path admin/Cargo.toml -- -D warnings
+
+      - name: Tests (with the desktop app)
+        run: cargo test --locked --manifest-path admin/Cargo.toml
