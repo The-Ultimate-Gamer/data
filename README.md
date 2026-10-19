@@ -74,6 +74,7 @@ The database stores **facts only**:
 - Category order
 - Rounds (which game was played, and whether it is finished)
 - Each player's placement, base points, Double Down use and assigned Nemesis
+- Nemesis pairs announced for the next game (Nemeses are public)
 - Nominations
 - Award recipients
 - Records
@@ -86,6 +87,7 @@ The database stores **facts only**:
 | Challenger | Running total reaches the tournament's threshold. `challengerSinceGame` is the round in which that happened |
 | Ultimate Gamer | The first player who **was already a Challenger before a round** and **wins** it. The tournament ends there |
 | Ranks | Ranked by points, with ties sharing a rank (1, 1, 3). Ties are never broken automatically |
+| Final placement | Once a tournament is over, the champion finishes 1st and everyone else follows by points. "Best finish" uses this |
 | Tokens left | Starting tokens minus Double Downs used and Nominate tokens spent |
 | Statistics | Game wins, podiums, category wins, Nemesis record, rivalries, token usage, last played and similar |
 
@@ -103,10 +105,28 @@ The database stores **facts only**:
 - A round recorded after a Challenger has already won.
 - A decided tournament that isn't marked `completed`.
 - A tournament award without a tournament, or given to a non-participant.
+- Base points higher than any placement in the tournament's points table (catches typos such as `123231`).
+- A Nemesis pair that involves a player who isn't registered.
 
 **Warnings:**
 - A Nemesis who has no result in that round.
 - A tournament marked `completed` without a champion.
+- Base points that differ from the points table for that placement.
+- A result whose Nemesis differs from the pair announced before the game.
+- A signed Discord avatar link, which expires. Save the picture in `avatars/` instead.
+- A file in `avatars/` that isn't a supported picture or doesn't match a player slug.
+
+## Share links
+
+The export also writes small HTML pages to `data/share/players/<slug>/` and `data/share/tournaments/<slug>/`, published at `https://the-ultimate-gamer.github.io/data/share/…`. They carry the title, a short summary and the player's picture for link previews in Discord, WhatsApp and similar apps, then redirect to the real page on the website. The website's Share buttons copy these links.
+
+Website pages such as `/players/<slug>` are rendered in the browser and served through GitHub Pages' 404 fallback, so apps can't build a preview for them. The share pages exist to fix that.
+
+The public addresses come from the `meta` table: `site_url` (default `https://the-ultimate-gamer.github.io/`) and `data_url` (default `<site_url>data/`).
+
+## Player pictures
+
+Save a player's picture as `avatars/<player-slug>.jpg` (or `.png`, `.webp`, `.gif`). The export copies it to `data/avatars/`, so it is published with the data and never expires, and it wins over the player's `avatar_url`. The JSON points to it with a path relative to the data URL, for example `"avatarUrl": "avatars/tnoy.jpg"`.
 
 ## Recording a tournament
 

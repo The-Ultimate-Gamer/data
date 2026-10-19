@@ -8,8 +8,10 @@ rules live in exactly one place.
 
 from __future__ import annotations
 
+import html
 import json
 import re
+import shutil
 import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -20,6 +22,12 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB = ROOT / "database" / "ultimate-gamer.sqlite"
 SCHEMA_FILE = ROOT / "schema" / "schema.sql"
 DEFAULT_OUT = ROOT / "data"
+# Player pictures hosted with the data: avatars/<player-slug>.<ext>, copied to data/avatars/ on export.
+DEFAULT_AVATARS = ROOT / "avatars"
+AVATAR_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
+# Public addresses, used for share pages. Override with meta keys 'site_url' and 'data_url'.
+DEFAULT_SITE_URL = "https://the-ultimate-gamer.github.io/"
+SHARE_DIR = "share"
 
 SCHEMA_VERSION = 1
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -86,6 +94,8 @@ class PlayerState:
     double_downs_used: int = 0
     nominations_used: int = 0
     rank: int = 0
+    # Final placement once the tournament is over: the champion is 1st, everyone else follows by points.
+    finish: int | None = None
 
 
 @dataclass
@@ -221,6 +231,17 @@ def compute_tournament(conn: sqlite3.Connection, row: sqlite3.Row, names: dict[i
         p.rank = previous_rank if p.points == previous_points else index
         previous_points, previous_rank = p.points, p.rank
     state.order = [p.player_id for p in ordered]
+
+    if row["status"] == "completed" or state.champion_id is not None:
+        crowned = state.champion_id is not None
+        offset = 1 if crowned else 0
+        previous_points, previous_finish = None, 0
+        others = [p for p in ordered if p.player_id != state.champion_id]
+        for index, p in enumerate(others, start=1 + offset):
+            p.finish = previous_finish if p.points == previous_points else index
+            previous_points, previous_finish = p.points, p.finish
+        if crowned and state.champion_id in players:
+            players[state.champion_id].finish = 1
     return state
 
 
@@ -230,9 +251,10 @@ def compute_tournament(conn: sqlite3.Connection, row: sqlite3.Row, names: dict[i
 class Exporter:
     """Builds every JSON document from one consistent snapshot of the database."""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection, avatars_dir: Path | None = DEFAULT_AVATARS):
         self.conn = conn
         self.players = {r["id"]: r for r in conn.execute("SELECT * FROM players ORDER BY name COLLATE NOCASE")}
+        self.avatar_files = avatar_files(avatars_dir, {p["slug"] for p in self.players.values()})
         self.names = {pid: r["name"] for pid, r in self.players.items()}
         self.games = {r["id"]: r for r in conn.execute("SELECT * FROM games ORDER BY name COLLATE NOCASE")}
         self.categories = list(conn.execute("SELECT * FROM categories ORDER BY sort_order, slug"))
@@ -253,14 +275,37 @@ class Exporter:
         for n in conn.execute("SELECT * FROM nominations ORDER BY id"):
             self.nominations.setdefault((n["tournament_id"], n["round_number"]), []).append(n)
         self.meta = {r["key"]: r["value"] for r in conn.execute("SELECT key, value FROM meta")}
+        self.points_tables: dict[int, list[Json]] = {}
+        for r in conn.execute("SELECT * FROM tournament_points ORDER BY tournament_id, placement"):
+            self.points_tables.setdefault(r["tournament_id"], []).append(
+                {"placement": r["placement"], "points": r["points"]}
+            )
+        self.nemesis_assignments: dict[tuple[int, int], list[sqlite3.Row]] = {}
+        for r in conn.execute("SELECT * FROM nemesis_assignments ORDER BY tournament_id, round_number, player_id"):
+            self.nemesis_assignments.setdefault((r["tournament_id"], r["round_number"]), []).append(r)
+        self.category_use: dict[str, int] = {}
+        for r in conn.execute(
+            "SELECT category_slug, COUNT(DISTINCT tournament_id) AS n FROM tournament_categories GROUP BY category_slug"
+        ):
+            self.category_use[r["category_slug"]] = r["n"]
 
     # ---- refs
+
+    def avatar_url(self, pid: int) -> str | None:
+        """A picture hosted with the data wins over avatar_url; relative paths resolve against the data URL."""
+        p = self.players[pid]
+        local = self.avatar_files.get(p["slug"])
+        return f"avatars/{local}" if local else p["avatar_url"]
 
     def player_ref(self, pid: int | None) -> Json | None:
         if pid is None:
             return None
         p = self.players[pid]
-        return {"slug": p["slug"], "name": p["name"]}
+        ref: Json = {"slug": p["slug"], "name": p["name"]}
+        avatar = self.avatar_url(pid)
+        if avatar:
+            ref["avatarUrl"] = avatar
+        return ref
 
     def game_ref(self, gid: int | None) -> Json | None:
         if gid is None:
@@ -405,6 +450,7 @@ class Exporter:
             "status": t["status"],
             "isDemo": bool(t["is_demo"]),
             "challengerThreshold": t["challenger_threshold"],
+            "pointsTable": self.points_tables.get(state.id, []),
             "playerCount": len(state.players),
             "gamesPlayed": len(completed),
             "categoriesCompleted": len(completed),
@@ -420,13 +466,23 @@ class Exporter:
     def live_fields(self, state: TournamentState) -> Json:
         active = state.active_position()
         if active is None:
-            return {"currentCategory": None, "currentGame": None, "nextSelection": None}
+            return {"currentCategory": None, "currentGame": None, "nextSelection": None, "nextNemeses": None}
         position, category = active
         rnd = state.rounds.get(position)
+        live = state.row["status"] == "ongoing"
         return {
             "currentCategory": category,
             "currentGame": self.game_ref(rnd.game_id) if rnd else None,
-            "nextSelection": self.selection(state, position, category) if state.row["status"] == "ongoing" else None,
+            "nextSelection": self.selection(state, position, category) if live else None,
+            "nextNemeses": [
+                {"player": self.player_ref(a["player_id"]), "nemesis": self.player_ref(a["nemesis_player_id"])}
+                for a in sorted(
+                    self.nemesis_assignments.get((state.id, position), []),
+                    key=lambda a: self.names[a["player_id"]].lower(),
+                )
+            ]
+            if live
+            else None,
         }
 
     def tournament_detail(self, state: TournamentState) -> Json:
@@ -471,7 +527,7 @@ class Exporter:
             "slug": p["slug"],
             "name": p["name"],
             "initials": p["initials"],
-            "avatarUrl": p["avatar_url"],
+            "avatarUrl": self.avatar_url(pid),
             "firstTournament": self.tournament_ref(mine[0][0]) if mine else None,
             "tournamentsPlayed": len(mine),
             "ultimateGamerWins": sum(1 for _, s in mine if s.champion_id == pid),
@@ -479,7 +535,8 @@ class Exporter:
             "gameWins": sum(s.players[pid].games_won for _, s in mine),
             "podiumFinishes": sum(s.players[pid].podiums for _, s in mine),
             "awardCount": sum(1 for g in self.grants if g["player_id"] == pid),
-            "bestPlacement": min((s.players[pid].rank for s in completed), default=None),
+            # The crown counts as 1st: finish, not points rank.
+            "bestPlacement": min((s.players[pid].finish or s.players[pid].rank for s in completed), default=None),
             "current": None,
         }
         if current and pid in current.players:
@@ -555,8 +612,10 @@ class Exporter:
                     "startDate": t["start_date"],
                     "status": t["status"],
                     "placement": s.players[pid].rank,
+                    "finish": s.players[pid].finish,
                     "points": s.players[pid].points,
                     "gamesWon": s.players[pid].games_won,
+                    "podiums": s.players[pid].podiums,
                     "wasChallenger": s.players[pid].challenger_since is not None,
                     "wasChampion": s.champion_id == pid,
                 }
@@ -616,11 +675,96 @@ class Exporter:
                     "maxPlayers": g["max_players"],
                     "timesPlayed": len(plays),
                     "timesNominated": nominated.get(gid, 0),
-                    "lastPlayed": {"tournament": self.tournament_ref(last[2]), "gameNumber": last[1]} if last else None,
+                    "lastPlayed": {
+                        "tournament": self.tournament_ref(last[2]),
+                        "gameNumber": last[1],
+                        "playedAt": self.states[last[2]["id"]].rounds[last[1]].played_at,
+                    }
+                    if last
+                    else None,
                     "available": bool(g["available"]),
                 }
             )
         return {"games": games}
+
+    # ---- share pages
+
+    @property
+    def site_url(self) -> str:
+        return with_slash(self.meta.get("site_url") or DEFAULT_SITE_URL)
+
+    @property
+    def data_url(self) -> str:
+        return with_slash(self.meta.get("data_url") or f"{self.site_url}data/")
+
+    def absolute_avatar(self, pid: int | None) -> str | None:
+        avatar = self.avatar_url(pid) if pid is not None else None
+        if not avatar:
+            return None
+        if avatar.startswith("https://"):
+            return avatar
+        return None if ":" in avatar or avatar.startswith("/") else self.data_url + avatar
+
+    def player_description(self, pid: int) -> str:
+        s = self.player_summary(pid)
+        parts = []
+        if s["ultimateGamerWins"]:
+            parts.append(f"{s['ultimateGamerWins']}× Ultimate Gamer")
+        parts.append(plural(s["tournamentsPlayed"], "tournament"))
+        if s["bestPlacement"]:
+            parts.append(f"best finish {ordinal(s['bestPlacement'])}")
+        parts.append(plural(s["gameWins"], "game win"))
+        if s["awardCount"]:
+            parts.append(plural(s["awardCount"], "award"))
+        if s["current"]:
+            c = s["current"]
+            parts.append(f"live: {ordinal(c['rank'])} in points ({c['points']} pts) in {c['tournament']['name']}")
+        return " · ".join(parts)
+
+    def tournament_description(self, state: TournamentState) -> str:
+        t = state.row
+        status = {"ongoing": "Live now", "upcoming": "Upcoming", "completed": "Completed"}[t["status"]]
+        parts = [status]
+        dates = date_range(t["start_date"], t["end_date"])
+        if dates:
+            parts.append(dates)
+        parts.append(plural(len(state.players), "player"))
+        played = len(state.completed_rounds)
+        if t["status"] == "completed" or state.champion_id is not None:
+            parts.append(plural(played, "game"))
+        elif state.positions:
+            parts.append(f"{played} of {len(state.positions)} games played")
+        if state.champion_id is not None:
+            parts.append(f"Ultimate Gamer: {self.names[state.champion_id]}")
+        elif state.order and state.completed_rounds:
+            leader = state.players[state.order[0]]
+            parts.append(f"leader: {self.names[leader.player_id]} ({leader.points} pts)")
+        return " · ".join(parts)
+
+    def share_pages(self) -> dict[str, str]:
+        """Static HTML with link-preview tags that redirects to the website (path -> HTML)."""
+        site = self.meta.get("site_name", "The Ultimate Gamer")
+        pages: dict[str, str] = {}
+        for pid, p in self.players.items():
+            pages[f"{SHARE_DIR}/players/{p['slug']}/index.html"] = share_page(
+                site=site,
+                title=p["name"],
+                description=self.player_description(pid),
+                target=f"{self.site_url}players/{p['slug']}",
+                image=self.absolute_avatar(pid),
+                kind="profile",
+            )
+        for t in self.tournaments:
+            state = self.states[t["id"]]
+            pages[f"{SHARE_DIR}/tournaments/{t['slug']}/index.html"] = share_page(
+                site=site,
+                title=t["name"],
+                description=self.tournament_description(state),
+                target=f"{self.site_url}tournaments/{t['slug']}",
+                image=self.absolute_avatar(state.champion_id),
+                kind="website",
+            )
+        return pages
 
     # ---- documents
 
@@ -650,6 +794,7 @@ class Exporter:
                 "currentCategory": None,
                 "currentGame": None,
                 "nextSelection": None,
+                "nextNemeses": None,
                 "standings": [],
                 "categories": [],
                 "recentResults": [],
@@ -657,7 +802,13 @@ class Exporter:
 
         docs["categories.json"] = {
             "categories": [
-                {"slug": c["slug"], "name": c["name"], "icon": c["icon"], "description": c["description"]}
+                {
+                    "slug": c["slug"],
+                    "name": c["name"],
+                    "icon": c["icon"],
+                    "description": c["description"],
+                    "tournamentsUsed": self.category_use.get(c["slug"], 0),
+                }
                 for c in self.categories
             ]
         }
@@ -751,5 +902,125 @@ def write_documents(docs: dict[str, Json], out_dir: Path, now: str | None = None
     return report
 
 
-def export(conn: sqlite3.Connection, out_dir: Path, now: str | None = None) -> dict[str, list[str]]:
-    return write_documents(Exporter(conn).documents(), out_dir, now)
+def with_slash(url: str) -> str:
+    return url if url.endswith("/") else f"{url}/"
+
+
+def ordinal(n: int) -> str:
+    if 11 <= n % 100 <= 13:
+        return f"{n}th"
+    return f"{n}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th') }"
+
+
+def plural(n: int, word: str) -> str:
+    return f"{n} {word}{'' if n == 1 else 's'}"
+
+
+def date_range(start: str | None, end: str | None) -> str:
+    def fmt(value: str | None) -> str:
+        try:
+            d = datetime.strptime(value or "", "%Y-%m-%d")
+        except ValueError:
+            return ""
+        return f"{d.day} {d.strftime('%b %Y')}"
+
+    a, b = fmt(start), fmt(end)
+    return f"{a} – {b}" if a and b and a != b else a or b
+
+
+def share_page(*, site: str, title: str, description: str, target: str, image: str | None, kind: str) -> str:
+    """A tiny page for link previews (Discord, WhatsApp…). Crawlers read the tags; people are redirected."""
+    e = lambda value: html.escape(value, quote=True)  # noqa: E731
+    full_title = f"{title} · {site}"
+    tags = [
+        f'<meta property="og:site_name" content="{e(site)}">',
+        f'<meta property="og:type" content="{kind}">',
+        f'<meta property="og:title" content="{e(full_title)}">',
+        f'<meta property="og:description" content="{e(description)}">',
+        f'<meta name="description" content="{e(description)}">',
+        f'<meta name="twitter:card" content="summary">',
+    ]
+    if image:
+        tags.append(f'<meta property="og:image" content="{e(image)}">')
+    head = "\n\t\t".join(tags)
+    return f"""<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="robots" content="noindex">
+		<title>{e(full_title)}</title>
+		{head}
+		<meta http-equiv="refresh" content="0; url={e(target)}">
+	</head>
+	<body>
+		<p><a href="{e(target)}">{e(full_title)}</a></p>
+	</body>
+</html>
+"""
+
+
+def sync_share_pages(pages: dict[str, str], out_dir: Path) -> dict[str, list[str]]:
+    """Write share pages under out_dir/share/ and remove ones that are no longer exported."""
+    report: dict[str, list[str]] = {"written": [], "removed": []}
+    for rel, content in sorted(pages.items()):
+        target = out_dir / rel
+        if target.exists() and target.read_text(encoding="utf-8") == content:
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+        report["written"].append(rel)
+    share_root = out_dir / SHARE_DIR
+    if share_root.is_dir():
+        for existing in sorted(share_root.rglob("*"), reverse=True):
+            rel = existing.relative_to(out_dir).as_posix()
+            if existing.is_file() and rel not in pages:
+                existing.unlink()
+                report["removed"].append(rel)
+            elif existing.is_dir() and not any(existing.iterdir()):
+                existing.rmdir()
+    return report
+
+
+def avatar_files(avatars_dir: Path | None, slugs: set[str]) -> dict[str, str]:
+    """Map player slug -> file name for pictures in avatars_dir named after an existing player."""
+    if avatars_dir is None or not avatars_dir.is_dir():
+        return {}
+    found: dict[str, str] = {}
+    for path in sorted(avatars_dir.iterdir()):
+        if path.is_file() and path.suffix.lower() in AVATAR_EXTENSIONS and path.stem in slugs:
+            found.setdefault(path.stem, path.name)
+    return found
+
+
+def sync_avatars(files: dict[str, str], avatars_dir: Path | None, out_dir: Path) -> dict[str, list[str]]:
+    """Copy player pictures to out_dir/avatars/ and remove pictures that are no longer used."""
+    report: dict[str, list[str]] = {"written": [], "removed": []}
+    target_dir = out_dir / "avatars"
+    wanted = set(files.values())
+    if wanted and avatars_dir is not None:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for name in sorted(wanted):
+            source, target = avatars_dir / name, target_dir / name
+            if not target.exists() or target.read_bytes() != source.read_bytes():
+                shutil.copyfile(source, target)
+                report["written"].append(f"avatars/{name}")
+    if target_dir.is_dir():
+        for existing in sorted(target_dir.iterdir()):
+            if existing.is_file() and existing.name not in wanted:
+                existing.unlink()
+                report["removed"].append(f"avatars/{existing.name}")
+    return report
+
+
+def export(
+    conn: sqlite3.Connection, out_dir: Path, now: str | None = None, avatars_dir: Path | None = DEFAULT_AVATARS
+) -> dict[str, list[str]]:
+    exporter = Exporter(conn, avatars_dir)
+    report = write_documents(exporter.documents(), out_dir, now)
+    pictures = sync_avatars(exporter.avatar_files, avatars_dir, out_dir)
+    shares = sync_share_pages(exporter.share_pages(), out_dir)
+    for extra in (pictures, shares):
+        report["written"] += extra["written"]
+        report["removed"] += extra["removed"]
+    return report

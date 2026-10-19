@@ -120,6 +120,20 @@ CREATE TABLE IF NOT EXISTS results (
 	CHECK (nemesis_player_id IS NULL OR nemesis_player_id <> player_id)
 );
 
+-- Nemesis pairs announced before a round. Nemeses are public: these are shown on the website
+-- while the round is upcoming. Several players may share a Nemesis and pairs need not be mutual.
+-- results.nemesis_player_id stays the record of the Nemesis a player actually had.
+CREATE TABLE IF NOT EXISTS nemesis_assignments (
+	tournament_id INTEGER NOT NULL,
+	round_number INTEGER NOT NULL,
+	player_id INTEGER NOT NULL REFERENCES players (id),
+	nemesis_player_id INTEGER NOT NULL REFERENCES players (id),
+	PRIMARY KEY (tournament_id, round_number, player_id),
+	FOREIGN KEY (tournament_id, round_number)
+		REFERENCES rounds (tournament_id, number) ON DELETE CASCADE,
+	CHECK (nemesis_player_id <> player_id)
+);
+
 -- Nominations for the game of a round (recorded, not performed, by this project).
 CREATE TABLE IF NOT EXISTS nominations (
 	id INTEGER PRIMARY KEY,

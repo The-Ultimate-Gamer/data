@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:54:09Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "player": {
       "slug": "echo",
@@ -17,7 +17,7 @@
       "gameWins": 3,
       "podiumFinishes": 6,
       "awardCount": 3,
-      "bestPlacement": 2,
+      "bestPlacement": 1,
       "current": {
         "tournament": {
           "slug": "demo-2026",
@@ -35,8 +35,10 @@
           "startDate": "2026-10-16",
           "status": "ongoing",
           "placement": 3,
+          "finish": null,
           "points": 17,
           "gamesWon": 1,
+          "podiums": 2,
           "wasChallenger": false,
           "wasChampion": false
         },
@@ -48,8 +50,10 @@
           "startDate": "2025-11-07",
           "status": "completed",
           "placement": 2,
+          "finish": 1,
           "points": 30,
           "gamesWon": 2,
+          "podiums": 4,
           "wasChallenger": true,
           "wasChampion": true
         }

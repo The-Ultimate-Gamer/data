@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:54:09Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "player": {
       "slug": "tnoy",
       "name": "Tnoy",
       "initials": null,
-      "avatarUrl": "https://cdn.discordapp.com/attachments/425351828780351488/1561025795907002468/ER927aNXsAA8KQO.jpg?ex=6ad4da10&is=6ad38890&hm=dc7c21828ee39f51ea6b10093dab71e9782019546dd25169abef99b3f9cb799b&",
+      "avatarUrl": null,
       "firstTournament": {
         "slug": "demo-2025",
         "name": "Demo LAN 2025"
@@ -24,7 +24,7 @@
           "name": "Demo LAN 2026"
         },
         "rank": 1,
-        "points": 123258
+        "points": 31
       },
       "tournaments": [
         {
@@ -35,8 +35,10 @@
           "startDate": "2026-10-16",
           "status": "ongoing",
           "placement": 1,
-          "points": 123258,
+          "finish": null,
+          "points": 31,
           "gamesWon": 2,
+          "podiums": 5,
           "wasChallenger": true,
           "wasChampion": false
         },
@@ -48,8 +50,10 @@
           "startDate": "2025-11-07",
           "status": "completed",
           "placement": 3,
+          "finish": 3,
           "points": 23,
           "gamesWon": 1,
+          "podiums": 6,
           "wasChallenger": true,
           "wasChampion": false
         }
@@ -129,7 +133,7 @@
             "name": "Fall Guys"
           },
           "placement": 2,
-          "points": 123231,
+          "points": 4,
           "doubleDown": false,
           "nemesis": {
             "slug": "vex",

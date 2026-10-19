@@ -3,7 +3,7 @@ import { promisify } from 'node:util';
 import { config } from './config.ts';
 
 const exec = promisify(execFile);
-const PATHS = ['database', 'data'];
+const PATHS = ['database', 'data', 'avatars'];
 
 async function git(...args: string[]) {
 	const { stdout } = await exec('git', args, { cwd: config.repo });
@@ -42,6 +42,10 @@ function describe(file: string): string | null {
 		'tournaments/index.json': 'Tournaments page'
 	};
 	if (fixed[rel]) return fixed[rel];
+	const picture = rel.match(/^avatars\/(.+)\.\w+$/);
+	if (picture) return `Player picture: ${picture[1]}`;
+	const share = rel.match(/^share\/(players|tournaments)\/(.+)\/index\.html$/);
+	if (share) return `Link preview: ${share[1] === 'players' ? 'player' : 'tournament'} ${share[2]}`;
 	const player = rel.match(/^players\/(.+)\.json$/);
 	if (player) return `Player profile: ${player[1]}`;
 	const tournament = rel.match(/^tournaments\/(.+)\.json$/);

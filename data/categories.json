@@ -1,91 +1,105 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T12:52:09Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "categories": [
       {
         "slug": "strategy",
         "name": "Strategy",
         "icon": "♟️",
-        "description": "Planning, economy and long-term decisions."
+        "description": "Planning, economy and long-term decisions.",
+        "tournamentsUsed": 1
       },
       {
         "slug": "combat",
         "name": "Combat",
         "icon": "⚔️",
-        "description": "Direct confrontation: aim, reflexes and nerve."
+        "description": "Direct confrontation: aim, reflexes and nerve.",
+        "tournamentsUsed": 2
       },
       {
         "slug": "puzzle",
         "name": "Puzzle",
         "icon": "🧩",
-        "description": "Logic and pattern recognition under pressure."
+        "description": "Logic and pattern recognition under pressure.",
+        "tournamentsUsed": 1
       },
       {
         "slug": "platform",
         "name": "Platform",
         "icon": "🍄",
-        "description": "Jumps, timing and precise movement."
+        "description": "Jumps, timing and precise movement.",
+        "tournamentsUsed": 1
       },
       {
         "slug": "chaos",
         "name": "Chaos",
         "icon": "🌀",
-        "description": "Unpredictable party games where anything can happen."
+        "description": "Unpredictable party games where anything can happen.",
+        "tournamentsUsed": 1
       },
       {
         "slug": "racing",
         "name": "Racing",
         "icon": "🏁",
-        "description": "First across the line wins."
+        "description": "First across the line wins.",
+        "tournamentsUsed": 2
       },
       {
         "slug": "teamwork",
         "name": "Teamwork",
         "icon": "🤝",
-        "description": "Temporary alliances: cooperate now, compete later."
+        "description": "Temporary alliances: cooperate now, compete later.",
+        "tournamentsUsed": 1
       },
       {
         "slug": "wildcard",
         "name": "Wildcard",
         "icon": "🃏",
-        "description": "Anything goes."
+        "description": "Anything goes.",
+        "tournamentsUsed": 2
       },
       {
         "slug": "knowledge",
         "name": "Knowledge",
         "icon": "🧠",
-        "description": "Trivia and quizzes."
+        "description": "Trivia and quizzes.",
+        "tournamentsUsed": 2
       },
       {
         "slug": "tabletop",
         "name": "Tabletop",
         "icon": "🎲",
-        "description": "Board and card games, digital or physical."
+        "description": "Board and card games, digital or physical.",
+        "tournamentsUsed": 1
       },
       {
         "slug": "offline",
         "name": "Offline",
         "icon": "🎯",
-        "description": "Away from the screen."
+        "description": "Away from the screen.",
+        "tournamentsUsed": 0
       },
       {
         "slug": "idle",
         "name": "Idle",
         "icon": "⏳",
-        "description": "Patience and optimisation over a longer timeframe."
+        "description": "Patience and optimisation over a longer timeframe.",
+        "tournamentsUsed": 0
       },
       {
         "slug": "speedrun",
         "name": "Speedrun",
         "icon": "⏱️",
-        "description": "Fastest completion of a set goal wins."
+        "description": "Fastest completion of a set goal wins.",
+        "tournamentsUsed": 0
       },
       {
         "slug": "simulation",
         "name": "Simulation",
         "icon": "🛠️",
-        "description": "Build, manage or simulate better than everyone else."
+        "description": "Build, manage or simulate better than everyone else.",
+        "tournamentsUsed": 1
       }
     ]
   }

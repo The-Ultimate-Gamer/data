@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:54:09Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "player": {
       "slug": "kite",
@@ -35,8 +35,10 @@
           "startDate": "2026-10-16",
           "status": "ongoing",
           "placement": 6,
+          "finish": null,
           "points": 5,
           "gamesWon": 0,
+          "podiums": 1,
           "wasChallenger": false,
           "wasChampion": false
         }

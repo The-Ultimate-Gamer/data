@@ -199,6 +199,38 @@
 	</section>
 </div>
 
+{#if !completed && data.participants.length >= 2}
+	<section class="panel">
+		<div class="spread">
+			<h2>Nemeses for this game</h2>
+			<form method="POST" action="?/drawNemeses" use:enhance={keep}>
+				<button class="small">🎲 Draw at random</button>
+			</form>
+		</div>
+		<p class="hint">
+			Nemeses are public: the pairs are shown on the website until the game is played. Anyone but
+			yourself can be drawn, so two players can share a Nemesis and pairs don’t have to be mutual.
+			They are copied into the results below.
+		</p>
+		<form method="POST" action="?/nemeses" use:enhance={keep} class="stack">
+			<div class="row">
+				{#each data.participants as p (p.id)}
+					<label
+						>{p.name}
+						<select name="nemesis_{p.id}" value={data.nemeses[p.id] ?? ''}>
+							<option value="">—</option>
+							{#each data.participants.filter((o) => o.id !== p.id) as o (o.id)}
+								<option value={o.id}>{o.name}</option>
+							{/each}
+						</select>
+					</label>
+				{/each}
+			</div>
+			<div class="row"><button>Save Nemeses</button></div>
+		</form>
+	</section>
+{/if}
+
 <section class="panel">
 	<div class="spread">
 		<h2>2 · Results</h2>
@@ -211,10 +243,11 @@
 	{#if data.participants.length < 2}
 		<p class="muted">Register at least two players for this tournament first.</p>
 	{:else}
-		{#key `${data.number}-${completed}`}
+		{#key `${data.number}-${completed}-${JSON.stringify(data.nemeses)}`}
 			<ResultsEntry
 				participants={data.participants}
 				results={data.results}
+				nemeses={data.nemeses}
 				points={data.points}
 				{doubleDownLeft}
 				{completed}

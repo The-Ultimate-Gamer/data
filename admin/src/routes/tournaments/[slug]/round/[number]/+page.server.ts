@@ -33,6 +33,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		round: repo.round(t.id, number) ?? null,
 		participants: repo.participants(t.id),
 		results: repo.results(t.id, number),
+		nemeses: repo.nemesisAssignments(t.id, number),
 		nominations: repo.nominations(t.id, number),
 		games: repo.listGames(),
 		points: repo.points(t.id),
@@ -79,6 +80,31 @@ export const actions: Actions = {
 		const picked = tickets[randomInt(tickets.length)];
 		const name = repo.listGames().find((g) => g.id === picked)?.name ?? 'Game';
 		return mutate(`🎲 Drawn: ${name}`, () => repo.setRoundGame(t.id, number, picked));
+	},
+	nemeses: async ({ request, params }) => {
+		const { t, number } = context(params.slug, params.number);
+		const form = await request.formData();
+		return mutate('Nemeses saved.', () =>
+			repo.setNemesisAssignments(
+				t.id,
+				number,
+				repo.participants(t.id).map((p) => ({
+					player_id: p.id,
+					nemesis_player_id: optInt(form, `nemesis_${p.id}`)
+				}))
+			)
+		);
+	},
+	drawNemeses: async ({ params }) => {
+		const { t, number } = context(params.slug, params.number);
+		const players = repo.participants(t.id);
+		if (players.length < 2) return fail(400, { error: 'Register at least two players first.' });
+		// Independent draws: anyone but yourself. Nemeses can be shared and need not be mutual.
+		const pairs = players.map((p) => {
+			const others = players.filter((o) => o.id !== p.id);
+			return { player_id: p.id, nemesis_player_id: others[randomInt(others.length)].id };
+		});
+		return mutate('🎲 Nemeses drawn.', () => repo.setNemesisAssignments(t.id, number, pairs));
 	},
 	results: async ({ request, params }) => {
 		const { t, number } = context(params.slug, params.number);

@@ -5,7 +5,7 @@ A **local-only** admin app for the tournament database. Use it to add players, g
 - Runs on your laptop at **http://127.0.0.1:5174**. It only accepts connections from your own machine and has no login.
 - Reads and writes `../database/ultimate-gamer.sqlite` directly, using Node's built-in `node:sqlite`.
 - After every change it runs `scripts/export_json.py` and `scripts/validate.py`. The standings, Challengers and champion you see are therefore exactly what the website will show; the tournament rules live only in the Python scripts.
-- **Publish** commits `database/` and `data/` and pushes them to GitHub, which deploys the JSON to the live site.
+- **Publish** commits `database/`, `avatars/` and `data/` and pushes them to GitHub, which deploys the JSON to the live site.
 
 ## Requirements
 

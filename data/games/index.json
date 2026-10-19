@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:52:26Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "games": [
       {
@@ -19,7 +19,8 @@
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "gameNumber": 1
+          "gameNumber": 1,
+          "playedAt": "2026-10-16T14:00:00Z"
         },
         "available": true
       },
@@ -39,7 +40,8 @@
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
-          "gameNumber": 4
+          "gameNumber": 4,
+          "playedAt": "2025-11-07T22:00:00Z"
         },
         "available": false
       },
@@ -60,7 +62,8 @@
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
-          "gameNumber": 5
+          "gameNumber": 5,
+          "playedAt": "2025-11-08T12:00:00Z"
         },
         "available": true
       },
@@ -110,7 +113,8 @@
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "gameNumber": 2
+          "gameNumber": 2,
+          "playedAt": "2026-10-16T16:30:00Z"
         },
         "available": true
       },
@@ -159,7 +163,8 @@
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "gameNumber": 5
+          "gameNumber": 5,
+          "playedAt": "2026-10-16T22:10:00Z"
         },
         "available": true
       },
@@ -180,7 +185,8 @@
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
-          "gameNumber": 1
+          "gameNumber": 1,
+          "playedAt": "2025-11-07T15:00:00Z"
         },
         "available": true
       },
@@ -216,7 +222,8 @@
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
-          "gameNumber": 6
+          "gameNumber": 6,
+          "playedAt": "2025-11-08T15:00:00Z"
         },
         "available": true
       },
@@ -266,7 +273,8 @@
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "gameNumber": 4
+          "gameNumber": 4,
+          "playedAt": "2026-10-16T20:30:00Z"
         },
         "available": true
       },
@@ -286,7 +294,8 @@
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "gameNumber": 3
+          "gameNumber": 3,
+          "playedAt": "2026-10-16T18:45:00Z"
         },
         "available": true
       },
@@ -307,7 +316,8 @@
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
-          "gameNumber": 3
+          "gameNumber": 3,
+          "playedAt": "2025-11-07T19:30:00Z"
         },
         "available": true
       },
@@ -328,7 +338,8 @@
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
-          "gameNumber": 2
+          "gameNumber": 2,
+          "playedAt": "2025-11-07T17:00:00Z"
         },
         "available": true
       }
