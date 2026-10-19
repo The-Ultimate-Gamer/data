@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -20,6 +21,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB = ROOT / "database" / "ultimate-gamer.sqlite"
 SCHEMA_FILE = ROOT / "schema" / "schema.sql"
 DEFAULT_OUT = ROOT / "data"
+# Player pictures hosted with the data: avatars/<player-slug>.<ext>, copied to data/avatars/ on export.
+DEFAULT_AVATARS = ROOT / "avatars"
+AVATAR_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
 SCHEMA_VERSION = 1
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -86,6 +90,8 @@ class PlayerState:
     double_downs_used: int = 0
     nominations_used: int = 0
     rank: int = 0
+    # Final placement once the tournament is over: the champion is 1st, everyone else follows by points.
+    finish: int | None = None
 
 
 @dataclass
@@ -221,6 +227,17 @@ def compute_tournament(conn: sqlite3.Connection, row: sqlite3.Row, names: dict[i
         p.rank = previous_rank if p.points == previous_points else index
         previous_points, previous_rank = p.points, p.rank
     state.order = [p.player_id for p in ordered]
+
+    if row["status"] == "completed" or state.champion_id is not None:
+        crowned = state.champion_id is not None
+        offset = 1 if crowned else 0
+        previous_points, previous_finish = None, 0
+        others = [p for p in ordered if p.player_id != state.champion_id]
+        for index, p in enumerate(others, start=1 + offset):
+            p.finish = previous_finish if p.points == previous_points else index
+            previous_points, previous_finish = p.points, p.finish
+        if crowned and state.champion_id in players:
+            players[state.champion_id].finish = 1
     return state
 
 
@@ -230,9 +247,10 @@ def compute_tournament(conn: sqlite3.Connection, row: sqlite3.Row, names: dict[i
 class Exporter:
     """Builds every JSON document from one consistent snapshot of the database."""
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection, avatars_dir: Path | None = DEFAULT_AVATARS):
         self.conn = conn
         self.players = {r["id"]: r for r in conn.execute("SELECT * FROM players ORDER BY name COLLATE NOCASE")}
+        self.avatar_files = avatar_files(avatars_dir, {p["slug"] for p in self.players.values()})
         self.names = {pid: r["name"] for pid, r in self.players.items()}
         self.games = {r["id"]: r for r in conn.execute("SELECT * FROM games ORDER BY name COLLATE NOCASE")}
         self.categories = list(conn.execute("SELECT * FROM categories ORDER BY sort_order, slug"))
@@ -253,14 +271,37 @@ class Exporter:
         for n in conn.execute("SELECT * FROM nominations ORDER BY id"):
             self.nominations.setdefault((n["tournament_id"], n["round_number"]), []).append(n)
         self.meta = {r["key"]: r["value"] for r in conn.execute("SELECT key, value FROM meta")}
+        self.points_tables: dict[int, list[Json]] = {}
+        for r in conn.execute("SELECT * FROM tournament_points ORDER BY tournament_id, placement"):
+            self.points_tables.setdefault(r["tournament_id"], []).append(
+                {"placement": r["placement"], "points": r["points"]}
+            )
+        self.nemesis_assignments: dict[tuple[int, int], list[sqlite3.Row]] = {}
+        for r in conn.execute("SELECT * FROM nemesis_assignments ORDER BY tournament_id, round_number, player_id"):
+            self.nemesis_assignments.setdefault((r["tournament_id"], r["round_number"]), []).append(r)
+        self.category_use: dict[str, int] = {}
+        for r in conn.execute(
+            "SELECT category_slug, COUNT(DISTINCT tournament_id) AS n FROM tournament_categories GROUP BY category_slug"
+        ):
+            self.category_use[r["category_slug"]] = r["n"]
 
     # ---- refs
+
+    def avatar_url(self, pid: int) -> str | None:
+        """A picture hosted with the data wins over avatar_url; relative paths resolve against the data URL."""
+        p = self.players[pid]
+        local = self.avatar_files.get(p["slug"])
+        return f"avatars/{local}" if local else p["avatar_url"]
 
     def player_ref(self, pid: int | None) -> Json | None:
         if pid is None:
             return None
         p = self.players[pid]
-        return {"slug": p["slug"], "name": p["name"]}
+        ref: Json = {"slug": p["slug"], "name": p["name"]}
+        avatar = self.avatar_url(pid)
+        if avatar:
+            ref["avatarUrl"] = avatar
+        return ref
 
     def game_ref(self, gid: int | None) -> Json | None:
         if gid is None:
@@ -405,6 +446,7 @@ class Exporter:
             "status": t["status"],
             "isDemo": bool(t["is_demo"]),
             "challengerThreshold": t["challenger_threshold"],
+            "pointsTable": self.points_tables.get(state.id, []),
             "playerCount": len(state.players),
             "gamesPlayed": len(completed),
             "categoriesCompleted": len(completed),
@@ -420,13 +462,23 @@ class Exporter:
     def live_fields(self, state: TournamentState) -> Json:
         active = state.active_position()
         if active is None:
-            return {"currentCategory": None, "currentGame": None, "nextSelection": None}
+            return {"currentCategory": None, "currentGame": None, "nextSelection": None, "nextNemeses": None}
         position, category = active
         rnd = state.rounds.get(position)
+        live = state.row["status"] == "ongoing"
         return {
             "currentCategory": category,
             "currentGame": self.game_ref(rnd.game_id) if rnd else None,
-            "nextSelection": self.selection(state, position, category) if state.row["status"] == "ongoing" else None,
+            "nextSelection": self.selection(state, position, category) if live else None,
+            "nextNemeses": [
+                {"player": self.player_ref(a["player_id"]), "nemesis": self.player_ref(a["nemesis_player_id"])}
+                for a in sorted(
+                    self.nemesis_assignments.get((state.id, position), []),
+                    key=lambda a: self.names[a["player_id"]].lower(),
+                )
+            ]
+            if live
+            else None,
         }
 
     def tournament_detail(self, state: TournamentState) -> Json:
@@ -471,7 +523,7 @@ class Exporter:
             "slug": p["slug"],
             "name": p["name"],
             "initials": p["initials"],
-            "avatarUrl": p["avatar_url"],
+            "avatarUrl": self.avatar_url(pid),
             "firstTournament": self.tournament_ref(mine[0][0]) if mine else None,
             "tournamentsPlayed": len(mine),
             "ultimateGamerWins": sum(1 for _, s in mine if s.champion_id == pid),
@@ -479,7 +531,8 @@ class Exporter:
             "gameWins": sum(s.players[pid].games_won for _, s in mine),
             "podiumFinishes": sum(s.players[pid].podiums for _, s in mine),
             "awardCount": sum(1 for g in self.grants if g["player_id"] == pid),
-            "bestPlacement": min((s.players[pid].rank for s in completed), default=None),
+            # The crown counts as 1st: finish, not points rank.
+            "bestPlacement": min((s.players[pid].finish or s.players[pid].rank for s in completed), default=None),
             "current": None,
         }
         if current and pid in current.players:
@@ -555,8 +608,10 @@ class Exporter:
                     "startDate": t["start_date"],
                     "status": t["status"],
                     "placement": s.players[pid].rank,
+                    "finish": s.players[pid].finish,
                     "points": s.players[pid].points,
                     "gamesWon": s.players[pid].games_won,
+                    "podiums": s.players[pid].podiums,
                     "wasChallenger": s.players[pid].challenger_since is not None,
                     "wasChampion": s.champion_id == pid,
                 }
@@ -616,7 +671,13 @@ class Exporter:
                     "maxPlayers": g["max_players"],
                     "timesPlayed": len(plays),
                     "timesNominated": nominated.get(gid, 0),
-                    "lastPlayed": {"tournament": self.tournament_ref(last[2]), "gameNumber": last[1]} if last else None,
+                    "lastPlayed": {
+                        "tournament": self.tournament_ref(last[2]),
+                        "gameNumber": last[1],
+                        "playedAt": self.states[last[2]["id"]].rounds[last[1]].played_at,
+                    }
+                    if last
+                    else None,
                     "available": bool(g["available"]),
                 }
             )
@@ -650,6 +711,7 @@ class Exporter:
                 "currentCategory": None,
                 "currentGame": None,
                 "nextSelection": None,
+                "nextNemeses": None,
                 "standings": [],
                 "categories": [],
                 "recentResults": [],
@@ -657,7 +719,13 @@ class Exporter:
 
         docs["categories.json"] = {
             "categories": [
-                {"slug": c["slug"], "name": c["name"], "icon": c["icon"], "description": c["description"]}
+                {
+                    "slug": c["slug"],
+                    "name": c["name"],
+                    "icon": c["icon"],
+                    "description": c["description"],
+                    "tournamentsUsed": self.category_use.get(c["slug"], 0),
+                }
                 for c in self.categories
             ]
         }
@@ -751,5 +819,43 @@ def write_documents(docs: dict[str, Json], out_dir: Path, now: str | None = None
     return report
 
 
-def export(conn: sqlite3.Connection, out_dir: Path, now: str | None = None) -> dict[str, list[str]]:
-    return write_documents(Exporter(conn).documents(), out_dir, now)
+def avatar_files(avatars_dir: Path | None, slugs: set[str]) -> dict[str, str]:
+    """Map player slug -> file name for pictures in avatars_dir named after an existing player."""
+    if avatars_dir is None or not avatars_dir.is_dir():
+        return {}
+    found: dict[str, str] = {}
+    for path in sorted(avatars_dir.iterdir()):
+        if path.is_file() and path.suffix.lower() in AVATAR_EXTENSIONS and path.stem in slugs:
+            found.setdefault(path.stem, path.name)
+    return found
+
+
+def sync_avatars(files: dict[str, str], avatars_dir: Path | None, out_dir: Path) -> dict[str, list[str]]:
+    """Copy player pictures to out_dir/avatars/ and remove pictures that are no longer used."""
+    report: dict[str, list[str]] = {"written": [], "removed": []}
+    target_dir = out_dir / "avatars"
+    wanted = set(files.values())
+    if wanted and avatars_dir is not None:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for name in sorted(wanted):
+            source, target = avatars_dir / name, target_dir / name
+            if not target.exists() or target.read_bytes() != source.read_bytes():
+                shutil.copyfile(source, target)
+                report["written"].append(f"avatars/{name}")
+    if target_dir.is_dir():
+        for existing in sorted(target_dir.iterdir()):
+            if existing.is_file() and existing.name not in wanted:
+                existing.unlink()
+                report["removed"].append(f"avatars/{existing.name}")
+    return report
+
+
+def export(
+    conn: sqlite3.Connection, out_dir: Path, now: str | None = None, avatars_dir: Path | None = DEFAULT_AVATARS
+) -> dict[str, list[str]]:
+    exporter = Exporter(conn, avatars_dir)
+    report = write_documents(exporter.documents(), out_dir, now)
+    pictures = sync_avatars(exporter.avatar_files, avatars_dir, out_dir)
+    report["written"] += pictures["written"]
+    report["removed"] += pictures["removed"]
+    return report

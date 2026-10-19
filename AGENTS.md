@@ -34,11 +34,15 @@ Guidance for developers and AI coding agents working in this repository. The REA
 - **Every completed round** has exactly one placement-1 winner and at least two results.
 - **Tokens:** each player starts with `double_down_tokens` and `nominate_tokens` (default 1 each). Nominate usage is counted from `nominations` rows where `source = 'token'`.
 - **Round numbers** map to `tournament_categories.position`, which gives the round's category. A round with `completed = 0` is the next game, whose game may or may not have been drawn yet.
+- **Nemeses are public.** Pairs for the next game go in `nemesis_assignments` and are exported as `nextNemeses`. Anyone but yourself can be drawn, so Nemeses can be shared and need not be mutual. `results.nemesis_player_id` still records the Nemesis a player actually had.
+- **Base points sanity check:** `validate.py` fails when base points exceed the tournament's points table, and warns when they differ from the value for that placement.
+- **Final placement (`finish`):** in a finished tournament the champion is 1st and everyone else follows by points. `bestPlacement` uses it, so the crown counts as 1st.
 
 ## Layout
 
 ```
 schema/schema.sql            tables + constraints (raw facts)
+avatars/                     player pictures as <player-slug>.jpg/.png/.webp; copied to data/avatars/ on export
 scripts/ugdata.py            connect(), compute_tournament(), Exporter (all JSON builders), write_documents()
 scripts/init_db.py           create the DB from the schema
 scripts/seed.py              reference data (categories, awards); --add-demo / --remove-demo (flagged); --demo (separate demo DB)
@@ -55,7 +59,7 @@ admin/                       local SvelteKit admin app (node:sqlite); see admin/
 - **Local only:** bound to 127.0.0.1 and with no auth. Never add a hosted deployment or remote access.
 - **All SQL goes in `src/lib/server/repo.ts`.** Every mutation runs through `mutate()` (`src/lib/server/forms.ts`), which re-exports and validates afterwards.
 - **No tournament rules in the admin.** Read derived values (standings, Challengers, champion) from the exported JSON (`readExported`). The only exception is the labelled `= Points` preview in `ResultsEntry.svelte`.
-- **Publishing is limited:** it only commits `database/` and `data/`, and only when validation reports no errors and the database is the real one.
+- **Publishing is limited:** it only commits `database/`, `data/` and `avatars/`, and only when validation reports no errors and the database is the real one.
 - **Shared conventions with the website:** SvelteKit 3 conventions, `#lib/...` imports with file extensions, and design tokens copied from the website.
 - **Checks:** run `npm run check` in `admin/` (0 errors), and test changes against a disposable copy of the demo database (`UG_DB=/tmp/x.sqlite UG_OUT=/tmp/x-data npm run dev`).
 
@@ -80,7 +84,7 @@ After every data change:
 1. `python3 scripts/export_json.py`
 2. `python3 scripts/validate.py` (fix all errors and read the warnings)
 3. Optionally preview the change in the website with `npm run dev:local` in `../ultimate-gamer-website`.
-4. Commit `database/` and `data/` together. Pushing to `main` publishes the data. Only push when the user asks.
+4. Commit `database/`, `avatars/` and `data/` together. Pushing to `main` publishes the data. Only push when the user asks.
 
 ## Changing the schema or JSON contract
 

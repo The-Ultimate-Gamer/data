@@ -8,11 +8,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sqlite3
 import sys
 from pathlib import Path
 
-from ugdata import DEFAULT_DB, DEFAULT_OUT, SCHEMA_VERSION, SLUG_RE, Exporter, compute_tournament, connect
+from ugdata import (
+    AVATAR_EXTENSIONS,
+    DEFAULT_AVATARS,
+    DEFAULT_DB,
+    DEFAULT_OUT,
+    SCHEMA_VERSION,
+    SLUG_RE,
+    Exporter,
+    compute_tournament,
+    connect,
+)
+
+# Discord CDN links carry an expiry (ex=...) and stop working after about a day.
+EXPIRING_AVATAR = re.compile(r"^https://(cdn|media)\.discordapp\.(com|net)/.*[?&]ex=", re.IGNORECASE)
 
 
 class Report:
@@ -27,7 +41,7 @@ class Report:
         self.warnings.append(msg)
 
 
-def validate_database(conn: sqlite3.Connection) -> Report:
+def validate_database(conn: sqlite3.Connection, avatars_dir: Path | None = DEFAULT_AVATARS) -> Report:
     report = Report()
 
     integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
@@ -44,9 +58,31 @@ def validate_database(conn: sqlite3.Connection) -> Report:
     names = {r["id"]: r["name"] for r in conn.execute("SELECT id, name FROM players")}
     game_names = {r["id"]: r["name"] for r in conn.execute("SELECT id, name FROM games")}
 
+    slugs = set()
+    for p in conn.execute("SELECT slug, name, avatar_url FROM players"):
+        slugs.add(p["slug"])
+        if p["avatar_url"] and EXPIRING_AVATAR.match(p["avatar_url"]):
+            report.warn(
+                f"player {p['slug']}: the avatar URL is a signed Discord link that expires; "
+                f"save the picture as avatars/{p['slug']}.jpg instead"
+            )
+    if avatars_dir is not None and avatars_dir.is_dir():
+        for path in sorted(avatars_dir.iterdir()):
+            if path.name.startswith("."):
+                continue
+            if path.suffix.lower() not in AVATAR_EXTENSIONS:
+                report.warn(f"avatars/{path.name}: not a supported picture ({', '.join(AVATAR_EXTENSIONS)})")
+            elif path.stem not in slugs:
+                report.warn(f"avatars/{path.name}: no player with the slug {path.stem!r}")
+
     for t in conn.execute("SELECT * FROM tournaments ORDER BY id"):
         tid, label = t["id"], f"tournament {t['slug']}"
         participants = {r[0] for r in conn.execute("SELECT player_id FROM tournament_players WHERE tournament_id = ?", (tid,))}
+        points_table = {
+            r["placement"]: r["points"]
+            for r in conn.execute("SELECT placement, points FROM tournament_points WHERE tournament_id = ?", (tid,))
+        }
+        max_points = max(points_table.values(), default=None)
         rounds = list(conn.execute("SELECT * FROM rounds WHERE tournament_id = ? ORDER BY number", (tid,)))
         completed = [r["number"] for r in rounds if r["completed"]]
         pending = [r["number"] for r in rounds if not r["completed"]]
@@ -87,6 +123,37 @@ def validate_database(conn: sqlite3.Connection) -> Report:
                 nemesis = res["nemesis_player_id"]
                 if nemesis is not None and nemesis not in in_round:
                     report.warn(f"{where}: {who}'s Nemesis {names.get(nemesis, nemesis)} has no result in this round")
+                # Sanity check against typos: base points come from the tournament's points table.
+                if max_points is not None and res["base_points"] > max_points:
+                    report.error(
+                        f"{where}: {who} has {res['base_points']} base points, more than any placement gives "
+                        f"(max {max_points}); check for a typo"
+                    )
+                elif res["placement"] in points_table and res["base_points"] != points_table[res["placement"]]:
+                    report.warn(
+                        f"{where}: {who} placed {res['placement']} and got {res['base_points']} base points; "
+                        f"the points table gives {points_table[res['placement']]}"
+                    )
+
+            announced = {
+                a["player_id"]: a["nemesis_player_id"]
+                for a in conn.execute(
+                    "SELECT player_id, nemesis_player_id FROM nemesis_assignments WHERE tournament_id = ? AND round_number = ?",
+                    (tid, number),
+                )
+            }
+            for player_id, nemesis in announced.items():
+                for pid in (player_id, nemesis):
+                    if pid not in participants:
+                        report.error(f"{where}: Nemesis pair with {names.get(pid, pid)}, who is not registered")
+            if r["completed"]:
+                for res in results:
+                    pid = res["player_id"]
+                    if pid in announced and res["nemesis_player_id"] != announced[pid]:
+                        report.warn(
+                            f"{where}: {names.get(pid, pid)}'s result has a different Nemesis than the one announced "
+                            f"({names.get(announced[pid])})"
+                        )
 
             noms = list(
                 conn.execute(
@@ -144,10 +211,22 @@ def validate_database(conn: sqlite3.Connection) -> Report:
     return report
 
 
-def validate_output(conn: sqlite3.Connection, out_dir: Path) -> Report:
+def validate_output(conn: sqlite3.Connection, out_dir: Path, avatars_dir: Path | None = DEFAULT_AVATARS) -> Report:
     """Check every JSON document's envelope and that it matches a fresh export of the database."""
     report = Report()
-    expected = Exporter(conn).documents()
+    exporter = Exporter(conn, avatars_dir)
+    expected = exporter.documents()
+
+    published = out_dir / "avatars"
+    wanted = set(exporter.avatar_files.values())
+    present_pictures = {p.name for p in published.iterdir() if p.is_file()} if published.is_dir() else set()
+    for name in sorted(wanted - present_pictures):
+        report.error(f"avatars/{name}: missing — run scripts/export_json.py")
+    for name in sorted(present_pictures - wanted):
+        report.error(f"avatars/{name}: not produced by the export — run scripts/export_json.py")
+    for name in sorted(wanted & present_pictures):
+        if avatars_dir is not None and (published / name).read_bytes() != (avatars_dir / name).read_bytes():
+            report.error(f"avatars/{name}: out of date — run scripts/export_json.py")
     present = {p.relative_to(out_dir).as_posix(): p for p in out_dir.rglob("*.json")} if out_dir.exists() else {}
 
     for rel in sorted(set(expected) - set(present)):

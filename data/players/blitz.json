@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:54:09Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "player": {
       "slug": "blitz",
@@ -17,7 +17,7 @@
       "gameWins": 3,
       "podiumFinishes": 9,
       "awardCount": 6,
-      "bestPlacement": 1,
+      "bestPlacement": 2,
       "current": {
         "tournament": {
           "slug": "demo-2026",
@@ -35,8 +35,10 @@
           "startDate": "2026-10-16",
           "status": "ongoing",
           "placement": 2,
+          "finish": null,
           "points": 23,
           "gamesWon": 1,
+          "podiums": 3,
           "wasChallenger": true,
           "wasChampion": false
         },
@@ -48,8 +50,10 @@
           "startDate": "2025-11-07",
           "status": "completed",
           "placement": 1,
+          "finish": 2,
           "points": 32,
           "gamesWon": 2,
+          "podiums": 6,
           "wasChallenger": true,
           "wasChampion": false
         }

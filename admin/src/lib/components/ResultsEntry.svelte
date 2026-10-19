@@ -17,12 +17,22 @@
 			nemesis_player_id: number | null;
 		}[];
 		points: number[];
+		/** Nemesis pairs announced before the game, used until results are saved. */
+		nemeses?: Record<number, number>;
 		doubleDownLeft: Record<number, number>;
 		completed: boolean;
 		hasGame: boolean;
 	}
 
-	let { participants, results, points, doubleDownLeft, completed, hasGame }: Props = $props();
+	let {
+		participants,
+		results,
+		points,
+		nemeses = {},
+		doubleDownLeft,
+		completed,
+		hasGame
+	}: Props = $props();
 
 	interface Row {
 		id: number;
@@ -46,7 +56,7 @@
 				base: r?.base_points ?? null,
 				baseEdited: !!r,
 				dd: !!r?.double_down,
-				nemesis: r?.nemesis_player_id ?? null
+				nemesis: r ? r.nemesis_player_id : (nemeses[p.id] ?? null)
 			};
 		});
 	}

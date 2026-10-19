@@ -87,6 +87,56 @@ class ExportTest(unittest.TestCase):
         self.assertEqual(p["doubleDown"], {"used": 1, "wins": 1, "bonusPoints": 6})
         self.assertEqual(p["matches"][0]["tournament"]["slug"], "demo-2026")
 
+    def test_best_placement_counts_the_crown_as_first(self):
+        docs = Exporter(self.conn).documents()
+        echo = docs["players/echo.json"]["player"]
+        blitz = docs["players/blitz.json"]["player"]
+        # Blitz led on points in Demo LAN 2025, but Echo won the crown.
+        self.assertEqual(echo["bestPlacement"], 1)
+        self.assertEqual(blitz["bestPlacement"], 2)
+        history = {t["tournament"]["slug"]: t for t in echo["tournaments"]}
+        self.assertEqual(history["demo-2025"]["finish"], 1)
+        self.assertEqual(history["demo-2025"]["placement"], 2)
+        self.assertIsNone(history["demo-2026"]["finish"])
+        self.assertIn("podiums", history["demo-2025"])
+
+    def test_points_table_and_category_use(self):
+        docs = Exporter(self.conn).documents()
+        t = docs["tournaments/index.json"]["tournaments"][0]
+        self.assertEqual([p["points"] for p in t["pointsTable"]], [6, 4, 3, 2, 1, 0])
+        used = {c["slug"]: c["tournamentsUsed"] for c in docs["categories.json"]["categories"]}
+        self.assertEqual(used["racing"], 2)
+        self.assertEqual(used["idle"], 0)
+
+    def test_announced_nemeses_for_the_next_game(self):
+        docs = Exporter(self.conn).documents()
+        pairs = docs["leaderboard.json"]["nextNemeses"]
+        self.assertEqual(len(pairs), 6)
+        targets = [p["nemesis"]["slug"] for p in pairs]
+        self.assertEqual(targets.count("nova"), 2)
+        self.assertIsNone(docs["tournaments/demo-2025.json"]["tournament"]["nextNemeses"])
+
+    def test_avatars_hosted_with_the_data(self):
+        with tempfile.TemporaryDirectory() as pics:
+            avatars = Path(pics)
+            (avatars / "nova.png").write_bytes(b"png")
+            (avatars / "nobody.png").write_bytes(b"x")
+            self.conn.execute("UPDATE players SET avatar_url = 'https://example.com/kite.jpg' WHERE slug = 'kite'")
+            report = export(self.conn, self.out, avatars_dir=avatars)
+            self.assertIn("avatars/nova.png", report["written"])
+            self.assertEqual((self.out / "avatars" / "nova.png").read_bytes(), b"png")
+            self.assertFalse((self.out / "avatars" / "nobody.png").exists())
+            players = {p["slug"]: p for p in self.read("players/index.json")["data"]["players"]}
+            self.assertEqual(players["nova"]["avatarUrl"], "avatars/nova.png")
+            self.assertEqual(players["kite"]["avatarUrl"], "https://example.com/kite.jpg")
+            standings = self.read("leaderboard.json")["data"]["standings"]
+            nova = next(s for s in standings if s["player"]["slug"] == "nova")
+            self.assertEqual(nova["player"]["avatarUrl"], "avatars/nova.png")
+
+            (avatars / "nova.png").unlink()
+            report = export(self.conn, self.out, avatars_dir=avatars)
+            self.assertIn("avatars/nova.png", report["removed"])
+
     def test_empty_database_exports_valid_empty_documents(self):
         conn = empty_db()
         docs = Exporter(conn).documents()

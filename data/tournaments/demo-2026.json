@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T14:54:09Z",
+  "generatedAt": "2026-10-19T16:02:31Z",
   "data": {
     "tournament": {
       "slug": "demo-2026",
@@ -12,6 +12,32 @@
       "status": "ongoing",
       "isDemo": true,
       "challengerThreshold": 20,
+      "pointsTable": [
+        {
+          "placement": 1,
+          "points": 6
+        },
+        {
+          "placement": 2,
+          "points": 4
+        },
+        {
+          "placement": 3,
+          "points": 3
+        },
+        {
+          "placement": 4,
+          "points": 2
+        },
+        {
+          "placement": 5,
+          "points": 1
+        },
+        {
+          "placement": 6,
+          "points": 0
+        }
+      ],
       "playerCount": 6,
       "gamesPlayed": 5,
       "categoriesCompleted": 5,
@@ -24,7 +50,7 @@
             "slug": "tnoy",
             "name": "Tnoy"
           },
-          "points": 123258
+          "points": 31
         },
         {
           "rank": 2,
@@ -133,6 +159,7 @@
           "name": "Mario Kart 8 Deluxe"
         }
       },
+      "nextNemeses": [],
       "standings": [
         {
           "rank": 1,
@@ -140,7 +167,7 @@
             "slug": "tnoy",
             "name": "Tnoy"
           },
-          "points": 123258,
+          "points": 31,
           "isChallenger": true,
           "challengerSinceGame": 4,
           "isChampion": false,
@@ -821,8 +848,8 @@
                 "name": "Tnoy"
               },
               "placement": 2,
-              "points": 123231,
-              "basePoints": 123231,
+              "points": 4,
+              "basePoints": 4,
               "nemesisBonus": 0,
               "doubleDown": false,
               "nemesis": {

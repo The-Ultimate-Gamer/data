@@ -35,6 +35,12 @@
 				<label>Initials <input name="initials" maxlength="3" size="4" placeholder="auto" /></label>
 				<label>Picture URL <input name="avatar_url" type="url" placeholder="https://…" /></label>
 			</div>
+			<p class="hint">
+				Pictures last longest when saved in the data repository as <code
+					>avatars/&lt;web address&gt;.jpg</code
+				>: they are published with the data and win over the URL. Discord links expire after about a
+				day.
+			</p>
 		</details>
 	</form>
 </section>

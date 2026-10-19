@@ -560,6 +560,46 @@ export function saveResults(tid: number, number: number, rows: ResultInput[], fi
 	});
 }
 
+/** Nemesis pairs announced before a round: player id -> Nemesis id. */
+export function nemesisAssignments(tid: number, number: number): Record<number, number> {
+	const rows = all<{ player_id: number; nemesis_player_id: number }>(
+		'SELECT player_id, nemesis_player_id FROM nemesis_assignments WHERE tournament_id = ? AND round_number = ?',
+		tid,
+		number
+	);
+	return Object.fromEntries(rows.map((r) => [r.player_id, r.nemesis_player_id]));
+}
+
+/** Replace the announced Nemesis pairs of a round. Players without a Nemesis are left out. */
+export function setNemesisAssignments(
+	tid: number,
+	number: number,
+	pairs: { player_id: number; nemesis_player_id: number | null }[]
+) {
+	for (const p of pairs) {
+		if (p.nemesis_player_id === p.player_id)
+			throw new UserError('A player cannot be their own Nemesis.');
+	}
+	transaction(() => {
+		ensureRound(tid, number);
+		run(
+			'DELETE FROM nemesis_assignments WHERE tournament_id = ? AND round_number = ?',
+			tid,
+			number
+		);
+		for (const p of pairs) {
+			if (p.nemesis_player_id === null) continue;
+			run(
+				'INSERT INTO nemesis_assignments (tournament_id, round_number, player_id, nemesis_player_id) VALUES (?, ?, ?, ?)',
+				tid,
+				number,
+				p.player_id,
+				p.nemesis_player_id
+			);
+		}
+	});
+}
+
 export function reopenRound(tid: number, number: number) {
 	const later = get(
 		'SELECT 1 FROM rounds WHERE tournament_id = ? AND number > ? AND completed = 1',

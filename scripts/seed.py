@@ -39,7 +39,7 @@ CATEGORIES = [
 
 AWARDS = [
     ("ultimate-gamer", "Ultimate Gamer", "👑", "tournament", "The tournament champion."),
-    ("challenger", "Challenger", "⚔️", "tournament", "Reached the Challenger threshold for the first time."),
+    ("challenger", "Challenger", "⚔️", "tournament", "Reached the Challenger threshold during the tournament."),
     ("dominator", "Dominator", "📈", "tournament", "Highest-scoring player when the tournament ends."),
     ("contender", "Contender", "🥊", "tournament", "Highest-scoring player who never became a Challenger."),
     ("podium", "Podium", "🥉", "tournament", "Most podium finishes across games."),
@@ -123,6 +123,7 @@ DEMO_TOURNAMENTS = [
         ],
         "nominations": {5: [("darts", "rook", "winner"), ("overcooked-2", None, "vote"), ("catan", "rook", "token")]},
         "pending": None,
+        "announced_nemeses": {},
         "grants": [
             ("ultimate-gamer", "echo", "Won Overcooked! 2 as a Challenger"),
             ("dominator", "blitz", "32 points"),
@@ -162,6 +163,8 @@ DEMO_TOURNAMENTS = [
             6: [("mario-kart-8-deluxe", "vex", "winner"), ("trackmania", None, "vote"), ("rocket-league", "kite", "token")]
         },
         "pending": "mario-kart-8-deluxe",
+        # Public Nemesis pairs for the next game: one-way, and Nova is shared by two players.
+        "announced_nemeses": {"nova": "vex", "blitz": "echo", "echo": "nova", "rook": "nova", "vex": "kite", "kite": "blitz"},
         "grants": [
             ("challenger", "nova", None),
             ("challenger", "blitz", None),
@@ -234,6 +237,10 @@ def seed_demo(conn: sqlite3.Connection) -> None:
             conn.execute(
                 "INSERT INTO rounds (tournament_id, number, game_id, completed) VALUES (?, ?, ?, 0)",
                 (tid, len(t["rounds"]) + 1, game[t["pending"]]),
+            )
+            conn.executemany(
+                "INSERT INTO nemesis_assignments (tournament_id, round_number, player_id, nemesis_player_id) VALUES (?, ?, ?, ?)",
+                [(tid, len(t["rounds"]) + 1, player[p], player[n]) for p, n in t["announced_nemeses"].items()],
             )
         for number, noms in t["nominations"].items():
             conn.executemany(
