@@ -19,6 +19,7 @@ from ugdata import (
     DEFAULT_DB,
     DEFAULT_OUT,
     SCHEMA_VERSION,
+    SHARE_DIR,
     SLUG_RE,
     Exporter,
     compute_tournament,
@@ -228,6 +229,21 @@ def validate_output(conn: sqlite3.Connection, out_dir: Path, avatars_dir: Path |
         if avatars_dir is not None and (published / name).read_bytes() != (avatars_dir / name).read_bytes():
             report.error(f"avatars/{name}: out of date — run scripts/export_json.py")
     present = {p.relative_to(out_dir).as_posix(): p for p in out_dir.rglob("*.json")} if out_dir.exists() else {}
+
+    shares = exporter.share_pages()
+    share_root = out_dir / SHARE_DIR
+    present_shares = (
+        {p.relative_to(out_dir).as_posix(): p for p in share_root.rglob("*") if p.is_file()}
+        if share_root.is_dir()
+        else {}
+    )
+    for rel in sorted(set(shares) - set(present_shares)):
+        report.error(f"{rel}: missing — run scripts/export_json.py")
+    for rel in sorted(set(present_shares) - set(shares)):
+        report.error(f"{rel}: not produced by the export — run scripts/export_json.py")
+    for rel in sorted(set(shares) & set(present_shares)):
+        if present_shares[rel].read_text(encoding="utf-8") != shares[rel]:
+            report.error(f"{rel}: out of date — run scripts/export_json.py")
 
     for rel in sorted(set(expected) - set(present)):
         report.error(f"{rel}: missing — run scripts/export_json.py")

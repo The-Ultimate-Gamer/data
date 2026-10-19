@@ -8,6 +8,7 @@ rules live in exactly one place.
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import shutil
@@ -24,6 +25,9 @@ DEFAULT_OUT = ROOT / "data"
 # Player pictures hosted with the data: avatars/<player-slug>.<ext>, copied to data/avatars/ on export.
 DEFAULT_AVATARS = ROOT / "avatars"
 AVATAR_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
+# Public addresses, used for share pages. Override with meta keys 'site_url' and 'data_url'.
+DEFAULT_SITE_URL = "https://the-ultimate-gamer.github.io/"
+SHARE_DIR = "share"
 
 SCHEMA_VERSION = 1
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -683,6 +687,85 @@ class Exporter:
             )
         return {"games": games}
 
+    # ---- share pages
+
+    @property
+    def site_url(self) -> str:
+        return with_slash(self.meta.get("site_url") or DEFAULT_SITE_URL)
+
+    @property
+    def data_url(self) -> str:
+        return with_slash(self.meta.get("data_url") or f"{self.site_url}data/")
+
+    def absolute_avatar(self, pid: int | None) -> str | None:
+        avatar = self.avatar_url(pid) if pid is not None else None
+        if not avatar:
+            return None
+        if avatar.startswith("https://"):
+            return avatar
+        return None if ":" in avatar or avatar.startswith("/") else self.data_url + avatar
+
+    def player_description(self, pid: int) -> str:
+        s = self.player_summary(pid)
+        parts = []
+        if s["ultimateGamerWins"]:
+            parts.append(f"{s['ultimateGamerWins']}× Ultimate Gamer")
+        parts.append(plural(s["tournamentsPlayed"], "tournament"))
+        if s["bestPlacement"]:
+            parts.append(f"best finish {ordinal(s['bestPlacement'])}")
+        parts.append(plural(s["gameWins"], "game win"))
+        if s["awardCount"]:
+            parts.append(plural(s["awardCount"], "award"))
+        if s["current"]:
+            c = s["current"]
+            parts.append(f"live: {ordinal(c['rank'])} in points ({c['points']} pts) in {c['tournament']['name']}")
+        return " · ".join(parts)
+
+    def tournament_description(self, state: TournamentState) -> str:
+        t = state.row
+        status = {"ongoing": "Live now", "upcoming": "Upcoming", "completed": "Completed"}[t["status"]]
+        parts = [status]
+        dates = date_range(t["start_date"], t["end_date"])
+        if dates:
+            parts.append(dates)
+        parts.append(plural(len(state.players), "player"))
+        played = len(state.completed_rounds)
+        if t["status"] == "completed" or state.champion_id is not None:
+            parts.append(plural(played, "game"))
+        elif state.positions:
+            parts.append(f"{played} of {len(state.positions)} games played")
+        if state.champion_id is not None:
+            parts.append(f"Ultimate Gamer: {self.names[state.champion_id]}")
+        elif state.order and state.completed_rounds:
+            leader = state.players[state.order[0]]
+            parts.append(f"leader: {self.names[leader.player_id]} ({leader.points} pts)")
+        return " · ".join(parts)
+
+    def share_pages(self) -> dict[str, str]:
+        """Static HTML with link-preview tags that redirects to the website (path -> HTML)."""
+        site = self.meta.get("site_name", "The Ultimate Gamer")
+        pages: dict[str, str] = {}
+        for pid, p in self.players.items():
+            pages[f"{SHARE_DIR}/players/{p['slug']}/index.html"] = share_page(
+                site=site,
+                title=p["name"],
+                description=self.player_description(pid),
+                target=f"{self.site_url}players/{p['slug']}",
+                image=self.absolute_avatar(pid),
+                kind="profile",
+            )
+        for t in self.tournaments:
+            state = self.states[t["id"]]
+            pages[f"{SHARE_DIR}/tournaments/{t['slug']}/index.html"] = share_page(
+                site=site,
+                title=t["name"],
+                description=self.tournament_description(state),
+                target=f"{self.site_url}tournaments/{t['slug']}",
+                image=self.absolute_avatar(state.champion_id),
+                kind="website",
+            )
+        return pages
+
     # ---- documents
 
     def documents(self) -> dict[str, Json]:
@@ -819,6 +902,86 @@ def write_documents(docs: dict[str, Json], out_dir: Path, now: str | None = None
     return report
 
 
+def with_slash(url: str) -> str:
+    return url if url.endswith("/") else f"{url}/"
+
+
+def ordinal(n: int) -> str:
+    if 11 <= n % 100 <= 13:
+        return f"{n}th"
+    return f"{n}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th') }"
+
+
+def plural(n: int, word: str) -> str:
+    return f"{n} {word}{'' if n == 1 else 's'}"
+
+
+def date_range(start: str | None, end: str | None) -> str:
+    def fmt(value: str | None) -> str:
+        try:
+            d = datetime.strptime(value or "", "%Y-%m-%d")
+        except ValueError:
+            return ""
+        return f"{d.day} {d.strftime('%b %Y')}"
+
+    a, b = fmt(start), fmt(end)
+    return f"{a} – {b}" if a and b and a != b else a or b
+
+
+def share_page(*, site: str, title: str, description: str, target: str, image: str | None, kind: str) -> str:
+    """A tiny page for link previews (Discord, WhatsApp…). Crawlers read the tags; people are redirected."""
+    e = lambda value: html.escape(value, quote=True)  # noqa: E731
+    full_title = f"{title} · {site}"
+    tags = [
+        f'<meta property="og:site_name" content="{e(site)}">',
+        f'<meta property="og:type" content="{kind}">',
+        f'<meta property="og:title" content="{e(full_title)}">',
+        f'<meta property="og:description" content="{e(description)}">',
+        f'<meta name="description" content="{e(description)}">',
+        f'<meta name="twitter:card" content="summary">',
+    ]
+    if image:
+        tags.append(f'<meta property="og:image" content="{e(image)}">')
+    head = "\n\t\t".join(tags)
+    return f"""<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="robots" content="noindex">
+		<title>{e(full_title)}</title>
+		{head}
+		<meta http-equiv="refresh" content="0; url={e(target)}">
+	</head>
+	<body>
+		<p><a href="{e(target)}">{e(full_title)}</a></p>
+	</body>
+</html>
+"""
+
+
+def sync_share_pages(pages: dict[str, str], out_dir: Path) -> dict[str, list[str]]:
+    """Write share pages under out_dir/share/ and remove ones that are no longer exported."""
+    report: dict[str, list[str]] = {"written": [], "removed": []}
+    for rel, content in sorted(pages.items()):
+        target = out_dir / rel
+        if target.exists() and target.read_text(encoding="utf-8") == content:
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+        report["written"].append(rel)
+    share_root = out_dir / SHARE_DIR
+    if share_root.is_dir():
+        for existing in sorted(share_root.rglob("*"), reverse=True):
+            rel = existing.relative_to(out_dir).as_posix()
+            if existing.is_file() and rel not in pages:
+                existing.unlink()
+                report["removed"].append(rel)
+            elif existing.is_dir() and not any(existing.iterdir()):
+                existing.rmdir()
+    return report
+
+
 def avatar_files(avatars_dir: Path | None, slugs: set[str]) -> dict[str, str]:
     """Map player slug -> file name for pictures in avatars_dir named after an existing player."""
     if avatars_dir is None or not avatars_dir.is_dir():
@@ -856,6 +1019,8 @@ def export(
     exporter = Exporter(conn, avatars_dir)
     report = write_documents(exporter.documents(), out_dir, now)
     pictures = sync_avatars(exporter.avatar_files, avatars_dir, out_dir)
-    report["written"] += pictures["written"]
-    report["removed"] += pictures["removed"]
+    shares = sync_share_pages(exporter.share_pages(), out_dir)
+    for extra in (pictures, shares):
+        report["written"] += extra["written"]
+        report["removed"] += extra["removed"]
     return report

@@ -116,6 +116,14 @@ The database stores **facts only**:
 - A signed Discord avatar link, which expires. Save the picture in `avatars/` instead.
 - A file in `avatars/` that isn't a supported picture or doesn't match a player slug.
 
+## Share links
+
+The export also writes small HTML pages to `data/share/players/<slug>/` and `data/share/tournaments/<slug>/`, published at `https://the-ultimate-gamer.github.io/data/share/…`. They carry the title, a short summary and the player's picture for link previews in Discord, WhatsApp and similar apps, then redirect to the real page on the website. The website's Share buttons copy these links.
+
+Website pages such as `/players/<slug>` are rendered in the browser and served through GitHub Pages' 404 fallback, so apps can't build a preview for them. The share pages exist to fix that.
+
+The public addresses come from the `meta` table: `site_url` (default `https://the-ultimate-gamer.github.io/`) and `data_url` (default `<site_url>data/`).
+
 ## Player pictures
 
 Save a player's picture as `avatars/<player-slug>.jpg` (or `.png`, `.webp`, `.gif`). The export copies it to `data/avatars/`, so it is published with the data and never expires, and it wins over the player's `avatar_url`. The JSON points to it with a path relative to the data URL, for example `"avatarUrl": "avatars/tnoy.jpg"`.

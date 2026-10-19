@@ -43,6 +43,7 @@ Guidance for developers and AI coding agents working in this repository. The REA
 ```
 schema/schema.sql            tables + constraints (raw facts)
 avatars/                     player pictures as <player-slug>.jpg/.png/.webp; copied to data/avatars/ on export
+data/share/                  generated link-preview pages (players/<slug>/, tournaments/<slug>/); never edit by hand
 scripts/ugdata.py            connect(), compute_tournament(), Exporter (all JSON builders), write_documents()
 scripts/init_db.py           create the DB from the schema
 scripts/seed.py              reference data (categories, awards); --add-demo / --remove-demo (flagged); --demo (separate demo DB)

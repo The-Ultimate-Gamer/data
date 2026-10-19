@@ -98,6 +98,15 @@ class ValidateOutputTest(unittest.TestCase):
             errors = validate_output(conn, out).errors
             self.assertTrue(any("out of date" in e for e in errors))
 
+    def test_detects_out_of_date_share_page(self):
+        conn = demo_db()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            export(conn, out)
+            (out / "share/players/kite/index.html").write_text("stale", encoding="utf-8")
+            errors = validate_output(conn, out).errors
+            self.assertTrue(any("share/players/kite/index.html: out of date" in e for e in errors))
+
     def test_detects_missing_avatar_copy(self):
         conn = demo_db()
         with tempfile.TemporaryDirectory() as tmp, tempfile.TemporaryDirectory() as pics:

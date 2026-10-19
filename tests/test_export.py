@@ -137,6 +137,35 @@ class ExportTest(unittest.TestCase):
             report = export(self.conn, self.out, avatars_dir=avatars)
             self.assertIn("avatars/nova.png", report["removed"])
 
+    def test_share_pages_for_link_previews(self):
+        self.conn.execute("UPDATE players SET name = 'Nova \"<b>\"' WHERE slug = 'nova'")
+        self.conn.execute("INSERT INTO meta (key, value) VALUES ('site_url', 'https://ug.example')")
+        with tempfile.TemporaryDirectory() as pics:
+            (Path(pics) / "nova.png").write_bytes(b"png")
+            report = export(self.conn, self.out, avatars_dir=Path(pics))
+        self.assertIn("share/players/nova/index.html", report["written"])
+        nova = (self.out / "share/players/nova/index.html").read_text(encoding="utf-8")
+        self.assertIn('content="0; url=https://ug.example/players/nova"', nova)
+        self.assertIn('<meta property="og:image" content="https://ug.example/data/avatars/nova.png">', nova)
+        self.assertIn("Nova &quot;&lt;b&gt;&quot; · The Ultimate Gamer", nova)
+        self.assertNotIn("<b>", nova)
+        echo = (self.out / "share/players/echo/index.html").read_text(encoding="utf-8")
+        self.assertIn("1× Ultimate Gamer", echo)
+        self.assertIn("best finish 1st", echo)
+        done = (self.out / "share/tournaments/demo-2025/index.html").read_text(encoding="utf-8")
+        self.assertIn("Ultimate Gamer: Echo", done)
+        live = (self.out / "share/tournaments/demo-2026/index.html").read_text(encoding="utf-8")
+        self.assertIn("Live now", live)
+        self.assertIn("5 of 8 games played", live)
+
+    def test_share_pages_are_removed_with_their_player(self):
+        self.conn.execute("INSERT INTO players (slug, name) VALUES ('temp', 'Temp')")
+        export(self.conn, self.out)
+        self.conn.execute("DELETE FROM players WHERE slug = 'temp'")
+        report = export(self.conn, self.out)
+        self.assertIn("share/players/temp/index.html", report["removed"])
+        self.assertFalse((self.out / "share/players/temp").exists())
+
     def test_empty_database_exports_valid_empty_documents(self):
         conn = empty_db()
         docs = Exporter(conn).documents()
