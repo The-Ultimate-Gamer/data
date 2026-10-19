@@ -106,30 +106,30 @@ pub fn apply(ctx: &egui::Context) {
     v.code_bg_color = SURFACE_2;
     v.hyperlink_color = GOLD;
     v.selection.bg_fill = Color32::from_rgb(0x5a, 0x47, 0x0c);
-    v.selection.stroke = Stroke::new(1.0, GOLD);
-    v.window_stroke = Stroke::new(1.0, BORDER);
+    v.selection.stroke = Stroke::new(1.0_f32, GOLD);
+    v.window_stroke = Stroke::new(1.0_f32, BORDER);
     v.window_corner_radius = CornerRadius::same(10);
     v.menu_corner_radius = CornerRadius::same(8);
     v.override_text_color = Some(TEXT);
     let radius = CornerRadius::same(6);
     v.widgets.noninteractive.bg_fill = SURFACE;
-    v.widgets.noninteractive.bg_stroke = Stroke::new(1.0, BORDER);
-    v.widgets.noninteractive.fg_stroke = Stroke::new(1.0, TEXT);
+    v.widgets.noninteractive.bg_stroke = Stroke::new(1.0_f32, BORDER);
+    v.widgets.noninteractive.fg_stroke = Stroke::new(1.0_f32, TEXT);
     v.widgets.noninteractive.corner_radius = radius;
     v.widgets.inactive.bg_fill = SURFACE_2;
     v.widgets.inactive.weak_bg_fill = SURFACE_2;
-    v.widgets.inactive.bg_stroke = Stroke::new(1.0, BORDER_STRONG);
-    v.widgets.inactive.fg_stroke = Stroke::new(1.0, TEXT);
+    v.widgets.inactive.bg_stroke = Stroke::new(1.0_f32, BORDER_STRONG);
+    v.widgets.inactive.fg_stroke = Stroke::new(1.0_f32, TEXT);
     v.widgets.inactive.corner_radius = radius;
     v.widgets.hovered.bg_fill = SURFACE_3;
     v.widgets.hovered.weak_bg_fill = SURFACE_3;
-    v.widgets.hovered.bg_stroke = Stroke::new(1.0, GOLD);
-    v.widgets.hovered.fg_stroke = Stroke::new(1.0, TEXT);
+    v.widgets.hovered.bg_stroke = Stroke::new(1.0_f32, GOLD);
+    v.widgets.hovered.fg_stroke = Stroke::new(1.0_f32, TEXT);
     v.widgets.hovered.corner_radius = radius;
     v.widgets.active.bg_fill = SURFACE_3;
     v.widgets.active.weak_bg_fill = SURFACE_3;
-    v.widgets.active.bg_stroke = Stroke::new(1.5, GOLD);
-    v.widgets.active.fg_stroke = Stroke::new(1.0, TEXT);
+    v.widgets.active.bg_stroke = Stroke::new(1.5_f32, GOLD);
+    v.widgets.active.fg_stroke = Stroke::new(1.0_f32, TEXT);
     v.widgets.active.corner_radius = radius;
     v.widgets.open.corner_radius = radius;
     style.visuals = v;
@@ -140,7 +140,7 @@ pub fn apply(ctx: &egui::Context) {
 pub fn card<R>(ui: &mut Ui, add: impl FnOnce(&mut Ui) -> R) -> R {
     egui::Frame::new()
         .fill(SURFACE)
-        .stroke(Stroke::new(1.0, BORDER))
+        .stroke(Stroke::new(1.0_f32, BORDER))
         .corner_radius(CornerRadius::same(10))
         .inner_margin(Margin::same(16))
         .show(ui, |ui| {
@@ -154,7 +154,7 @@ pub fn card<R>(ui: &mut Ui, add: impl FnOnce(&mut Ui) -> R) -> R {
 pub fn callout<R>(ui: &mut Ui, color: Color32, add: impl FnOnce(&mut Ui) -> R) -> R {
     egui::Frame::new()
         .fill(color.gamma_multiply(0.10))
-        .stroke(Stroke::new(1.0, color.gamma_multiply(0.55)))
+        .stroke(Stroke::new(1.0_f32, color.gamma_multiply(0.55)))
         .corner_radius(CornerRadius::same(10))
         .inner_margin(Margin::same(14))
         .show(ui, |ui| {
@@ -199,14 +199,16 @@ pub fn big_primary(ui: &mut Ui, enabled: bool, text: &str) -> Response {
 }
 
 pub fn danger(ui: &mut Ui, text: &str) -> Response {
-    ui.add(egui::Button::new(RichText::new(text).color(DANGER)).stroke(Stroke::new(1.0, DANGER.gamma_multiply(0.6))))
+    ui.add(
+        egui::Button::new(RichText::new(text).color(DANGER)).stroke(Stroke::new(1.0_f32, DANGER.gamma_multiply(0.6))),
+    )
 }
 
 /// A small coloured tag, e.g. "Live", "Demo", "Challenger".
 pub fn badge(ui: &mut Ui, text: &str, color: Color32) -> Response {
     egui::Frame::new()
         .fill(color.gamma_multiply(0.16))
-        .stroke(Stroke::new(1.0, color.gamma_multiply(0.5)))
+        .stroke(Stroke::new(1.0_f32, color.gamma_multiply(0.5)))
         .corner_radius(CornerRadius::same(255))
         .inner_margin(Margin::symmetric(8, 1))
         .show(ui, |ui| ui.label(RichText::new(text).color(color).small().strong()))

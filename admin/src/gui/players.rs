@@ -113,7 +113,7 @@ fn list(ui: &mut egui::Ui, d: &Data, form: &mut Form, _width: f32) {
             ui.painter().rect_stroke(
                 resp.rect.expand(2.0),
                 6.0,
-                egui::Stroke::new(1.0, theme::BORDER_STRONG),
+                egui::Stroke::new(1.0_f32, theme::BORDER_STRONG),
                 egui::StrokeKind::Outside,
             );
         }

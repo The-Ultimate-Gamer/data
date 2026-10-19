@@ -913,7 +913,7 @@ impl App {
                 let color = if t.error { theme::DANGER } else { theme::LIVE };
                 egui::Frame::new()
                     .fill(theme::SURFACE_2)
-                    .stroke(egui::Stroke::new(1.0, color))
+                    .stroke(egui::Stroke::new(1.0_f32, color))
                     .corner_radius(8)
                     .inner_margin(12)
                     .show(ui, |ui| {
