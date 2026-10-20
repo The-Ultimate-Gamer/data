@@ -76,33 +76,38 @@ impl Table {
     }
 }
 
-fn ensure_unique_slug(conn: &Connection, table: Table, slug: &str, id: Option<i64>) -> Result<()> {
-    let taken =
-        exists(conn, &format!("SELECT 1 FROM {} WHERE slug = ?1 AND id IS NOT ?2", table.name()), params![slug, id])?;
-    if taken {
-        user_bail!("Another {} already uses the web address \"{slug}\".", table.noun());
+/// A free web address based on `base`: `base`, else `base-2`, `base-3`…
+fn unique_slug(conn: &Connection, table: Table, base: &str, id: Option<i64>) -> Result<String> {
+    let base = if base.is_empty() { table.noun().to_string() } else { base.to_string() };
+    for n in 1.. {
+        let slug = if n == 1 { base.clone() } else { format!("{base}-{n}") };
+        let taken = exists(
+            conn,
+            &format!("SELECT 1 FROM {} WHERE slug = ?1 AND id IS NOT ?2", table.name()),
+            params![slug, id],
+        )?;
+        if !taken {
+            return Ok(slug);
+        }
     }
-    Ok(())
+    unreachable!()
 }
 
 // ------------------------------------------------------------------ players
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct PlayerInput {
-    pub name: String,
-    pub slug: String,
-    pub initials: String,
+    /// Optional; overrides the Discord username as the shown name.
+    pub nickname: String,
     pub avatar_url: String,
-    /// Discord user id; empty for none.
+    /// Discord user id; required for real players.
     pub discord_id: String,
 }
 
 impl PlayerInput {
     pub fn from(p: &model::Player) -> Self {
         Self {
-            name: p.name.clone(),
-            slug: p.slug.clone(),
-            initials: p.initials.clone().unwrap_or_default(),
+            nickname: p.nickname.clone().unwrap_or_default(),
             avatar_url: p.avatar_url.clone().unwrap_or_default(),
             discord_id: p.discord_id.clone().unwrap_or_default(),
         }
@@ -114,7 +119,7 @@ fn https(value: &str) -> Result<Option<String>> {
     if let Some(url) = &v
         && !url.to_lowercase().starts_with("https://")
     {
-        user_bail!("The picture link must start with https://");
+        user_bail!("The link must start with https://");
     }
     Ok(v)
 }
@@ -124,13 +129,44 @@ fn is_demo_player(conn: &Connection, id: Option<i64>) -> Result<bool> {
     Ok(conn.query_row("SELECT is_demo FROM players WHERE id = ?1", [id], |r| r.get(0)).optional()?.unwrap_or(false))
 }
 
+/// The name a player shows: their nickname, else their Discord username, else a placeholder
+/// until the Discord profile is fetched.
+pub fn player_name(nickname: Option<&str>, username: Option<&str>, discord_id: Option<&str>) -> Option<String> {
+    let pick = |v: Option<&str>| v.map(str::trim).filter(|v| !v.is_empty()).map(str::to_string);
+    pick(nickname).or_else(|| pick(username)).or_else(|| {
+        let id = discord_id?;
+        Some(format!("Player {}", &id[id.len().saturating_sub(4)..]))
+    })
+}
+
+/// Bring a player's name and web address in line with their nickname / Discord username.
+pub fn sync_player_identity(conn: &Connection, id: i64) -> Result<()> {
+    let (nickname, username, discord_id, name, slug): (Option<String>, Option<String>, Option<String>, String, String) =
+        conn.query_row(
+            "SELECT nickname, discord_username, discord_id, name, slug FROM players WHERE id = ?1",
+            [id],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?)),
+        )?;
+    // Fictional demo players without Discord keep the name they were created with.
+    let Some(wanted) = player_name(nickname.as_deref(), username.as_deref(), discord_id.as_deref()) else {
+        return Ok(());
+    };
+    let base = slugify(&wanted);
+    let new_slug = if slug == base || slug.strip_prefix(&format!("{base}-")).is_some_and(|n| n.parse::<u32>().is_ok()) {
+        slug.clone() // already based on this name
+    } else {
+        unique_slug(conn, Table::Players, &base, Some(id))?
+    };
+    if wanted != name || new_slug != slug {
+        conn.execute("UPDATE players SET name = ?1, slug = ?2 WHERE id = ?3", params![wanted, new_slug, id])?;
+    }
+    Ok(())
+}
+
 /// Create (id = None) or update a player. Returns the player's id.
 pub fn save_player(conn: &Connection, id: Option<i64>, p: &PlayerInput) -> Result<i64> {
-    let name = required(&p.name, "Name")?;
-    let slug = pick_slug(&p.slug, &name)?;
-    ensure_unique_slug(conn, Table::Players, &slug, id)?;
     let avatar = https(&p.avatar_url)?;
-    let initials = clean(&p.initials);
+    let nickname = clean(&p.nickname);
     let discord = clean(&p.discord_id);
     match &discord {
         Some(d) if !crate::discord::is_user_id(d) => {
@@ -142,28 +178,39 @@ pub fn save_player(conn: &Connection, id: Option<i64>, p: &PlayerInput) -> Resul
         }
         _ => {}
     }
-    match id {
+    if let Some(d) = &discord
+        && exists(conn, "SELECT 1 FROM players WHERE discord_id = ?1 AND id IS NOT ?2", params![d, id])?
+    {
+        user_bail!("Another player already has this Discord account.");
+    }
+    let tx = crate::db::begin(conn)?;
+    let pid = match id {
         None => {
-            conn.execute(
-                "INSERT INTO players (slug, name, initials, avatar_url, discord_id) VALUES (?1, ?2, ?3, ?4, ?5)",
-                params![slug, name, initials, avatar, discord],
+            let placeholder = player_name(nickname.as_deref(), None, discord.as_deref()).unwrap_or_default();
+            let slug = unique_slug(&tx, Table::Players, &slugify(&placeholder), None)?;
+            tx.execute(
+                "INSERT INTO players (slug, name, nickname, avatar_url, discord_id) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![slug, placeholder, nickname, avatar, discord],
             )?;
-            Ok(conn.last_insert_rowid())
+            tx.last_insert_rowid()
         }
         Some(id) => {
             // Names copied from another Discord account no longer apply.
-            conn.execute(
+            tx.execute(
                 "UPDATE players SET discord_username = NULL, discord_display_name = NULL
                  WHERE id = ?1 AND discord_id IS NOT ?2",
                 params![id, discord],
             )?;
-            conn.execute(
-                "UPDATE players SET slug = ?1, name = ?2, initials = ?3, avatar_url = ?4, discord_id = ?5 WHERE id = ?6",
-                params![slug, name, initials, avatar, discord, id],
+            tx.execute(
+                "UPDATE players SET nickname = ?1, avatar_url = ?2, discord_id = ?3 WHERE id = ?4",
+                params![nickname, avatar, discord, id],
             )?;
-            Ok(id)
+            id
         }
-    }
+    };
+    sync_player_identity(&tx, pid)?;
+    tx.commit()?;
+    Ok(pid)
 }
 
 /// Store the names fetched from the player's Discord account.
@@ -175,7 +222,7 @@ pub fn save_discord_names(conn: &Connection, id: i64, user: &crate::discord::Dis
     if changed == 0 {
         user_bail!("The player's Discord ID changed while fetching; fetch again.");
     }
-    Ok(())
+    sync_player_identity(conn, id)
 }
 
 pub fn delete_player(conn: &Connection, id: i64) -> Result<()> {
@@ -192,8 +239,9 @@ pub fn delete_player(conn: &Connection, id: i64) -> Result<()> {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct GameInput {
     pub name: String,
-    pub slug: String,
     pub description: String,
+    /// Where to get or play it (https only).
+    pub url: String,
     pub min_players: String,
     pub max_players: String,
     pub available: bool,
@@ -208,8 +256,8 @@ impl GameInput {
     pub fn from(g: &model::Game) -> Self {
         Self {
             name: g.name.clone(),
-            slug: g.slug.clone(),
             description: g.description.clone().unwrap_or_default(),
+            url: g.url.clone().unwrap_or_default(),
             min_players: g.min_players.map(|n| n.to_string()).unwrap_or_default(),
             max_players: g.max_players.map(|n| n.to_string()).unwrap_or_default(),
             available: g.available,
@@ -228,8 +276,17 @@ fn opt_int(value: &str, what: &str, min: i64) -> Result<Option<i64>> {
 
 pub fn save_game(conn: &Connection, id: Option<i64>, g: &GameInput) -> Result<i64> {
     let name = required(&g.name, "Name")?;
-    let slug = pick_slug(&g.slug, &name)?;
-    ensure_unique_slug(conn, Table::Games, &slug, id)?;
+    let url = https(&g.url)?;
+    // The address follows the name; keep the current one while the name gives the same base.
+    let current: Option<String> = match id {
+        Some(id) => conn.query_row("SELECT slug FROM games WHERE id = ?1", [id], |r| r.get(0)).optional()?,
+        None => None,
+    };
+    let base = slugify(&name);
+    let slug = match current {
+        Some(c) if c == base || c.strip_prefix(&format!("{base}-")).is_some_and(|n| n.parse::<u32>().is_ok()) => c,
+        _ => unique_slug(conn, Table::Games, &base, id)?,
+    };
     let (lo, hi) = (opt_int(&g.min_players, "Minimum players", 1)?, opt_int(&g.max_players, "Maximum players", 1)?);
     if let (Some(lo), Some(hi)) = (lo, hi)
         && lo > hi
@@ -240,15 +297,15 @@ pub fn save_game(conn: &Connection, id: Option<i64>, g: &GameInput) -> Result<i6
     let gid = match id {
         None => {
             tx.execute(
-                "INSERT INTO games (slug, name, description, min_players, max_players, available) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                params![slug, name, clean(&g.description), lo, hi, g.available],
+                "INSERT INTO games (slug, name, description, min_players, max_players, available, url) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                params![slug, name, clean(&g.description), lo, hi, g.available, url],
             )?;
             tx.last_insert_rowid()
         }
         Some(id) => {
             tx.execute(
-                "UPDATE games SET slug = ?1, name = ?2, description = ?3, min_players = ?4, max_players = ?5, available = ?6 WHERE id = ?7",
-                params![slug, name, clean(&g.description), lo, hi, g.available, id],
+                "UPDATE games SET slug = ?1, name = ?2, description = ?3, min_players = ?4, max_players = ?5, available = ?6, url = ?7 WHERE id = ?8",
+                params![slug, name, clean(&g.description), lo, hi, g.available, url, id],
             )?;
             tx.execute("DELETE FROM game_categories WHERE game_id = ?1", [id])?;
             id
@@ -348,34 +405,32 @@ pub fn set_meta(conn: &Connection, key: &str, value: &str) -> Result<()> {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TournamentInput {
-    pub name: String,
-    pub slug: String,
-    pub edition: String,
+    /// Optional; overrides the name made from the season, tags and year.
+    pub custom_name: String,
+    /// Tag slugs from `model::TOURNAMENT_TAGS`.
+    pub tags: Vec<String>,
     pub start_date: String,
     pub end_date: String,
     pub location: String,
-    pub status: Status,
-    pub challenger_threshold: String,
-    pub double_down_tokens: String,
-    pub nominate_tokens: String,
-    /// Points per placement, e.g. "6, 4, 3, 2, 1, 0".
-    pub points: String,
+    pub challenger_threshold: i64,
+    pub double_down_tokens: i64,
+    pub nominate_tokens: i64,
+    /// Points for 1st, 2nd, 3rd…; every other place earns 0.
+    pub points: Vec<i64>,
 }
 
 impl Default for TournamentInput {
     fn default() -> Self {
         Self {
-            name: String::new(),
-            slug: String::new(),
-            edition: String::new(),
+            custom_name: String::new(),
+            tags: vec!["lan".into()],
             start_date: String::new(),
             end_date: String::new(),
             location: String::new(),
-            status: Status::Upcoming,
-            challenger_threshold: "20".into(),
-            double_down_tokens: "1".into(),
-            nominate_tokens: "1".into(),
-            points: "6, 4, 3, 2, 1, 0".into(),
+            challenger_threshold: 20,
+            double_down_tokens: 1,
+            nominate_tokens: 1,
+            points: vec![6, 4, 3, 2, 1],
         }
     }
 }
@@ -383,31 +438,65 @@ impl Default for TournamentInput {
 impl TournamentInput {
     pub fn from(t: &model::Tournament, points: &[(i64, i64)]) -> Self {
         Self {
-            name: t.name.clone(),
-            slug: t.slug.clone(),
-            edition: t.edition.clone().unwrap_or_default(),
+            custom_name: t.custom_name.clone().unwrap_or_default(),
+            tags: t.tags.clone(),
             start_date: t.start_date.clone().unwrap_or_default(),
             end_date: t.end_date.clone().unwrap_or_default(),
             location: t.location.clone().unwrap_or_default(),
-            status: t.status,
-            challenger_threshold: t.challenger_threshold.to_string(),
-            double_down_tokens: t.double_down_tokens.to_string(),
-            nominate_tokens: t.nominate_tokens.to_string(),
-            points: points.iter().map(|(_, p)| p.to_string()).collect::<Vec<_>>().join(", "),
+            challenger_threshold: t.challenger_threshold,
+            double_down_tokens: t.double_down_tokens,
+            nominate_tokens: t.nominate_tokens,
+            points: points.iter().map(|(_, p)| *p).collect(),
         }
     }
 }
 
-pub fn parse_points(raw: &str) -> Result<Vec<i64>> {
-    let values: Vec<Option<i64>> = raw
-        .split(|c: char| c == ',' || c.is_whitespace())
-        .filter(|s| !s.is_empty())
-        .map(|s| s.parse::<i64>().ok().filter(|v| *v >= 0))
-        .collect();
-    if values.is_empty() || values.iter().any(Option::is_none) {
-        user_bail!("Points per placement must be whole numbers, e.g. \"6, 4, 3, 2, 1, 0\".");
+/// The name a tournament gets unless it has a custom one: season, kind and year, e.g.
+/// "Autumn LAN 2026" (northern-hemisphere seasons).
+pub fn tournament_name(start_date: Option<&str>, tags: &[String]) -> String {
+    let kind = ["lan", "online", "hybrid"]
+        .iter()
+        .find(|k| tags.iter().any(|t| t == *k))
+        .map_or("Tournament", |k| model::tag_label(k));
+    let date = start_date.and_then(|d| {
+        let (y, m) = (d.get(0..4)?.parse::<i64>().ok()?, d.get(5..7)?.parse::<u32>().ok()?);
+        Some((y, m))
+    });
+    match date {
+        Some((year, month)) => {
+            let season = match month {
+                3..=5 => "Spring",
+                6..=8 => "Summer",
+                9..=11 => "Autumn",
+                _ => "Winter",
+            };
+            format!("{season} {kind} {year}")
+        }
+        None => format!("Next {kind}"),
     }
-    Ok(values.into_iter().flatten().collect())
+}
+
+/// Bring a tournament's name and web address in line with its custom name, or the generated one.
+pub fn sync_tournament_identity(conn: &Connection, id: i64) -> Result<()> {
+    let t = model::tournament(conn, id)?.ok_or_else(|| UserError("No such tournament.".into()))?;
+    let wanted = t
+        .custom_name
+        .as_deref()
+        .map(str::trim)
+        .filter(|n| !n.is_empty())
+        .map_or_else(|| tournament_name(t.start_date.as_deref(), &t.tags), str::to_string);
+    let base = slugify(&wanted);
+    let slug = &t.slug;
+    let new_slug = if *slug == base || slug.strip_prefix(&format!("{base}-")).is_some_and(|n| n.parse::<u32>().is_ok())
+    {
+        slug.clone()
+    } else {
+        unique_slug(conn, Table::Tournaments, &base, Some(id))?
+    };
+    if wanted != t.name || new_slug != *slug {
+        conn.execute("UPDATE tournaments SET name = ?1, slug = ?2 WHERE id = ?3", params![wanted, new_slug, id])?;
+    }
+    Ok(())
 }
 
 fn date(value: &str, what: &str) -> Result<Option<String>> {
@@ -419,13 +508,6 @@ fn date(value: &str, what: &str) -> Result<Option<String>> {
     Ok(Some(v))
 }
 
-fn int(value: &str, what: &str, min: i64) -> Result<i64> {
-    match opt_int(value, what, min)? {
-        Some(n) => Ok(n),
-        None => user_bail!("{what} is required."),
-    }
-}
-
 /// `copy_players_from` value that registers every real player.
 pub const EVERYONE: i64 = 0;
 
@@ -435,33 +517,52 @@ pub fn save_tournament(
     t: &TournamentInput,
     copy_players_from: Option<i64>,
 ) -> Result<i64> {
-    let name = required(&t.name, "Name")?;
-    let slug = pick_slug(&t.slug, &name)?;
-    ensure_unique_slug(conn, Table::Tournaments, &slug, id)?;
-    let threshold = int(&t.challenger_threshold, "Challenger threshold", 1)?;
-    let dd = int(&t.double_down_tokens, "Double Down tokens", 0)?;
-    let nom = int(&t.nominate_tokens, "Nominate tokens", 0)?;
-    let points = parse_points(&t.points)?;
+    if t.challenger_threshold < 1 {
+        user_bail!("The Challenger threshold must be at least 1.");
+    }
+    if t.double_down_tokens < 0 || t.nominate_tokens < 0 {
+        user_bail!("Tokens can't be negative.");
+    }
+    if t.points.is_empty() || t.points.iter().any(|p| *p < 0) {
+        user_bail!("1st place needs points, and points can't be negative.");
+    }
+    if let Some(bad) = t.tags.iter().find(|tag| !model::TOURNAMENT_TAGS.iter().any(|(s, _)| s == tag)) {
+        user_bail!("Unknown tag \"{bad}\".");
+    }
     let (start, end) = (date(&t.start_date, "Start date")?, date(&t.end_date, "End date")?);
+    // Places after the last one that earns points earn 0 anyway.
+    let mut points = t.points.clone();
+    while points.len() > 1 && points.last() == Some(&0) {
+        points.pop();
+    }
+    let custom = clean(&t.custom_name);
+    let (threshold, dd, nom) = (t.challenger_threshold, t.double_down_tokens, t.nominate_tokens);
     let tx = crate::db::begin(conn)?;
     let tid = match id {
         None => {
+            let name = custom.clone().unwrap_or_else(|| tournament_name(start.as_deref(), &t.tags));
+            let slug = unique_slug(&tx, Table::Tournaments, &slugify(&name), None)?;
             tx.execute(
-                "INSERT INTO tournaments (slug, name, edition, start_date, end_date, location, status, challenger_threshold,
-                 double_down_tokens, nominate_tokens) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-                params![slug, name, clean(&t.edition), start, end, clean(&t.location), t.status.as_str(), threshold, dd, nom],
+                "INSERT INTO tournaments (slug, name, custom_name, start_date, end_date, location, status,
+                 challenger_threshold, double_down_tokens, nominate_tokens)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'upcoming', ?7, ?8, ?9)",
+                params![slug, name, custom, start, end, clean(&t.location), threshold, dd, nom],
             )?;
             tx.last_insert_rowid()
         }
         Some(id) => {
             tx.execute(
-                "UPDATE tournaments SET slug = ?1, name = ?2, edition = ?3, start_date = ?4, end_date = ?5, location = ?6,
-                 status = ?7, challenger_threshold = ?8, double_down_tokens = ?9, nominate_tokens = ?10 WHERE id = ?11",
-                params![slug, name, clean(&t.edition), start, end, clean(&t.location), t.status.as_str(), threshold, dd, nom, id],
+                "UPDATE tournaments SET custom_name = ?1, start_date = ?2, end_date = ?3, location = ?4,
+                 challenger_threshold = ?5, double_down_tokens = ?6, nominate_tokens = ?7 WHERE id = ?8",
+                params![custom, start, end, clean(&t.location), threshold, dd, nom, id],
             )?;
             id
         }
     };
+    tx.execute("DELETE FROM tournament_tags WHERE tournament_id = ?1", [tid])?;
+    for tag in &t.tags {
+        tx.execute("INSERT OR IGNORE INTO tournament_tags (tournament_id, tag) VALUES (?1, ?2)", params![tid, tag])?;
+    }
     tx.execute("DELETE FROM tournament_points WHERE tournament_id = ?1", [tid])?;
     for (i, p) in points.iter().enumerate() {
         tx.execute("INSERT INTO tournament_points VALUES (?1, ?2, ?3)", params![tid, i as i64 + 1, p])?;
@@ -474,6 +575,7 @@ pub fn save_tournament(
             params![tid, from],
         )?;
     }
+    sync_tournament_identity(&tx, tid)?;
     tx.commit()?;
     Ok(tid)
 }
@@ -522,7 +624,16 @@ pub fn set_participant(conn: &Connection, tid: i64, pid: i64, playing: bool) -> 
 
 // ------------------------------------------------------- category positions
 
+/// Categories are fixed once the first game is drawn: games loop through them in this order.
+fn assert_not_started(conn: &Connection, tid: i64) -> Result<()> {
+    if exists(conn, "SELECT 1 FROM rounds WHERE tournament_id = ?1", [tid])? {
+        user_bail!("The tournament has started, so its categories are fixed.");
+    }
+    Ok(())
+}
+
 pub fn add_position(conn: &Connection, tid: i64, category: &str) -> Result<()> {
+    assert_not_started(conn, tid)?;
     let next = count(
         conn,
         "SELECT COALESCE(MAX(position), 0) + 1 FROM tournament_categories WHERE tournament_id = ?1",
@@ -532,16 +643,10 @@ pub fn add_position(conn: &Connection, tid: i64, category: &str) -> Result<()> {
     Ok(())
 }
 
-fn assert_unplayed(conn: &Connection, tid: i64, position: i64) -> Result<()> {
-    if exists(conn, "SELECT 1 FROM rounds WHERE tournament_id = ?1 AND number = ?2", params![tid, position])? {
-        user_bail!("Game {position} has already started; its category can't be changed.");
-    }
-    Ok(())
-}
-
 /// Add `n` random categories that aren't in the order yet.
 pub fn add_random_positions(conn: &Connection, tid: i64, n: usize) -> Result<usize> {
     use rand::seq::SliceRandom;
+    assert_not_started(conn, tid)?;
     let used: Vec<String> = model::positions(conn, tid)?.into_iter().map(|(_, c)| c).collect();
     let mut free: Vec<String> =
         model::categories(conn)?.into_iter().map(|c| c.slug).filter(|c| !used.contains(c)).collect();
@@ -552,12 +657,11 @@ pub fn add_random_positions(conn: &Connection, tid: i64, n: usize) -> Result<usi
     Ok(added)
 }
 
-/// Shuffle the categories whose games haven't started.
+/// Shuffle the category order (before the tournament starts).
 pub fn shuffle_positions(conn: &Connection, tid: i64) -> Result<()> {
     use rand::seq::SliceRandom;
-    let started: Vec<i64> = model::rounds(conn, tid)?.into_iter().map(|r| r.number).collect();
-    let open: Vec<(i64, String)> =
-        model::positions(conn, tid)?.into_iter().filter(|(p, _)| !started.contains(p)).collect();
+    assert_not_started(conn, tid)?;
+    let open = model::positions(conn, tid)?;
     let mut categories: Vec<String> = open.iter().map(|(_, c)| c.clone()).collect();
     categories.shuffle(&mut rand::rng());
     let tx = crate::db::begin(conn)?;
@@ -582,12 +686,11 @@ pub fn add_everyone(conn: &Connection, tid: i64) -> Result<()> {
 }
 
 pub fn remove_position(conn: &Connection, tid: i64, position: i64) -> Result<()> {
+    assert_not_started(conn, tid)?;
     let tx = crate::db::begin(conn)?;
-    assert_unplayed(&tx, tid, position)?;
     tx.execute("DELETE FROM tournament_categories WHERE tournament_id = ?1 AND position = ?2", params![tid, position])?;
     // Close the gap so positions stay 1..n.
     for (p, _) in model::positions(&tx, tid)?.into_iter().filter(|(p, _)| *p > position) {
-        assert_unplayed(&tx, tid, p)?;
         tx.execute(
             "UPDATE tournament_categories SET position = ?1 WHERE tournament_id = ?2 AND position = ?3",
             params![p - 1, tid, p],
@@ -598,9 +701,8 @@ pub fn remove_position(conn: &Connection, tid: i64, position: i64) -> Result<()>
 }
 
 pub fn swap_positions(conn: &Connection, tid: i64, a: i64, b: i64) -> Result<()> {
+    assert_not_started(conn, tid)?;
     let tx = crate::db::begin(conn)?;
-    assert_unplayed(&tx, tid, a)?;
-    assert_unplayed(&tx, tid, b)?;
     let list = model::positions(&tx, tid)?;
     let find = |n: i64| list.iter().find(|(p, _)| *p == n).map(|(_, c)| c.clone());
     if let (Some(ca), Some(cb)) = (find(a), find(b)) {
@@ -615,12 +717,13 @@ pub fn swap_positions(conn: &Connection, tid: i64, a: i64, b: i64) -> Result<()>
 // ------------------------------------------------------------------- rounds
 
 fn ensure_round(conn: &Connection, tid: i64, number: i64) -> Result<()> {
-    if !exists(
-        conn,
-        "SELECT 1 FROM tournament_categories WHERE tournament_id = ?1 AND position = ?2",
-        params![tid, number],
-    )? {
-        user_bail!("Game {number} has no category yet. Add it to the category order first.");
+    if !exists(conn, "SELECT 1 FROM tournament_categories WHERE tournament_id = ?1", [tid])? {
+        user_bail!("Add the tournament's categories first (Setup tab).");
+    }
+    let last: i64 =
+        conn.query_row("SELECT COALESCE(MAX(number), 0) FROM rounds WHERE tournament_id = ?1", [tid], |r| r.get(0))?;
+    if number < 1 || number > last + 1 {
+        user_bail!("Games are numbered in order; the next one is game {}.", last + 1);
     }
     conn.execute(
         "INSERT OR IGNORE INTO rounds (tournament_id, number, completed) VALUES (?1, ?2, 0)",
@@ -869,7 +972,7 @@ mod tests {
     use crate::db;
 
     fn player(name: &str, n: usize) -> PlayerInput {
-        PlayerInput { name: name.into(), discord_id: format!("1000000000000000{n}"), ..Default::default() }
+        PlayerInput { nickname: name.into(), discord_id: format!("1000000000000000{n}"), ..Default::default() }
     }
 
     fn setup() -> (Connection, i64, Vec<i64>) {
@@ -879,9 +982,13 @@ mod tests {
             .enumerate()
             .map(|(i, n)| save_player(&conn, None, &player(n, i)).unwrap())
             .collect();
-        let tid =
-            save_tournament(&conn, None, &TournamentInput { name: "LAN 2026".into(), ..Default::default() }, None)
-                .unwrap();
+        let tid = save_tournament(
+            &conn,
+            None,
+            &TournamentInput { custom_name: "LAN 2026".into(), ..Default::default() },
+            None,
+        )
+        .unwrap();
         for pid in &ids {
             set_participant(&conn, tid, *pid, true).unwrap();
         }
@@ -895,15 +1002,18 @@ mod tests {
         let (conn, _, _) = setup();
         let p = model::players(&conn).unwrap();
         assert_eq!(p.iter().map(|p| p.slug.as_str()).collect::<Vec<_>>(), ["ann", "bob", "cy"]);
-        let err = save_player(&conn, None, &player("Ann", 7)).unwrap_err();
-        assert!(friendly(&err).contains("already uses"));
+        // A second "Ann" gets her own address.
+        let ann2 = save_player(&conn, None, &player("Ann", 7)).unwrap();
+        assert_eq!(model::players(&conn).unwrap().iter().find(|p| p.id == ann2).unwrap().slug, "ann-2");
+        let err = save_player(&conn, None, &player("Ann", 1)).unwrap_err();
+        assert!(friendly(&err).contains("already has this Discord account"));
         let err =
             save_player(&conn, None, &PlayerInput { avatar_url: "http://x".into(), ..player("Dee", 8) }).unwrap_err();
         assert!(friendly(&err).contains("https://"));
-        let err = save_player(&conn, None, &PlayerInput { name: "Eve".into(), ..Default::default() }).unwrap_err();
+        let err = save_player(&conn, None, &PlayerInput { nickname: "Eve".into(), ..Default::default() }).unwrap_err();
         assert!(friendly(&err).contains("Discord user ID is required"));
         assert_eq!(model::tournament_by_slug(&conn, "lan-2026").unwrap().unwrap().challenger_threshold, 20);
-        assert_eq!(model::points_table(&conn, 1).unwrap().len(), 6);
+        assert_eq!(model::points_table(&conn, 1).unwrap().len(), 5);
     }
 
     #[test]
@@ -1004,9 +1114,81 @@ mod tests {
     }
 
     #[test]
-    fn parses_points() {
-        assert_eq!(parse_points("6, 4 3,2").unwrap(), vec![6, 4, 3, 2]);
-        assert!(parse_points("6, -1").is_err());
-        assert!(parse_points("").is_err());
+    fn names_and_addresses_follow_discord_unless_overridden() {
+        let conn = db::memory().unwrap();
+        let id =
+            save_player(&conn, None, &PlayerInput { discord_id: "80351110224678912".into(), ..Default::default() })
+                .unwrap();
+        let get = |conn: &Connection| {
+            let p = model::players(conn).unwrap().into_iter().find(|p| p.id == id).unwrap();
+            (p.name, p.slug)
+        };
+        assert_eq!(get(&conn), ("Player 8912".to_string(), "player-8912".to_string()), "until Discord is fetched");
+        let user = crate::discord::DiscordUser {
+            id: "80351110224678912".into(),
+            username: "Ann.Plays_99".into(),
+            global_name: Some("Ann".into()),
+            avatar: None,
+        };
+        save_discord_names(&conn, id, &user).unwrap();
+        assert_eq!(get(&conn), ("Ann.Plays_99".to_string(), "ann-plays-99".to_string()));
+        save_player(
+            &conn,
+            Some(id),
+            &PlayerInput { nickname: "Annie".into(), discord_id: user.id.clone(), ..Default::default() },
+        )
+        .unwrap();
+        assert_eq!(get(&conn), ("Annie".to_string(), "annie".to_string()));
+    }
+
+    #[test]
+    fn tournament_names_come_from_season_tags_and_year() {
+        let conn = db::memory().unwrap();
+        let input = TournamentInput { start_date: "2026-10-16".into(), ..Default::default() };
+        let id = save_tournament(&conn, None, &input, None).unwrap();
+        let t = model::tournament(&conn, id).unwrap().unwrap();
+        assert_eq!((t.name.as_str(), t.slug.as_str()), ("Autumn LAN 2026", "autumn-lan-2026"));
+        assert_eq!(t.tags, ["lan"]);
+        let online =
+            TournamentInput { tags: vec!["online".into(), "weekend".into()], start_date: "2027-01-09".into(), ..input };
+        let id2 = save_tournament(&conn, None, &online, None).unwrap();
+        assert_eq!(model::tournament(&conn, id2).unwrap().unwrap().name, "Winter Online 2027");
+        let points = TournamentInput { points: vec![5, 3, 0, 0], ..Default::default() };
+        let id3 = save_tournament(&conn, None, &points, None).unwrap();
+        assert_eq!(model::points_table(&conn, id3).unwrap(), [(1, 5), (2, 3)], "trailing zeros dropped");
+        assert_eq!(model::tournament(&conn, id3).unwrap().unwrap().slug, "next-lan");
+        assert!(
+            save_tournament(&conn, None, &TournamentInput { tags: vec!["nope".into()], ..Default::default() }, None)
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn categories_are_fixed_once_started_and_games_loop_through_them() {
+        let (conn, tid, ids) = setup();
+        let game = save_game(&conn, None, &GameInput { name: "Catan".into(), ..GameInput::new() }).unwrap();
+        let c = Candidate { game, source: Source::Vote, player: None };
+        draw_round(&conn, tid, 1, &[c]).unwrap();
+        assert!(add_position(&conn, tid, "puzzle").is_err());
+        assert!(shuffle_positions(&conn, tid).is_err());
+        assert!(draw_round(&conn, tid, 3, &[c]).is_err(), "games are numbered in order");
+        let row = |pid, placement| ResultInput {
+            player_id: pid,
+            placement,
+            base_points: 1,
+            double_down: false,
+            nemesis_player_id: None,
+        };
+        for number in 1..=2 {
+            draw_round(&conn, tid, number, &[c]).unwrap();
+            save_results(&conn, tid, number, &[row(ids[number as usize - 1], 1), row(ids[2], 2)], true).unwrap();
+        }
+        // Two categories: game 3 starts the order over.
+        draw_round(&conn, tid, 3, &[c]).unwrap();
+        let names = model::players(&conn).unwrap().into_iter().map(|p| (p.id, p.name)).collect();
+        let state =
+            crate::rules::compute_tournament(&conn, &model::tournament(&conn, tid).unwrap().unwrap(), &names).unwrap();
+        assert_eq!(state.active_position(), Some((3, "strategy")));
+        assert_eq!(state.lap(3), 2);
     }
 }

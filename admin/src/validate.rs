@@ -134,9 +134,6 @@ pub fn validate_database(conn: &Connection, avatars_dir: Option<&Path>) -> Resul
         let completed: Vec<i64> = rounds.iter().filter(|r| r.completed).map(|r| r.number).collect();
         let pending: Vec<i64> = rounds.iter().filter(|r| !r.completed).map(|r| r.number).collect();
 
-        if t.status == Status::Upcoming && !completed.is_empty() {
-            report.error(format!("{label}: status is 'upcoming' but has completed rounds"));
-        }
         if completed != (1..=completed.len() as i64).collect::<Vec<_>>() {
             report.error(format!(
                 "{label}: completed rounds must be numbered 1..n without gaps (got {})",
@@ -277,14 +274,6 @@ pub fn validate_database(conn: &Connection, avatars_dir: Option<&Path>) -> Resul
             report.error(format!(
                 "{label}: rounds {} were played after the tournament was decided in round {deciding}",
                 list(&state.ignored_rounds)
-            ));
-        }
-        if let Some(champion) = state.champion_id
-            && t.status != Status::Completed
-        {
-            report.error(format!(
-                "{label}: {} won round {deciding} as a Challenger; set status to 'completed'",
-                name_or_id(champion)
             ));
         }
         if t.status == Status::Completed && state.champion_id.is_none() {

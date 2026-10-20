@@ -39,65 +39,31 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
     if form.creating {
         theme::card(ui, |ui| {
             theme::section_title(ui, "New tournament");
-            egui::Grid::new("new-tournament").num_columns(2).spacing([16.0, 8.0]).show(ui, |ui| {
-                theme::field(ui, "Name", |ui| theme::text(ui, &mut form.new.name, "LAN 2026"));
-                theme::field(ui, "Web address", |ui| {
-                    ui.horizontal(|ui| {
-                        let auto = crate::db::slugify(&form.new.name);
-                        theme::narrow_text(
+            fields(ui, "new-tournament", &mut form.new);
+            egui::Grid::new("new-tournament-players").num_columns(2).spacing([16.0, 8.0]).min_col_width(170.0).show(
+                ui,
+                |ui| {
+                    theme::field(ui, "Players", |ui| {
+                        let options: Vec<(i64, String)> = std::iter::once((repo::EVERYONE, "Everyone".to_string()))
+                            .chain(d.tournaments.iter().map(|t| (t.t.id, format!("Same as {}", t.t.name))))
+                            .collect();
+                        theme::pick(
                             ui,
-                            &mut form.new.slug,
-                            if auto.is_empty() { "lan-2026" } else { &auto },
-                            200.0,
+                            "copy-players",
+                            &mut form.copy_players_from,
+                            &options,
+                            Some("Choose them later"),
+                            280.0,
                         );
-                        theme::hint(ui, "leave empty to use the name");
-                    })
-                });
-                theme::field(ui, "Edition", |ui| theme::text(ui, &mut form.new.edition, "optional, e.g. 3rd edition"));
-                theme::field(ui, "Start date", |ui| {
-                    theme::narrow_text(ui, &mut form.new.start_date, "2026-11-14", 120.0)
-                });
-                theme::field(ui, "Location", |ui| theme::text(ui, &mut form.new.location, "optional"));
-                theme::field(ui, "Challenger threshold", |ui| {
-                    ui.horizontal(|ui| {
-                        theme::narrow_text(ui, &mut form.new.challenger_threshold, "20", 60.0);
-                        theme::hint(ui, "points needed to become a Challenger");
-                    })
-                });
-                theme::field(ui, "Tokens per player", |ui| {
-                    ui.horizontal(|ui| {
-                        ui.label("Double Down");
-                        theme::narrow_text(ui, &mut form.new.double_down_tokens, "1", 40.0);
-                        ui.label("Nominate");
-                        theme::narrow_text(ui, &mut form.new.nominate_tokens, "1", 40.0);
-                    })
-                });
-                theme::field(ui, "Points per placement", |ui| {
-                    ui.horizontal(|ui| {
-                        theme::narrow_text(ui, &mut form.new.points, "6, 4, 3, 2, 1, 0", 200.0);
-                        theme::hint(ui, "1st, 2nd, 3rd… (pre-fills results)");
-                    })
-                });
-                theme::field(ui, "Players", |ui| {
-                    let options: Vec<(i64, String)> = std::iter::once((repo::EVERYONE, "Everyone".to_string()))
-                        .chain(d.tournaments.iter().map(|t| (t.t.id, format!("Same as {}", t.t.name))))
-                        .collect();
-                    theme::pick(
-                        ui,
-                        "copy-players",
-                        &mut form.copy_players_from,
-                        &options,
-                        Some("Choose them later"),
-                        260.0,
-                    );
-                });
-            });
+                    });
+                },
+            );
             ui.horizontal(|ui| {
                 if theme::primary(ui, "Create tournament").clicked() {
                     let input = form.new.clone();
                     let copy = form.copy_players_from;
                     form.creating = false;
-                    actions.push(Action::db_go(format!("Tournament {} created", input.name.trim()), move |c| {
+                    actions.push(Action::db_go("Tournament created", move |c| {
                         let id = repo::save_tournament(c, None, &input, copy)?;
                         Ok(Page::Tournament(id, Tab::Setup))
                     }));
@@ -153,7 +119,7 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                             ui.label(t.participants.len().to_string());
                         });
                         row.col(|ui| {
-                            ui.label(format!("{} / {}", t.completed(), t.positions.len()));
+                            ui.label(t.completed().to_string());
                         });
                         row.col(|ui| {
                             ui.label(t.state.champion_id.map_or(String::new(), |c| format!("👑 {}", d.player_name(c))));
@@ -164,6 +130,87 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                     });
                 }
             });
+    });
+}
+
+/// Name, tags, dates and rules of a tournament; shared by "New tournament" and Settings.
+fn fields(ui: &mut egui::Ui, id: &str, input: &mut TournamentInput) {
+    let generated = repo::tournament_name(Some(input.start_date.as_str()).filter(|d| !d.is_empty()), &input.tags);
+    egui::Grid::new(id).num_columns(2).spacing([16.0, 10.0]).min_col_width(170.0).show(ui, |ui| {
+        theme::field(ui, "Tags", |ui| {
+            ui.vertical(|ui| {
+                for row in crate::model::TOURNAMENT_TAGS.chunks(5) {
+                    ui.horizontal(|ui| {
+                        for (slug, label) in row {
+                            let mut on = input.tags.iter().any(|t| t == slug);
+                            if theme::chip(ui, on, *label).clicked() {
+                                on = !on;
+                                if on {
+                                    input.tags.push((*slug).to_string());
+                                } else {
+                                    input.tags.retain(|t| t != slug);
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+        });
+        theme::field(ui, "Dates", |ui| {
+            ui.horizontal(|ui| {
+                theme::narrow_text(ui, &mut input.start_date, "start, e.g. 2026-11-14", 170.0);
+                ui.label("to");
+                theme::narrow_text(ui, &mut input.end_date, "end (optional)", 170.0);
+            })
+        });
+        theme::field(ui, "Name", |ui| {
+            ui.vertical(|ui| {
+                theme::narrow_text(ui, &mut input.custom_name, &generated, 370.0);
+                theme::hint(ui, "Leave empty to use the name made from the season, tags and year.");
+            })
+        });
+        theme::field(ui, "Location", |ui| theme::narrow_text(ui, &mut input.location, "optional", 370.0));
+        theme::field(ui, "Challenger at", |ui| {
+            ui.add(egui::DragValue::new(&mut input.challenger_threshold).range(1..=999).suffix(" points"))
+        });
+        theme::field(ui, "Tokens per player", |ui| {
+            ui.horizontal(|ui| {
+                ui.add(egui::DragValue::new(&mut input.double_down_tokens).range(0..=9));
+                ui.label("Double Down");
+                ui.add_space(12.0);
+                ui.add(egui::DragValue::new(&mut input.nominate_tokens).range(0..=9));
+                ui.label("Nominate");
+            })
+        });
+        theme::field(ui, "Points per place", |ui| {
+            ui.vertical(|ui| {
+                let mut remove = None;
+                for (i, points) in input.points.iter_mut().enumerate() {
+                    ui.horizontal(|ui| {
+                        ui.add_sized(
+                            [44.0, 24.0],
+                            egui::Label::new(RichText::new(crate::export::ordinal(i as i64 + 1)).strong()),
+                        );
+                        ui.add(egui::DragValue::new(points).range(0..=99).suffix(" pts"));
+                        if i > 0 && ui.small_button("✖").on_hover_text("Remove this place").clicked() {
+                            remove = Some(i);
+                        }
+                    });
+                }
+                if let Some(i) = remove {
+                    input.points.remove(i);
+                }
+                ui.horizontal(|ui| {
+                    if ui
+                        .small_button(format!("+ Add {}", crate::export::ordinal(input.points.len() as i64 + 1)))
+                        .clicked()
+                    {
+                        input.points.push(0);
+                    }
+                    theme::hint(ui, "Every other place earns 0.");
+                });
+            })
+        });
     });
 }
 
@@ -209,35 +256,24 @@ fn status_buttons(ui: &mut egui::Ui, t: &TournamentData, actions: &mut Vec<Actio
     let tid = t.t.id;
     match t.t.status {
         Status::Upcoming => {
-            let ready = t.participants.len() >= 2 && !t.positions.is_empty();
-            let resp = theme::primary_enabled(ui, ready, "▶ Start tournament")
-                .on_disabled_hover_text("Choose at least two players and one category on the Setup tab first.");
-            if resp.clicked() {
-                actions.push(Action::db("Tournament started — it's now live on the website", move |c| {
-                    repo::set_status(c, tid, Status::Ongoing)
-                }));
-            }
+            theme::hint(ui, "Goes live when its first game is drawn");
         }
         Status::Ongoing => {
-            if t.state.champion_id.is_some() {
-                if theme::primary(ui, "🏁 Mark completed").clicked() {
-                    actions
-                        .push(Action::db("Tournament completed", move |c| repo::set_status(c, tid, Status::Completed)));
-                }
-            } else if ui.button("Mark completed…").clicked() {
+            if ui.button("End without a winner…").clicked() {
                 actions.push(Action::Confirm(Confirm::new(
                     "End the tournament without a champion?",
-                    "No Challenger has won a game yet. Mark it completed anyway?",
-                    "Mark completed",
-                    Action::db("Tournament completed", move |c| repo::set_status(c, tid, Status::Completed)),
+                    "No Challenger has won a game yet. It normally ends by itself when one does.",
+                    "End tournament",
+                    Action::db("Tournament ended", move |c| repo::set_status(c, tid, Status::Completed)),
                 )));
             }
         }
-        Status::Completed => {
+        Status::Completed if t.state.champion_id.is_none() => {
             if ui.button("Reopen").on_hover_text("Set it back to live").clicked() {
                 actions.push(Action::db("Tournament reopened", move |c| repo::set_status(c, tid, Status::Ongoing)));
             }
         }
+        Status::Completed => {}
     }
 }
 
@@ -359,9 +395,15 @@ fn overview(ui: &mut egui::Ui, d: &Data, t: &TournamentData, actions: &mut Vec<A
                 ui.label(theme::muted("No categories yet."));
             }
             let next = t.next_round();
-            for (n, category) in &t.positions {
+            let len = t.positions.len() as i64;
+            for n in t.schedule() {
+                let n = &n;
+                let category = t.category_at(*n).unwrap_or_default();
                 let round = t.round(*n);
                 let state = t.state.rounds.get(n);
+                if len > 0 && *n > len && (*n - 1) % len == 0 {
+                    ui.label(theme::muted(format!("Lap {} · the categories start over", (*n - 1) / len + 1)).small());
+                }
                 ui.horizontal(|ui| {
                     ui.label(RichText::new(format!("{n}")).strong().color(theme::GOLD));
                     ui.vertical(|ui| {
@@ -385,21 +427,11 @@ fn overview(ui: &mut egui::Ui, d: &Data, t: &TournamentData, actions: &mut Vec<A
                     });
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         let done = round.is_some_and(|r| r.completed);
-                        let live = t.t.status == Status::Ongoing;
                         if done {
                             if ui.small_button("View").clicked() {
                                 actions.push(Action::Go(Page::Round(tid, *n)));
                             }
-                        } else if next == Some(*n) && live {
-                            if theme::primary(ui, &format!("▶ Enter game {n}")).clicked() {
-                                actions.push(Action::Go(Page::Round(tid, *n)));
-                            }
-                        } else if next == Some(*n)
-                            && ui
-                                .small_button("Prepare")
-                                .on_hover_text("Pick the game and draw the Nemeses before starting")
-                                .clicked()
-                        {
+                        } else if next == Some(*n) && theme::primary(ui, &format!("▶ Game {n}")).clicked() {
                             actions.push(Action::Go(Page::Round(tid, *n)));
                         }
                     });
@@ -455,41 +487,47 @@ fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actio
                 }
             });
         });
-        ui.add_space(8.0);
+        let ui = &mut cols[1];
         theme::card(ui, |ui| {
             theme::section_title(ui, "Category order");
-            theme::hint(ui, "One game per category, played in this order. Add categories as they're announced.");
+            let locked = t.started();
+            theme::hint(
+                ui,
+                if locked {
+                    "Fixed now that the tournament has started. Games follow this order and start over until someone wins."
+                } else {
+                    "One game per category, in this order, starting over until someone wins. Fixed once the first game is drawn."
+                },
+            );
             for (i, (n, category)) in t.positions.iter().enumerate() {
-                let started = t.round(*n).is_some();
                 ui.horizontal(|ui| {
                     ui.label(RichText::new(format!("{n}.")).strong().color(theme::GOLD));
                     ui.label(d.category_label(category));
-                    if started {
-                        theme::hint(ui, "started");
+                    if locked {
+                        return;
                     }
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         let n = *n;
-                        if ui.add_enabled(!started, egui::Button::new("✖").small()).on_hover_text("Remove").clicked()
-                        {
+                        if ui.small_button("✖").on_hover_text("Remove").clicked() {
                             actions.push(Action::db("Category removed", move |c| repo::remove_position(c, tid, n)));
                         }
-                        let next_started = t.positions.get(i + 1).is_some_and(|(m, _)| t.round(*m).is_some());
-                        let can_down = i + 1 < t.positions.len() && !started && !next_started;
-                        if ui.add_enabled(can_down, egui::Button::new("⬇").small()).clicked() {
+                        if ui.add_enabled(i + 1 < t.positions.len(), egui::Button::new("⬇").small()).clicked() {
                             actions.push(Action::db("Order changed", move |c| repo::swap_positions(c, tid, n, n + 1)));
                         }
-                        let prev_started = i > 0 && t.round(t.positions[i - 1].0).is_some();
-                        if ui.add_enabled(i > 0 && !started && !prev_started, egui::Button::new("⬆").small()).clicked()
-                        {
+                        if ui.add_enabled(i > 0, egui::Button::new("⬆").small()).clicked() {
                             actions.push(Action::db("Order changed", move |c| repo::swap_positions(c, tid, n, n - 1)));
                         }
                     });
                 });
             }
+            if locked {
+                return;
+            }
+            ui.add_space(4.0);
             ui.horizontal(|ui| {
                 let options: Vec<(usize, String)> =
                     d.categories.iter().enumerate().map(|(i, c)| (i, d.category_label(&c.slug))).collect();
-                theme::pick(ui, "add-category", &mut form.add_category, &options, None, 200.0);
+                theme::pick(ui, "add-category", &mut form.add_category, &options, None, 220.0);
                 if ui.add_enabled(form.add_category.is_some(), egui::Button::new("+ Add")).clicked()
                     && let Some(c) = form.add_category.and_then(|i| d.categories.get(i))
                 {
@@ -500,7 +538,6 @@ fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actio
                 }
             });
             ui.horizontal(|ui| {
-                ui.label(theme::muted("Or"));
                 ui.add(egui::DragValue::new(&mut form.random_count).range(1..=20).suffix(" categories"));
                 if ui.button("🎲 Add at random").on_hover_text("Picks categories not in the order yet").clicked() {
                     let n = form.random_count;
@@ -509,89 +546,49 @@ fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actio
                         Ok(format!("{added} random categories added"))
                     }));
                 }
-                let open = t.positions.iter().filter(|(n, _)| t.round(*n).is_none()).count();
-                if ui
-                    .add_enabled(open > 1, egui::Button::new("🔀 Shuffle order"))
-                    .on_hover_text("Shuffles the categories that haven't started")
-                    .clicked()
-                {
+                if ui.add_enabled(t.positions.len() > 1, egui::Button::new("🔀 Shuffle order")).clicked() {
                     actions.push(Action::db("Order shuffled", move |c| repo::shuffle_positions(c, tid)));
                 }
             });
         });
-        let Some((_, _, input)) = form.settings.as_mut() else { return };
-        theme::card(&mut cols[1], |ui| {
-            theme::section_title(ui, "Settings");
-            egui::Grid::new("tournament-settings").num_columns(2).spacing([16.0, 8.0]).show(ui, |ui| {
-                theme::field(ui, "Name", |ui| theme::text(ui, &mut input.name, ""));
-                theme::field(ui, "Web address", |ui| {
-                    ui.vertical(|ui| {
-                        theme::narrow_text(ui, &mut input.slug, &t.t.slug, 220.0);
-                        if input.slug.trim() != t.t.slug {
-                            ui.label(
-                                RichText::new("⚠ Links people already shared to this tournament will stop working.")
-                                    .color(theme::GOLD)
-                                    .small(),
-                            );
-                        }
-                    })
-                });
-                theme::field(ui, "Edition", |ui| theme::text(ui, &mut input.edition, "optional"));
-                theme::field(ui, "Dates", |ui| {
-                    ui.horizontal(|ui| {
-                        theme::narrow_text(ui, &mut input.start_date, "start: 2026-11-14", 140.0);
-                        ui.label("to");
-                        theme::narrow_text(ui, &mut input.end_date, "end (optional)", 140.0);
-                    })
-                });
-                theme::field(ui, "Location", |ui| theme::text(ui, &mut input.location, "optional"));
-                theme::field(ui, "Status", |ui| {
-                    ui.horizontal(|ui| {
-                        for status in Status::ALL {
-                            ui.selectable_value(&mut input.status, status, status.label());
-                        }
-                    })
-                });
-                theme::field(ui, "Challenger threshold", |ui| {
-                    theme::narrow_text(ui, &mut input.challenger_threshold, "", 60.0)
-                });
-                theme::field(ui, "Tokens per player", |ui| {
-                    ui.horizontal(|ui| {
-                        ui.label("Double Down");
-                        theme::narrow_text(ui, &mut input.double_down_tokens, "", 40.0);
-                        ui.label("Nominate");
-                        theme::narrow_text(ui, &mut input.nominate_tokens, "", 40.0);
-                    })
-                });
-                theme::field(ui, "Points per placement", |ui| {
-                    theme::narrow_text(ui, &mut input.points, "6, 4, 3, 2, 1, 0", 220.0)
-                });
-            });
-            ui.horizontal(|ui| {
-                if theme::primary(ui, "Save settings").clicked() {
-                    let input = input.clone();
-                    actions.push(Action::db("Settings saved", move |c| {
-                        repo::save_tournament(c, Some(tid), &input, None).map(|_| ())
-                    }));
+    });
+    ui.add_space(8.0);
+    let Some((_, _, input)) = form.settings.as_mut() else { return };
+    theme::card(ui, |ui| {
+        theme::section_title(ui, "Settings");
+        fields(ui, "tournament-settings", input);
+        if input.custom_name.trim().is_empty() {
+            let next = repo::tournament_name(Some(input.start_date.as_str()).filter(|d| !d.is_empty()), &input.tags);
+            if crate::db::slugify(&next) != t.t.slug && t.completed() > 0 {
+                ui.label(
+                    RichText::new("⚠ Saving renames it, so links shared to this tournament stop working.")
+                        .color(theme::GOLD)
+                        .small(),
+                );
+            }
+        }
+        ui.horizontal(|ui| {
+            if theme::primary(ui, "Save settings").clicked() {
+                let input = input.clone();
+                actions.push(Action::db("Settings saved", move |c| {
+                    repo::save_tournament(c, Some(tid), &input, None).map(|_| ())
+                }));
+            }
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                let played = t.completed() > 0;
+                let resp =
+                    ui.add_enabled(!played, egui::Button::new(RichText::new("Delete tournament").color(theme::DANGER)));
+                if resp.on_disabled_hover_text("Tournaments with finished games can't be deleted").clicked() {
+                    actions.push(Action::Confirm(Confirm::new(
+                        format!("Delete {}?", t.t.name),
+                        "Its players, categories, nominations and awards are removed with it. You can undo this.",
+                        "Delete",
+                        Action::db_go(format!("{} deleted", t.t.name), move |c| {
+                            repo::delete_tournament(c, tid)?;
+                            Ok(Page::Tournaments)
+                        }),
+                    )));
                 }
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    let played = t.completed() > 0;
-                    let resp = ui.add_enabled(
-                        !played,
-                        egui::Button::new(RichText::new("Delete tournament").color(theme::DANGER)),
-                    );
-                    if resp.on_disabled_hover_text("Tournaments with finished games can't be deleted").clicked() {
-                        actions.push(Action::Confirm(Confirm::new(
-                            format!("Delete {}?", t.t.name),
-                            "Its players, categories, nominations and awards are removed with it. You can undo this.",
-                            "Delete",
-                            Action::db_go(format!("{} deleted", t.t.name), move |c| {
-                                repo::delete_tournament(c, tid)?;
-                                Ok(Page::Tournaments)
-                            }),
-                        )));
-                    }
-                });
             });
         });
     });

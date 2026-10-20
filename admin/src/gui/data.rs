@@ -33,20 +33,34 @@ impl TournamentData {
         self.rounds.iter().find(|r| r.number == number)
     }
 
+    /// The category game `number` plays (the order starts over after the last one).
     pub fn category_at(&self, number: i64) -> Option<&str> {
-        self.positions.iter().find(|(p, _)| *p == number).map(|(_, c)| c.as_str())
+        crate::rules::category_for(&self.positions, number)
+    }
+
+    /// Games to list: every game so far, then the rest of the current pass through the categories.
+    pub fn schedule(&self) -> Vec<i64> {
+        let len = self.positions.len() as i64;
+        let played = self.rounds.iter().map(|r| r.number).max().unwrap_or(0);
+        let last = match self.next_round() {
+            Some(n) => crate::rules::lap(&self.positions, n) * len,
+            None => played,
+        };
+        (1..=last.max(played)).collect()
+    }
+
+    /// Categories can change until the first game is drawn.
+    pub fn started(&self) -> bool {
+        !self.rounds.is_empty()
     }
 
     pub fn completed(&self) -> usize {
         self.rounds.iter().filter(|r| r.completed).count()
     }
 
-    /// The next game to enter: the first category position without a finished round.
+    /// The next game to enter, unless the tournament is decided.
     pub fn next_round(&self) -> Option<i64> {
-        if self.state.champion_id.is_some() {
-            return None;
-        }
-        self.positions.iter().map(|(p, _)| *p).find(|p| !self.round(*p).is_some_and(|r| r.completed))
+        self.state.next_round()
     }
 
     pub fn round_results(&self, number: i64) -> Vec<&ResultRow> {

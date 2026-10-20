@@ -44,11 +44,11 @@ The sign-in is stored only on your computer, in the app's settings file, which o
 The **Dashboard** always shows the next step.
 
 1. **Before the LAN:**
-   - **Players:** type their nickname and Discord user ID, then **+ Add player**. Their Discord name and picture are fetched right away (once a bot token is set, see below); **🔄 Refresh all from Discord** updates everyone. Drop an image file on the window, or link one, to override the Discord picture.
+   - **Players:** paste their Discord user ID and press **+ Add player**. Their Discord username becomes their name (and profile address) unless you give them a nickname. Their Discord name and picture are fetched right away (once a bot token is set, see below); **🔄 Refresh all from Discord** updates everyone. Drop an image file on the window, or link one, to override the Discord picture.
    - **Games:** build the library and tag each game with its categories.
    - **Categories & awards:** rename them or click an icon to pick a new one from the palette. Awards are granted by the rules, so new ones can't be added here.
-   - **Tournaments → + New tournament:** set the threshold, tokens and points per placement.
-   - On the tournament's **Setup** tab, tick the players (or **Add everyone**) and add the categories in play order, or **🎲 Add at random** and **🔀 Shuffle order**. The tournament goes live with its first game, or press **▶ Start tournament**.
+   - **Tournaments → + New tournament:** tick its tags and set the dates; the name (e.g. "Autumn LAN 2026") is made for you unless you type one. Set the Challenger threshold, tokens and the points for each place that earns any.
+   - On the tournament's **Setup** tab, tick the players (or **Add everyone**) and add the categories in play order, or **🎲 Add at random** and **🔀 Shuffle order**. Games follow this order and start over (a new lap) until someone wins. The tournament goes live, and its categories lock, when the first game is drawn.
 2. **Every game:** press **▶ Enter game N** on the dashboard.
    1. **Tick every game that can be picked.** Mark a winner's pick or a Nominate token where one was used. Then press **🎲 Draw**: one click picks the game and everyone's Nemesis. **Change or redraw…** undoes it.
    2. **Tap players in finishing order.** For a tie, give them the same place (two 2nds, then 4th). Tick Double Down where it was used. Base points come from the points table, and Nemesis bonuses from the draw. The **= Points** column and the "If you finish now…" line show the result *before* you save.
@@ -69,7 +69,7 @@ A player's profile page can link to their Discord account and show their Discord
 
 1. Once: create a bot at [discord.com/developers/applications](https://discord.com/developers/applications) (New Application → Bot → Reset Token). It needs no permissions and doesn't have to join a server. Paste the token in **Settings → Discord**. It stays on this computer.
 2. Ask the player for their **User ID**: in Discord, Settings → Advanced → Developer Mode, then right-click their name → Copy User ID.
-3. **Players:** add them with their nickname and ID; their Discord name and picture are fetched straight away. **🔄 Refresh all from Discord** updates everyone in one go (do it when people change their picture, then publish).
+3. **Players:** add them with their Discord user ID; their Discord name and picture are fetched straight away. **🔄 Refresh all from Discord** updates everyone in one go (do it when people change their picture, then publish).
 
 An uploaded picture or a picture link overrides the Discord picture; initials show only when there's no picture at all.
 

@@ -99,7 +99,13 @@ fn live_card(ui: &mut egui::Ui, s: &Session, t: &TournamentData, actions: &mut V
                 theme::badge(ui, "Demo", theme::CHALLENGER);
             }
             ui.label(RichText::new(&t.t.name).strong().size(20.0));
-            ui.label(theme::muted(format!("{} of {} games played", t.completed(), t.positions.len())));
+            let lap = t.next_round().map_or(1, |n| t.state.lap(n));
+            let lap = if lap > 1 { format!(" · lap {lap}") } else { String::new() };
+            ui.label(theme::muted(format!(
+                "{} game{} played{lap}",
+                t.completed(),
+                if t.completed() == 1 { "" } else { "s" }
+            )));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 if ui.button("Open tournament").clicked() {
                     actions.push(Action::Go(Page::Tournament(t.t.id, Tab::Overview)));

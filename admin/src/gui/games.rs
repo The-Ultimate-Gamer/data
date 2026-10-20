@@ -40,13 +40,13 @@ pub fn show(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
         ui.checkbox(&mut form.hide_unavailable, "Hide unavailable");
     });
     ui.horizontal_wrapped(|ui| {
-        if ui.selectable_label(form.category.is_none(), "All").clicked() {
+        if theme::chip(ui, form.category.is_none(), "All").clicked() {
             form.category = None;
         }
         for c in &d.categories {
             let count = d.games.iter().filter(|g| g.categories.contains(&c.slug)).count();
             let selected = form.category.as_deref() == Some(c.slug.as_str());
-            if ui.selectable_label(selected, format!("{} ({count})", d.category_label(&c.slug))).clicked() {
+            if theme::chip(ui, selected, format!("{} ({count})", d.category_label(&c.slug))).clicked() {
                 form.category = if selected { None } else { Some(c.slug.clone()) };
             }
         }
@@ -146,8 +146,13 @@ fn editor(ui: &mut egui::Ui, d: &Data, id: i64, input: &mut GameInput, actions: 
     theme::card(ui, |ui| {
         theme::section_title(ui, &g.name);
         egui::Grid::new("game-editor").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
-            theme::field(ui, "Name", |ui| theme::text(ui, &mut input.name, ""));
-            theme::field(ui, "Web address", |ui| theme::text(ui, &mut input.slug, &g.slug));
+            theme::field(ui, "Name", |ui| theme::narrow_text(ui, &mut input.name, "", 300.0));
+            theme::field(ui, "Link", |ui| {
+                ui.vertical(|ui| {
+                    theme::narrow_text(ui, &mut input.url, "https://store.steampowered.com/…", 300.0);
+                    theme::hint(ui, "Where to get or play it: Steam, itch.io, a shop… Shown on the website.");
+                })
+            });
             theme::field(ui, "Players", |ui| {
                 ui.horizontal(|ui| {
                     theme::narrow_text(ui, &mut input.min_players, "min", 50.0);
@@ -168,7 +173,8 @@ fn editor(ui: &mut egui::Ui, d: &Data, id: i64, input: &mut GameInput, actions: 
         ui.horizontal_wrapped(|ui| {
             for c in &d.categories {
                 let mut on = input.categories.contains(&c.slug);
-                if ui.toggle_value(&mut on, d.category_label(&c.slug)).changed() {
+                if theme::chip(ui, on, d.category_label(&c.slug)).clicked() {
+                    on = !on;
                     if on {
                         input.categories.push(c.slug.clone());
                     } else {

@@ -238,16 +238,19 @@ fn play_demo(
     let tx = crate::db::begin(conn)?;
     let status = if t.games_played.is_some() { "ongoing" } else { "completed" };
     tx.execute(
-        "INSERT INTO tournaments (slug, name, edition, start_date, end_date, location, status, challenger_threshold, is_demo)
-         VALUES (?1, ?2, 'Demo edition', ?3, ?4, ?5, ?6, ?7, 1)",
+        "INSERT INTO tournaments (slug, name, custom_name, start_date, end_date, location, status, challenger_threshold, is_demo)
+         VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6, ?7, 1)",
         params![t.slug, t.name, t.start, t.end_date, t.location, status, DEMO_THRESHOLD],
     )?;
     let tid = tx.last_insert_rowid();
+    for tag in ["lan", "digital", "weekend"] {
+        tx.execute("INSERT INTO tournament_tags (tournament_id, tag) VALUES (?1, ?2)", params![tid, tag])?;
+    }
     for p in players {
         tx.execute("INSERT INTO tournament_players (tournament_id, player_id) VALUES (?1, ?2)", params![tid, p])?;
     }
-    for placement in 1..=players.len() {
-        let points = DEMO_POINTS.get(placement - 1).copied().unwrap_or(0);
+    for placement in 1..=DEMO_POINTS.len() {
+        let points = DEMO_POINTS[placement - 1];
         tx.execute(
             "INSERT INTO tournament_points (tournament_id, placement, points) VALUES (?1, ?2, ?3)",
             params![tid, placement as i64, points],
@@ -266,7 +269,9 @@ fn play_demo(
     let mut previous_winner = None;
     let start = time::Date::parse(t.start, time::macros::format_description!("[year]-[month]-[day]"))?;
 
-    for (i, category) in t.categories.iter().enumerate() {
+    // Games loop through the categories until someone is crowned (at most three passes here).
+    for i in 0..t.categories.len() * 3 {
+        let category = t.categories[i % t.categories.len()];
         let number = i as i64 + 1;
         let live_next = t.games_played == Some(i);
         tx.execute("INSERT INTO rounds (tournament_id, number, completed) VALUES (?1, ?2, 0)", params![tid, number])?;

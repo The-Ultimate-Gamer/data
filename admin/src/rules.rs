@@ -3,6 +3,10 @@
 //! - Points per game: `(base points + 1 if the Nemesis finished behind) × 2 if Double Down`.
 //! - Challenger: the running total reaches the threshold.
 //! - Champion: the first round winner who was already a Challenger before that round.
+//! - Categories: game n plays the category at position ((n - 1) mod count) + 1, so the order
+//!   starts over until someone is crowned.
+//! - Status: upcoming until the first game is drawn, then live, then completed when a
+//!   Challenger wins (or the organisers end it by hand).
 //! - Ranks: competition ranking (1, 1, 3) by points; ties are shared, never broken.
 //! - Awards: computed from the results by `compute_awards`; everyone tied for an award gets it.
 
@@ -85,15 +89,50 @@ impl TournamentState {
         self.row.status == Status::Completed || self.champion_id.is_some()
     }
 
-    /// Category position currently being played or selected, if the tournament is live.
-    pub fn active_position(&self) -> Option<(i64, &str)> {
-        if self.finished() {
+    /// The next game to play (the first unfinished one), unless the tournament is over.
+    pub fn next_round(&self) -> Option<i64> {
+        if self.finished() || self.positions.is_empty() {
             return None;
         }
-        self.positions
-            .iter()
-            .find(|(position, _)| self.rounds.get(position).is_none_or(|r| !r.completed))
-            .map(|(p, c)| (*p, c.as_str()))
+        let open = self.rounds.values().find(|r| !r.completed).map(|r| r.number);
+        Some(open.unwrap_or_else(|| self.rounds.keys().max().copied().unwrap_or(0) + 1))
+    }
+
+    /// The game being played or prepared, with its category, if the tournament is live.
+    pub fn active_position(&self) -> Option<(i64, &str)> {
+        let n = self.next_round()?;
+        Some((n, category_for(&self.positions, n)?))
+    }
+
+    /// Which pass through the category order game `number` belongs to (1, 2…).
+    pub fn lap(&self, number: i64) -> i64 {
+        lap(&self.positions, number)
+    }
+}
+
+/// The category game `number` plays: the order starts over after the last category.
+pub fn category_for(positions: &[(i64, String)], number: i64) -> Option<&str> {
+    if positions.is_empty() || number < 1 {
+        return None;
+    }
+    Some(positions[(number as usize - 1) % positions.len()].1.as_str())
+}
+
+pub fn lap(positions: &[(i64, String)], number: i64) -> i64 {
+    if positions.is_empty() || number < 1 { 1 } else { (number - 1) / positions.len() as i64 + 1 }
+}
+
+impl TournamentState {
+    /// Status from the games: upcoming until a game is drawn, live, then completed.
+    fn derive_status(&mut self) {
+        let stored = self.row.status;
+        self.row.status = if self.champion_id.is_some() || stored == Status::Completed {
+            Status::Completed
+        } else if !self.rounds.is_empty() || stored == Status::Ongoing {
+            Status::Ongoing
+        } else {
+            Status::Upcoming
+        };
     }
 }
 
@@ -105,16 +144,16 @@ pub fn compute_tournament(
     let tid = row.id;
     let threshold = row.challenger_threshold;
     let positions = model::positions(conn, tid)?;
-    let category_at: HashMap<i64, &String> = positions.iter().map(|(p, c)| (*p, c)).collect();
 
     let mut rounds = BTreeMap::new();
     for r in model::rounds(conn, tid)? {
-        let category = category_at.get(&r.number).with_context(|| format!("round {} has no category", r.number))?;
+        let category =
+            category_for(&positions, r.number).with_context(|| format!("round {} has no category", r.number))?;
         rounds.insert(
             r.number,
             RoundState {
                 number: r.number,
-                category: (*category).clone(),
+                category: category.to_string(),
                 game_id: r.game_id,
                 played_at: r.played_at,
                 completed: r.completed,
@@ -259,7 +298,7 @@ pub fn compute_tournament(
         }
     }
 
-    Ok(TournamentState {
+    let mut state = TournamentState {
         row: row.clone(),
         positions,
         rounds,
@@ -268,7 +307,9 @@ pub fn compute_tournament(
         deciding_round,
         ignored_rounds,
         order: ordered,
-    })
+    };
+    state.derive_status();
+    Ok(state)
 }
 
 // ------------------------------------------------------------------- awards

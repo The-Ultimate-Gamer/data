@@ -11,6 +11,8 @@ pub struct Player {
     pub initials: Option<String>,
     pub avatar_url: Option<String>,
     pub is_demo: bool,
+    /// Overrides the Discord username as the shown name.
+    pub nickname: Option<String>,
     /// Discord user id (snowflake), and the names last copied from that account.
     pub discord_id: Option<String>,
     pub discord_username: Option<String>,
@@ -26,6 +28,7 @@ impl Player {
             initials: r.get("initials")?,
             avatar_url: r.get("avatar_url")?,
             is_demo: r.get("is_demo")?,
+            nickname: r.get("nickname")?,
             discord_id: r.get("discord_id")?,
             discord_username: r.get("discord_username")?,
             discord_display_name: r.get("discord_display_name")?,
@@ -43,6 +46,8 @@ pub struct Game {
     pub max_players: Option<i64>,
     pub available: bool,
     pub is_demo: bool,
+    /// Where to get or play it (https only).
+    pub url: Option<String>,
     pub categories: Vec<String>,
 }
 
@@ -57,6 +62,7 @@ impl Game {
             max_players: r.get("max_players")?,
             available: r.get("available")?,
             is_demo: r.get("is_demo")?,
+            url: r.get("url")?,
             categories: Vec::new(),
         })
     }
@@ -89,8 +95,6 @@ pub enum Status {
 }
 
 impl Status {
-    pub const ALL: [Status; 3] = [Status::Upcoming, Status::Ongoing, Status::Completed];
-
     pub fn as_str(self) -> &'static str {
         match self {
             Status::Upcoming => "upcoming",
@@ -116,12 +120,33 @@ impl Status {
     }
 }
 
+/// The tags a tournament can have: (slug, label). Names and filters use this order.
+pub const TOURNAMENT_TAGS: &[(&str, &str)] = &[
+    ("lan", "LAN"),
+    ("online", "Online"),
+    ("hybrid", "Hybrid"),
+    ("digital", "Digital games"),
+    ("physical", "Physical games"),
+    ("weekend", "Weekend"),
+    ("overnight", "Overnight"),
+    ("holiday", "Holiday special"),
+    ("anniversary", "Anniversary"),
+    ("charity", "Charity"),
+];
+
+pub fn tag_label(slug: &str) -> &str {
+    TOURNAMENT_TAGS.iter().find(|(s, _)| *s == slug).map_or(slug, |(_, l)| l)
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Tournament {
     pub id: i64,
     pub slug: String,
     pub name: String,
-    pub edition: Option<String>,
+    /// Overrides the generated name (season, tags and year).
+    pub custom_name: Option<String>,
+    /// Tag slugs from `TOURNAMENT_TAGS`, in that order.
+    pub tags: Vec<String>,
     pub start_date: Option<String>,
     pub end_date: Option<String>,
     pub location: Option<String>,
@@ -138,7 +163,8 @@ impl Tournament {
             id: r.get("id")?,
             slug: r.get("slug")?,
             name: r.get("name")?,
-            edition: r.get("edition")?,
+            custom_name: r.get("custom_name")?,
+            tags: Vec::new(),
             start_date: r.get("start_date")?,
             end_date: r.get("end_date")?,
             location: r.get("location")?,
@@ -284,11 +310,30 @@ pub fn awards(conn: &Connection) -> Result<Vec<Award>> {
 
 /// Oldest first; tournaments without a start date last.
 pub fn tournaments(conn: &Connection) -> Result<Vec<Tournament>> {
-    collect(conn, "SELECT * FROM tournaments ORDER BY start_date IS NULL, start_date, id", [], Tournament::from_row)
+    let mut list = collect(
+        conn,
+        "SELECT * FROM tournaments ORDER BY start_date IS NULL, start_date, id",
+        [],
+        Tournament::from_row,
+    )?;
+    let tags = all_tags(conn)?;
+    for t in &mut list {
+        t.tags = tags.iter().filter(|(id, _)| *id == t.id).map(|(_, tag)| tag.clone()).collect();
+    }
+    Ok(list)
+}
+
+/// (tournament id, tag) in `TOURNAMENT_TAGS` order.
+fn all_tags(conn: &Connection) -> Result<Vec<(i64, String)>> {
+    let mut tags: Vec<(i64, String)> =
+        collect(conn, "SELECT tournament_id, tag FROM tournament_tags", [], |r| Ok((r.get(0)?, r.get(1)?)))?;
+    let order = |tag: &str| TOURNAMENT_TAGS.iter().position(|(s, _)| *s == tag).unwrap_or(usize::MAX);
+    tags.sort_by_key(|(id, tag)| (*id, order(tag)));
+    Ok(tags)
 }
 
 pub fn tournament(conn: &Connection, id: i64) -> Result<Option<Tournament>> {
-    Ok(collect(conn, "SELECT * FROM tournaments WHERE id = ?1", [id], Tournament::from_row)?.pop())
+    Ok(tournaments(conn)?.into_iter().find(|t| t.id == id))
 }
 
 #[cfg(test)]

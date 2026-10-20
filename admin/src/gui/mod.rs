@@ -6,6 +6,7 @@
 
 mod autoshot;
 mod data;
+mod desktop;
 mod games;
 mod home;
 mod icons;
@@ -40,10 +41,12 @@ pub use data::{Data, TournamentData};
 const UNDO_LIMIT: usize = 50;
 
 pub fn run(folder: Option<PathBuf>) -> Result<()> {
+    desktop::install_launcher();
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Ultimate Gamer Admin")
             .with_app_id("ug-admin")
+            .with_icon(std::sync::Arc::new(app_icon()))
             .with_inner_size([1320.0, 860.0])
             .with_min_inner_size([960.0, 620.0]),
         ..Default::default()
@@ -837,14 +840,7 @@ impl App {
                 (Page::Tournament(..) | Page::Round(..), Page::Tournaments) => true,
                 (a, b) => a == *b,
             };
-            let mut text = RichText::new(*label).size(15.0);
-            if active {
-                text = text.color(theme::GOLD).strong();
-            }
-            let resp = ui.add_sized(
-                [ui.available_width(), 34.0],
-                egui::Button::selectable(active, text).frame_when_inactive(false),
-            );
+            let resp = theme::nav_item(ui, active, label);
             if *page == Page::Publish && !s.pending.is_empty() {
                 let r = resp.rect;
                 ui.painter().circle_filled(egui::pos2(r.right() - 14.0, r.center().y), 4.5, theme::GOLD);
@@ -1165,4 +1161,11 @@ pub fn color_for_rank(rank: i64) -> Color32 {
         3 => Color32::from_rgb(0xd8, 0x8f, 0x4c),
         _ => theme::MUTED,
     }
+}
+
+/// The window icon: the gold "UG" badge in assets/icon.png.
+fn app_icon() -> egui::IconData {
+    let image = image::load_from_memory(desktop::ICON_PNG).expect("bundled icon").into_rgba8();
+    let (width, height) = image.dimensions();
+    egui::IconData { rgba: image.into_raw(), width, height }
 }

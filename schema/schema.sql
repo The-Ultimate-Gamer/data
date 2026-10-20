@@ -11,8 +11,11 @@ CREATE TABLE IF NOT EXISTS meta (
 
 CREATE TABLE IF NOT EXISTS players (
 	id INTEGER PRIMARY KEY,
+	-- name and slug follow the nickname, else the Discord username (kept up to date by ug-admin).
 	slug TEXT NOT NULL UNIQUE,
 	name TEXT NOT NULL,
+	-- Optional nickname that overrides the Discord username as the shown name.
+	nickname TEXT,
 	initials TEXT,
 	avatar_url TEXT CHECK (avatar_url IS NULL OR avatar_url LIKE 'https://%'),
 	-- 1 = fictional demo data (scripts/seed.py --add-demo); removed with --remove-demo.
@@ -52,7 +55,9 @@ CREATE TABLE IF NOT EXISTS games (
 	min_players INTEGER CHECK (min_players IS NULL OR min_players >= 1),
 	max_players INTEGER CHECK (max_players IS NULL OR max_players >= 1),
 	available INTEGER NOT NULL DEFAULT 1 CHECK (available IN (0, 1)),
-	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))
+	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1)),
+	-- Where to get or play the game (store, Steam, itch.io…).
+	url TEXT CHECK (url IS NULL OR url LIKE 'https://%')
 );
 
 CREATE TABLE IF NOT EXISTS game_categories (
@@ -63,12 +68,14 @@ CREATE TABLE IF NOT EXISTS game_categories (
 
 CREATE TABLE IF NOT EXISTS tournaments (
 	id INTEGER PRIMARY KEY,
+	-- name and slug follow custom_name, else a name made from the season, tags and year.
 	slug TEXT NOT NULL UNIQUE,
 	name TEXT NOT NULL,
-	edition TEXT,
+	custom_name TEXT,
 	start_date TEXT,
 	end_date TEXT,
 	location TEXT,
+	-- 'completed' ends a tournament by hand; otherwise the status follows the games (rules.rs).
 	status TEXT NOT NULL DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'completed')),
 	challenger_threshold INTEGER NOT NULL CHECK (challenger_threshold > 0),
 	double_down_tokens INTEGER NOT NULL DEFAULT 1 CHECK (double_down_tokens >= 0),
@@ -90,7 +97,15 @@ CREATE TABLE IF NOT EXISTS tournament_points (
 	PRIMARY KEY (tournament_id, placement)
 );
 
--- Category order for a tournament. Rows may be added as categories are announced.
+-- Tags describing a tournament (LAN, Online…); the allowed values are listed in admin/src/model.rs.
+CREATE TABLE IF NOT EXISTS tournament_tags (
+	tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
+	tag TEXT NOT NULL,
+	PRIMARY KEY (tournament_id, tag)
+);
+
+-- Category order for a tournament. Games follow it, starting over until someone wins.
+-- Fixed once the first game is drawn.
 CREATE TABLE IF NOT EXISTS tournament_categories (
 	tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
 	position INTEGER NOT NULL CHECK (position >= 1),
@@ -98,17 +113,15 @@ CREATE TABLE IF NOT EXISTS tournament_categories (
 	PRIMARY KEY (tournament_id, position)
 );
 
--- One round per category position. game_id is NULL until the game is drawn;
--- completed = 1 once results are final.
+-- One round per game, numbered 1, 2, 3…; game n plays category position ((n - 1) mod count) + 1.
+-- game_id is NULL until the game is drawn; completed = 1 once results are final.
 CREATE TABLE IF NOT EXISTS rounds (
-	tournament_id INTEGER NOT NULL,
-	number INTEGER NOT NULL,
+	tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
+	number INTEGER NOT NULL CHECK (number >= 1),
 	game_id INTEGER REFERENCES games (id),
 	played_at TEXT,
 	completed INTEGER NOT NULL DEFAULT 0 CHECK (completed IN (0, 1)),
-	PRIMARY KEY (tournament_id, number),
-	FOREIGN KEY (tournament_id, number)
-		REFERENCES tournament_categories (tournament_id, position) ON DELETE CASCADE
+	PRIMARY KEY (tournament_id, number)
 );
 
 -- Per-player result of a round. Final points are derived:

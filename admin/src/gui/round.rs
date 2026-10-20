@@ -119,7 +119,7 @@ pub fn show(
             actions.push(Action::Go(Page::Tournament(tid, Tab::Overview)));
         }
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            let last = t.positions.last().map_or(number, |(p, _)| *p);
+            let last = t.next_round().unwrap_or(0).max(t.rounds.iter().map(|r| r.number).max().unwrap_or(0));
             if number < last && ui.button(format!("Game {} ➡", number + 1)).clicked() {
                 actions.push(Action::Go(Page::Round(tid, number + 1)));
             }
@@ -128,7 +128,14 @@ pub fn show(
             }
         });
     });
-    ui.heading(RichText::new(format!("Game {number} · {}", d.category_label(&category))).strong());
+    ui.horizontal(|ui| {
+        ui.heading(RichText::new(format!("Game {number} · {}", d.category_label(&category))).strong());
+        let lap = t.state.lap(number);
+        if lap > 1 {
+            theme::badge(ui, &format!("Lap {lap}"), theme::INFO)
+                .on_hover_text("All categories have been played; the order started over.");
+        }
+    });
     if !completed {
         theme::hint(
             ui,
@@ -266,15 +273,34 @@ fn game_card(
                 let mut pairs: Vec<(String, String)> =
                     nemeses.iter().map(|(p, n)| (d.player_name(*p), d.player_name(*n))).collect();
                 pairs.sort();
-                egui::Grid::new(("nemesis-pairs", number)).num_columns(6).spacing([10.0, 4.0]).show(ui, |ui| {
-                    for (i, (player, nemesis)) in pairs.iter().enumerate() {
-                        ui.label(RichText::new(player).strong());
-                        ui.label(RichText::new(format!("→ {nemesis}")).color(theme::MUTED));
-                        if i % 3 == 2 {
-                            ui.end_row();
+                egui::Grid::new(("nemesis-pairs", number))
+                    .num_columns(3)
+                    .spacing([28.0, 6.0])
+                    .min_col_width(200.0)
+                    .show(ui, |ui| {
+                        for (i, (player, nemesis)) in pairs.iter().enumerate() {
+                            let mut job = egui::text::LayoutJob::default();
+                            let body = egui::TextFormat { color: theme::TEXT, ..Default::default() };
+                            job.append(
+                                player,
+                                0.0,
+                                egui::TextFormat { font_id: egui::FontId::proportional(15.0), ..body.clone() },
+                            );
+                            job.append(
+                                &format!("  →  {nemesis}"),
+                                0.0,
+                                egui::TextFormat {
+                                    font_id: egui::FontId::proportional(15.0),
+                                    color: theme::MUTED,
+                                    ..body
+                                },
+                            );
+                            ui.label(job);
+                            if i % 3 == 2 {
+                                ui.end_row();
+                            }
                         }
-                    }
-                });
+                    });
             }
             if !completed {
                 ui.add_space(4.0);

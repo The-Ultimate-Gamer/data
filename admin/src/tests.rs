@@ -281,7 +281,7 @@ fn points_table_and_category_use() {
     let d = docs(&conn);
     let t = &d["tournaments/index.json"]["tournaments"][0];
     let points: Vec<i64> = t["pointsTable"].as_array().unwrap().iter().map(|p| p["points"].as_i64().unwrap()).collect();
-    assert_eq!(points, [6, 4, 3, 2, 1, 0]);
+    assert_eq!(points, [6, 4, 3, 2, 1], "only the places that earn points");
     let used = |slug: &str| {
         d["categories.json"]["categories"].as_array().unwrap().iter().find(|c| c["slug"] == slug).unwrap()["tournamentsUsed"].clone()
     };
@@ -352,7 +352,7 @@ fn share_pages_for_link_previews() {
     assert!(crowned.contains("1× Ultimate Gamer") && crowned.contains("best finish 1st"));
     assert!(page("share/tournaments/demo-2025/index.html").contains(&format!("Ultimate Gamer: {}", champion.1)));
     let live = page("share/tournaments/demo-2026/index.html");
-    assert!(live.contains("Live now") && live.contains("5 of 8 games played"));
+    assert!(live.contains("Live now") && live.contains("5 games played"));
 }
 
 #[test]
@@ -419,7 +419,8 @@ fn rounds_after_decision_and_status() {
     play(&conn, tid, 3, &["b", "a", "c"], &PLAIN).unwrap();
     let errors = errors_of(&conn);
     assert!(has(&errors, "after the tournament was decided"));
-    assert!(has(&errors, "set status to 'completed'"));
+    // The status follows the games: a Challenger's win completes the tournament.
+    assert_eq!(state_of(&conn).row.status, crate::model::Status::Completed);
 }
 
 #[test]
@@ -602,12 +603,13 @@ fn discord_profile_link() {
     use crate::repo::{PlayerInput, save_discord_names, save_player};
 
     let conn = empty_db();
-    let input = PlayerInput { name: "Ann".into(), discord_id: "not-an-id".into(), ..Default::default() };
+    let input = PlayerInput { nickname: "Ann".into(), discord_id: "not-an-id".into(), ..Default::default() };
     assert!(save_player(&conn, None, &input).is_err());
     // The database refuses a malformed id too.
     assert!(conn.execute("INSERT INTO players (slug, name, discord_id) VALUES ('x', 'X', '12ab')", []).is_err());
 
-    let mut input = PlayerInput { name: "Ann".into(), discord_id: " 80351110224678912 ".into(), ..Default::default() };
+    let mut input =
+        PlayerInput { nickname: "Ann".into(), discord_id: " 80351110224678912 ".into(), ..Default::default() };
     let id = save_player(&conn, None, &input).unwrap();
     let user = DiscordUser {
         id: "80351110224678912".into(),
@@ -773,4 +775,74 @@ fn picture_priority_upload_then_link_then_discord() {
     assert_eq!(avatar(&conn).as_deref(), Some("https://example.com/k.png"));
     fs::write(dir.join("kite.jpg"), b"u").unwrap();
     assert_eq!(avatar(&conn).as_deref(), Some("avatars/kite.jpg"));
+}
+
+#[test]
+fn schedule_loops_through_the_categories() {
+    let conn = empty_db();
+    let tid = mini_tournament(&conn, 100); // 4 strategy positions; nobody becomes a Challenger
+    conn.execute("DELETE FROM tournament_categories WHERE position > 2", []).unwrap();
+    conn.execute("UPDATE tournament_categories SET category_slug = 'combat' WHERE position = 2", []).unwrap();
+    for n in 1..=3 {
+        play(&conn, tid, n, &["a", "b", "c"], &PLAIN).unwrap();
+    }
+    let d = docs(&conn);
+    let t = &d["tournaments/t.json"]["tournament"];
+    let entries = t["categories"].as_array().unwrap();
+    let got: Vec<(i64, &str, i64, &str)> = entries
+        .iter()
+        .map(|e| {
+            (
+                e["order"].as_i64().unwrap(),
+                e["category"].as_str().unwrap(),
+                e["lap"].as_i64().unwrap(),
+                e["status"].as_str().unwrap(),
+            )
+        })
+        .collect();
+    assert_eq!(
+        got,
+        [
+            (1, "strategy", 1, "completed"),
+            (2, "combat", 1, "completed"),
+            (3, "strategy", 2, "completed"),
+            (4, "combat", 2, "active")
+        ]
+    );
+    assert_eq!(
+        (t["lap"].as_i64(), t["categoriesCompleted"].as_i64(), t["status"].as_str()),
+        (Some(2), Some(2), Some("ongoing"))
+    );
+    assert!(errors_of(&conn).is_empty(), "{:?}", errors_of(&conn));
+}
+
+#[test]
+fn migrate_unlinks_rounds_from_category_positions() {
+    let tmp = tempfile::tempdir().unwrap();
+    let path = tmp.path().join("old.sqlite");
+    {
+        let conn = db::connect(&path).unwrap();
+        db::create_schema(&conn).unwrap();
+        conn.execute_batch(
+            "DROP TABLE results; DROP TABLE nemesis_assignments; DROP TABLE nominations; DROP TABLE rounds;
+             CREATE TABLE rounds (tournament_id INTEGER NOT NULL, number INTEGER NOT NULL, game_id INTEGER,
+               played_at TEXT, completed INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (tournament_id, number),
+               FOREIGN KEY (tournament_id, number) REFERENCES tournament_categories (tournament_id, position) ON DELETE CASCADE);",
+        )
+        .unwrap();
+        db::create_schema(&conn).unwrap();
+        crate::seed::seed_reference(&conn).unwrap();
+    }
+    let conn = db::connect(&path).unwrap();
+    let tid = mini_tournament(&conn, 10);
+    play(&conn, tid, 1, &["a", "b", "c"], &PLAIN).unwrap();
+    db::migrate(&conn).unwrap();
+    let sql: String = conn.query_row("SELECT sql FROM sqlite_master WHERE name = 'rounds'", [], |r| r.get(0)).unwrap();
+    assert!(!sql.contains("tournament_categories"));
+    let count = |sql: &str| conn.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap();
+    assert_eq!((count("SELECT COUNT(*) FROM rounds"), count("SELECT COUNT(*) FROM results")), (1, 3), "results kept");
+    // A fifth game no longer needs a fifth category.
+    for n in 2..=5 {
+        play(&conn, tid, n, &["b", "c", "a"], &PLAIN).unwrap();
+    }
 }

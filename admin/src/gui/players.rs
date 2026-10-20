@@ -8,7 +8,6 @@ use crate::repo::{self, PlayerInput};
 #[derive(Default)]
 pub struct Form {
     search: String,
-    quick_name: String,
     quick_discord: String,
     /// The player being edited, the data revision it was loaded at, and the values.
     editing: Option<(i64, u64, PlayerInput)>,
@@ -44,19 +43,16 @@ pub fn show(
     });
 
     ui.horizontal(|ui| {
-        theme::narrow_text(ui, &mut form.quick_name, "Nickname", 180.0);
-        let resp = theme::narrow_text(ui, &mut form.quick_discord, "Discord user ID", 200.0);
+        let resp = theme::narrow_text(ui, &mut form.quick_discord, "Discord user ID of a new player", 260.0);
         let enter = resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
-        let ready = !form.quick_name.trim().is_empty() && !form.quick_discord.trim().is_empty();
+        let ready = !form.quick_discord.trim().is_empty();
         if (enter || ui.add_enabled(ready, egui::Button::new("+ Add player")).clicked()) && ready {
             let input = PlayerInput {
-                name: std::mem::take(&mut form.quick_name),
                 discord_id: std::mem::take(&mut form.quick_discord).trim().to_string(),
                 ..Default::default()
             };
-            let label = format!("{} added", input.name.trim());
             let discord_id = input.discord_id.clone();
-            actions.push(Action::db(label, move |c| repo::save_player(c, None, &input).map(|_| ())));
+            actions.push(Action::db("Player added", move |c| repo::save_player(c, None, &input).map(|_| ())));
             if discord_ready {
                 actions.push(Action::RefreshDiscord(Some(vec![discord_id])));
             }
@@ -201,10 +197,9 @@ fn editor(
         });
         ui.add_space(6.0);
         egui::Grid::new("player-editor").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
-            theme::field(ui, "Nickname", |ui| theme::text(ui, &mut input.name, ""));
             theme::field(ui, "Discord user ID", |ui| {
                 ui.vertical(|ui| {
-                    theme::text(ui, &mut input.discord_id, "e.g. 80351110224678912");
+                    theme::narrow_text(ui, &mut input.discord_id, "e.g. 80351110224678912", 260.0);
                     if input.discord_id.trim().is_empty() && !p.is_demo {
                         ui.label(
                             RichText::new("Required: right-click them in Discord → Copy User ID.")
@@ -214,19 +209,29 @@ fn editor(
                     }
                 })
             });
-            theme::field(ui, "Web address", |ui| {
+            theme::field(ui, "Nickname", |ui| {
+                let username = p.discord_username.as_deref().unwrap_or("their Discord username");
                 ui.vertical(|ui| {
-                    theme::text(ui, &mut input.slug, &p.slug);
-                    if input.slug.trim() != p.slug && !input.slug.trim().is_empty() {
-                        ui.label(
-                            RichText::new("⚠ Links people already shared to this profile will stop working.")
-                                .color(theme::GOLD)
-                                .small(),
-                        );
-                    }
+                    theme::narrow_text(ui, &mut input.nickname, username, 260.0);
+                    theme::hint(ui, "Optional. Shown instead of their Discord username.");
                 })
             });
         });
+        let shown = repo::player_name(
+            Some(input.nickname.as_str()),
+            p.discord_username.as_deref(),
+            Some(input.discord_id.trim()),
+        );
+        if let Some(name) = shown.filter(|n| crate::db::slugify(n) != crate::db::slugify(&p.name)) {
+            ui.label(
+                RichText::new(format!(
+                    "⚠ Saving renames them to {name}, so links shared to /players/{} stop working.",
+                    p.slug
+                ))
+                .color(theme::GOLD)
+                .small(),
+            );
+        }
         ui.horizontal(|ui| {
             if theme::primary(ui, "Save").clicked() {
                 let input = input.clone();

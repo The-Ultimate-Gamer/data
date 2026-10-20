@@ -23,7 +23,15 @@ const ADDED_COLUMNS: &[(&str, &str, &str)] = &[
     ),
     ("players", "discord_username", "TEXT"),
     ("players", "discord_display_name", "TEXT"),
+    ("players", "nickname", "TEXT"),
+    ("tournaments", "custom_name", "TEXT"),
+    ("games", "url", "TEXT CHECK (url IS NULL OR url LIKE 'https://%')"),
 ];
+
+/// Columns whose first value copies another, so existing names stay as they were:
+/// (table, new column, copied from).
+const SEEDED_COLUMNS: &[(&str, &str, &str)] =
+    &[("players", "nickname", "name"), ("tournaments", "custom_name", "name")];
 
 pub fn connect(path: &Path) -> Result<Connection> {
     let conn = Connection::open(path).with_context(|| format!("opening {}", path.display()))?;
@@ -74,8 +82,10 @@ pub fn init(path: &Path, force: bool) -> Result<()> {
 /// Tables of earlier versions whose facts are now derived (awards) or dropped (records).
 const DROPPED_TABLES: &[&str] = &["award_grants", "tournament_records"];
 
-/// Bring an existing database up to date: add new columns, then new tables and indexes.
+/// Bring an existing database up to date: rebuild changed tables, add new columns, then new
+/// tables and indexes.
 pub fn migrate(conn: &Connection) -> Result<()> {
+    unlink_rounds_from_positions(conn)?;
     let tx = conn.unchecked_transaction()?;
     for table in DROPPED_TABLES {
         tx.execute_batch(&format!("DROP TABLE IF EXISTS {table}"))?;
@@ -85,10 +95,46 @@ pub fn migrate(conn: &Connection) -> Result<()> {
         let existing: Vec<String> = stmt.query_map([], |r| r.get::<_, String>("name"))?.collect::<Result<_, _>>()?;
         if !existing.is_empty() && !existing.iter().any(|c| c == column) {
             tx.execute_batch(&format!("ALTER TABLE {table} ADD COLUMN {column} {definition}"))?;
+            if let Some((_, _, from)) = SEEDED_COLUMNS.iter().find(|(t, c, _)| t == table && c == column) {
+                tx.execute_batch(&format!("UPDATE {table} SET {column} = {from}"))?;
+            }
         }
     }
     tx.execute_batch(SCHEMA_SQL)?;
     tx.commit()?;
+    Ok(())
+}
+
+/// Older databases tied each round to a category position (one game per category). Games now
+/// loop through the categories, so rebuild `rounds` without that foreign key. Foreign keys are
+/// off meanwhile so dropping the old table doesn't cascade to the results.
+fn unlink_rounds_from_positions(conn: &Connection) -> Result<()> {
+    let sql: Option<String> =
+        conn.query_row("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'rounds'", [], |r| r.get(0)).ok();
+    if !sql.is_some_and(|s| s.contains("tournament_categories")) {
+        return Ok(());
+    }
+    conn.execute_batch("PRAGMA foreign_keys = OFF;")?;
+    let result = conn.execute_batch(
+        "BEGIN;
+         CREATE TABLE rounds_new (
+             tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
+             number INTEGER NOT NULL CHECK (number >= 1),
+             game_id INTEGER REFERENCES games (id),
+             played_at TEXT,
+             completed INTEGER NOT NULL DEFAULT 0 CHECK (completed IN (0, 1)),
+             PRIMARY KEY (tournament_id, number)
+         );
+         INSERT INTO rounds_new SELECT tournament_id, number, game_id, played_at, completed FROM rounds;
+         DROP TABLE rounds;
+         ALTER TABLE rounds_new RENAME TO rounds;
+         COMMIT;",
+    );
+    if result.is_err() {
+        let _ = conn.execute_batch("ROLLBACK;");
+    }
+    conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+    result?;
     Ok(())
 }
 

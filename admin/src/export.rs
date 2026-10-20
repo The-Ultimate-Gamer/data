@@ -80,6 +80,9 @@ impl Exporter {
         for t in &tournaments {
             states.insert(t.id, compute_tournament(conn, t, &names)?);
         }
+        // The status follows the games (see rules.rs).
+        let tournaments: Vec<Tournament> =
+            tournaments.into_iter().map(|t| Tournament { status: states[&t.id].row.status, ..t }).collect();
 
         let mut nominations: HashMap<(i64, i64), Vec<Nomination>> = HashMap::new();
         let mut nomination_keys = Vec::new();
@@ -185,7 +188,10 @@ impl Exporter {
     fn game_ref(&self, gid: Option<i64>) -> Value {
         let Some(gid) = gid else { return Value::Null };
         let g = &self.games[self.game_index[&gid]];
-        json!({"slug": g.slug, "name": g.name})
+        match &g.url {
+            Some(url) => json!({"slug": g.slug, "name": g.name, "url": url}),
+            None => json!({"slug": g.slug, "name": g.name}),
+        }
     }
 
     fn tournament_ref(t: &Tournament) -> Value {
@@ -315,33 +321,42 @@ impl Exporter {
             .collect()
     }
 
+    /// One entry per game: every game played, then (while live) the rest of the current pass
+    /// through the category order. Categories repeat when the order starts over.
     fn category_progress(&self, state: &TournamentState) -> Vec<Value> {
-        let active = state.active_position();
-        let finished = state.finished();
-        let mut entries = Vec::new();
-        for (position, category) in &state.positions {
-            let rnd = state.rounds.get(position);
-            let done = rnd.is_some_and(|r| r.completed) && !state.ignored_rounds.contains(position);
-            if finished && !done {
-                continue; // never reached
-            }
-            let status = if done {
-                "completed"
-            } else if active.is_some_and(|(p, _)| p == *position) {
-                "active"
-            } else {
-                "upcoming"
-            };
-            entries.push(json!({
-                "order": position,
-                "category": category,
-                "status": status,
-                "gameNumber": rnd.map(|_| *position),
-                "game": rnd.map_or(Value::Null, |r| self.game_ref(r.game_id)),
-                "winner": if done { self.player_ref(rnd.and_then(|r| r.winner_id)) } else { Value::Null },
-            }));
+        let len = state.positions.len() as i64;
+        if len == 0 {
+            return Vec::new();
         }
-        entries
+        let played = state.completed_rounds().map(|r| r.number).max().unwrap_or(0);
+        let next = state.next_round();
+        let last = match next {
+            // Show the whole current lap, so the schedule ahead is visible.
+            Some(n) => crate::rules::lap(&state.positions, n) * len,
+            None => played,
+        };
+        (1..=last)
+            .map(|number| {
+                let rnd = state.rounds.get(&number);
+                let done = rnd.is_some_and(|r| r.completed) && !state.ignored_rounds.contains(&number);
+                let status = if done {
+                    "completed"
+                } else if next == Some(number) {
+                    "active"
+                } else {
+                    "upcoming"
+                };
+                json!({
+                    "order": number,
+                    "category": crate::rules::category_for(&state.positions, number),
+                    "lap": state.lap(number),
+                    "status": status,
+                    "gameNumber": rnd.map(|_| number),
+                    "game": rnd.map_or(Value::Null, |r| self.game_ref(r.game_id)),
+                    "winner": if done { self.player_ref(rnd.and_then(|r| r.winner_id)) } else { Value::Null },
+                })
+            })
+            .collect()
     }
 
     fn tournament_awards(&self, state: &TournamentState) -> Vec<Value> {
@@ -367,7 +382,7 @@ impl Exporter {
         let Value::Object(map) = json!({
             "slug": t.slug,
             "name": t.name,
-            "edition": t.edition,
+            "tags": t.tags.iter().map(|tag| crate::model::tag_label(tag)).collect::<Vec<_>>(),
             "startDate": t.start_date,
             "endDate": t.end_date,
             "location": t.location,
@@ -377,8 +392,10 @@ impl Exporter {
             "pointsTable": points_table,
             "playerCount": state.players.len(),
             "gamesPlayed": completed,
-            "categoriesCompleted": completed,
+            // Distinct categories played; games loop through the order until someone wins.
+            "categoriesCompleted": completed.min(state.positions.len()),
             "categoriesPlanned": state.positions.len(),
+            "lap": state.next_round().or_else(|| state.completed_rounds().map(|r| r.number).max()).map(|n| state.lap(n)),
             "champion": self.player_ref(state.champion_id),
             "leaders": leaders,
             "awards": self.tournament_awards(state),
@@ -700,6 +717,7 @@ impl Exporter {
                     "timesNominated": nominated.get(&g.id).copied().unwrap_or(0),
                     "lastPlayed": last_played,
                     "available": g.available,
+                    "url": g.url,
                 })
             })
             .collect();
@@ -774,7 +792,7 @@ impl Exporter {
         if state.finished() {
             parts.push(plural(played as i64, "game"));
         } else if !state.positions.is_empty() {
-            parts.push(format!("{played} of {} games played", state.positions.len()));
+            parts.push(format!("{} played", plural(played as i64, "game")));
         }
         if let Some(champion) = state.champion_id {
             parts.push(format!("Ultimate Gamer: {}", self.name(champion)));

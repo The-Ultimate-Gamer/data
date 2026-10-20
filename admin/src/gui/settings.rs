@@ -42,7 +42,8 @@ pub fn show(
                     ui.label(theme::muted("Not signed in. Publishing and downloading need a GitHub sign-in."));
                 }
             }
-            if welcome::device_sign_in(ui, device, false, actions) {
+            let signed_in = config.github_login.is_some() && config.github_token.is_some();
+            if !signed_in && welcome::device_sign_in(ui, device, false, actions) {
                 ui.add_space(4.0);
                 ui.label(theme::muted("Or use a token:"));
             }
@@ -87,7 +88,7 @@ pub fn show(
         cols[0].add_space(8.0);
         theme::card(&mut cols[0], |ui| {
             theme::section_title(ui, "Discord");
-            ui.label("Optional. Lets the Players page copy a player's Discord name and picture. Only this app talks to Discord, and only when you press Fetch.");
+            ui.label("Needed to fetch players' names and pictures from Discord. Only this app talks to Discord, never the website.");
             if config.discord_token.is_some() {
                 ui.horizontal(|ui| {
                     ui.label("A bot token is saved.");
@@ -138,7 +139,7 @@ pub fn show(
         ui.add_space(8.0);
         theme::card(ui, |ui| {
             theme::section_title(ui, "Demo data on the website");
-            ui.label("To show the website off before the first real tournament, add fictional players, games and two tournaments. They're flagged, the website shows a demo banner, and removing them takes out exactly those rows.");
+            ui.label("To show the website off before the first real tournament, add two demo tournaments played (at random) by your players, plus demo games. They're flagged, the website shows a demo banner, and removing them takes out exactly those rows.");
             ui.horizontal(|ui| {
                 if s.data.demo_present {
                     if theme::danger(ui, "Remove demo data").clicked() {

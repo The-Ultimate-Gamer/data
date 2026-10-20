@@ -1,12 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T08:10:40Z",
+  "generatedAt": "2026-10-20T09:20:45Z",
   "data": {
     "tournaments": [
       {
         "slug": "demo-2026",
         "name": "Demo LAN 2026",
-        "edition": "Demo edition",
+        "tags": [
+          "LAN",
+          "Digital games",
+          "Weekend"
+        ],
         "startDate": "2026-10-16",
         "endDate": null,
         "location": "Somewhere with good Wi-Fi",
@@ -33,28 +37,13 @@
           {
             "placement": 5,
             "points": 1
-          },
-          {
-            "placement": 6,
-            "points": 0
-          },
-          {
-            "placement": 7,
-            "points": 0
-          },
-          {
-            "placement": 8,
-            "points": 0
-          },
-          {
-            "placement": 9,
-            "points": 0
           }
         ],
         "playerCount": 9,
         "gamesPlayed": 5,
         "categoriesCompleted": 5,
         "categoriesPlanned": 8,
+        "lap": 1,
         "champion": null,
         "leaders": [
           {
@@ -109,7 +98,11 @@
       {
         "slug": "demo-2025",
         "name": "Demo LAN 2025",
-        "edition": "Demo edition",
+        "tags": [
+          "LAN",
+          "Digital games",
+          "Weekend"
+        ],
         "startDate": "2025-11-07",
         "endDate": "2025-11-08",
         "location": "The basement",
@@ -136,24 +129,13 @@
           {
             "placement": 5,
             "points": 1
-          },
-          {
-            "placement": 6,
-            "points": 0
-          },
-          {
-            "placement": 7,
-            "points": 0
-          },
-          {
-            "placement": 8,
-            "points": 0
           }
         ],
         "playerCount": 8,
         "gamesPlayed": 7,
         "categoriesCompleted": 7,
         "categoriesPlanned": 8,
+        "lap": 1,
         "champion": {
           "slug": "noxarn",
           "name": "Noxarn",

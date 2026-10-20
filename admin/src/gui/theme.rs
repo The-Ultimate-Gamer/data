@@ -149,7 +149,8 @@ pub fn card<R>(ui: &mut Ui, add: impl FnOnce(&mut Ui) -> R) -> R {
         .inner_margin(Margin::same(16))
         .show(ui, |ui| {
             ui.set_width(ui.available_width());
-            add(ui)
+            // Not justified: inside columns egui would stretch the spaces of wrapped text.
+            ui.with_layout(egui::Layout::top_down(egui::Align::Min), add).inner
         })
         .inner
 }
@@ -163,7 +164,8 @@ pub fn callout<R>(ui: &mut Ui, color: Color32, add: impl FnOnce(&mut Ui) -> R) -
         .inner_margin(Margin::same(14))
         .show(ui, |ui| {
             ui.set_width(ui.available_width());
-            add(ui)
+            // Not justified: inside columns egui would stretch the spaces of wrapped text.
+            ui.with_layout(egui::Layout::top_down(egui::Align::Min), add).inner
         })
         .inner
 }
@@ -208,6 +210,25 @@ pub fn danger(ui: &mut Ui, text: &str) -> Response {
     )
 }
 
+/// A left-aligned sidebar entry; the active one is gold with a bar on its left.
+pub fn nav_item(ui: &mut Ui, active: bool, label: &str) -> Response {
+    let (rect, resp) = ui.allocate_exact_size(Vec2::new(ui.available_width(), 38.0), egui::Sense::click());
+    let resp = resp.on_hover_cursor(egui::CursorIcon::PointingHand);
+    let painter = ui.painter();
+    if active {
+        painter.rect_filled(rect, 6.0, GOLD.gamma_multiply(0.12));
+        let bar =
+            egui::Rect::from_min_size(rect.left_top() + Vec2::new(0.0, 7.0), Vec2::new(3.0, rect.height() - 14.0));
+        painter.rect_filled(bar, 2.0, GOLD);
+    } else if resp.hovered() {
+        painter.rect_filled(rect, 6.0, SURFACE_2);
+    }
+    let font = FontId::new(15.0, FontFamily::Proportional);
+    let color = if active { GOLD } else { TEXT };
+    painter.text(rect.left_center() + Vec2::new(16.0, 0.0), egui::Align2::LEFT_CENTER, label, font, color);
+    resp
+}
+
 /// A full-width row that reacts to a click anywhere on it, not just on its text.
 pub fn clickable_row(ui: &mut Ui, selected: bool, add: impl FnOnce(&mut Ui)) -> Response {
     let resp = ui
@@ -224,15 +245,34 @@ pub fn clickable_row(ui: &mut Ui, selected: bool, add: impl FnOnce(&mut Ui)) -> 
     resp
 }
 
-/// A small coloured tag, e.g. "Live", "Demo", "Challenger".
+/// A small coloured tag, e.g. "Live", "Demo", "Challenger". Drawn at the text's own height so
+/// it lines up with the text next to it.
 pub fn badge(ui: &mut Ui, text: &str, color: Color32) -> Response {
-    egui::Frame::new()
-        .fill(color.gamma_multiply(0.16))
-        .stroke(Stroke::new(1.0_f32, color.gamma_multiply(0.5)))
+    let font = FontId::new(12.0, FontFamily::Proportional);
+    let galley = ui.painter().layout_no_wrap(text.to_string(), font, color);
+    let size = galley.size() + Vec2::new(16.0, 4.0);
+    let (rect, resp) = ui.allocate_exact_size(size, egui::Sense::hover());
+    let painter = ui.painter();
+    painter.rect(
+        rect,
+        CornerRadius::same(255),
+        color.gamma_multiply(0.16),
+        Stroke::new(1.0_f32, color.gamma_multiply(0.5)),
+        egui::StrokeKind::Inside,
+    );
+    painter.galley(rect.center() - galley.size() / 2.0, galley, color);
+    resp
+}
+
+/// An on/off chip for picking several options (tags, categories, filters).
+pub fn chip(ui: &mut Ui, on: bool, text: impl Into<String>) -> Response {
+    let text = RichText::new(text.into()).color(if on { ON_GOLD } else { TEXT });
+    let button = egui::Button::new(text)
+        .fill(if on { GOLD } else { SURFACE_2 })
+        .stroke(Stroke::new(1.0_f32, if on { GOLD } else { BORDER_STRONG }))
         .corner_radius(CornerRadius::same(255))
-        .inner_margin(Margin::symmetric(8, 1))
-        .show(ui, |ui| ui.label(RichText::new(text).color(color).small().strong()))
-        .response
+        .min_size(Vec2::new(0.0, 28.0));
+    ui.add(button)
 }
 
 pub fn status_badge(ui: &mut Ui, status: crate::model::Status) -> Response {
@@ -255,21 +295,24 @@ pub fn stat(ui: &mut Ui, value: impl ToString, caption: &str) {
 
 /// A labelled form field laid out in a grid row.
 pub fn field<R>(ui: &mut Ui, label: &str, add: impl FnOnce(&mut Ui) -> R) -> R {
-    ui.label(muted(label));
+    // Top-aligned, so labels stay next to the first line of taller fields.
+    ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
+        ui.add_space(5.0);
+        ui.label(muted(label));
+    });
     let r = add(ui);
     ui.end_row();
     r
-}
-
-pub fn text(ui: &mut Ui, value: &mut String, hint_text: &str) -> Response {
-    ui.add(egui::TextEdit::singleline(value).hint_text(hint_text))
 }
 
 /// A single-line text box of a fixed width. (In a grid, a plain `desired_width` gets squeezed
 /// to the column's width from the first frame, which left boxes a few letters wide.)
 pub fn narrow_text(ui: &mut Ui, value: &mut String, hint_text: &str, width: f32) -> Response {
     let height = ui.spacing().interact_size.y;
-    ui.add_sized(Vec2::new(width, height), egui::TextEdit::singleline(value).hint_text(hint_text))
+    ui.add_sized(
+        Vec2::new(width, height),
+        egui::TextEdit::singleline(value).hint_text(hint_text).vertical_align(egui::Align::Center),
+    )
 }
 
 /// A generic "pick one of these" combo box; `None` is shown as `none_label` when allowed.
