@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T16:02:31Z",
+  "generatedAt": "2026-10-20T06:45:31Z",
   "data": {
     "tournaments": [
       {
@@ -49,7 +49,8 @@
             "rank": 1,
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "points": 31
           },
@@ -65,7 +66,8 @@
             "rank": 3,
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "points": 17
           }
@@ -75,7 +77,8 @@
             "award": "challenger",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "detail": null
           },
@@ -99,7 +102,8 @@
             "award": "believer",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "detail": null
           },
@@ -151,7 +155,8 @@
         "categoriesPlanned": 7,
         "champion": {
           "slug": "echo",
-          "name": "Echo"
+          "name": "Echo",
+          "avatarUrl": "avatars/echo.png"
         },
         "leaders": [
           {
@@ -166,7 +171,8 @@
             "rank": 2,
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "points": 30
           },
@@ -174,7 +180,8 @@
             "rank": 3,
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "points": 23
           }
@@ -184,7 +191,8 @@
             "award": "ultimate-gamer",
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "detail": "Won Overcooked! 2 as a Challenger"
           },
@@ -200,7 +208,8 @@
             "award": "challenger",
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "detail": null
           },
@@ -208,7 +217,8 @@
             "award": "challenger",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "detail": null
           },
@@ -240,7 +250,8 @@
             "award": "believer",
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "detail": null
           },
@@ -256,7 +267,8 @@
             "award": "nemesis",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "detail": "2 Nemesis wins"
           },

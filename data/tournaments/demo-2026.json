@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T16:02:31Z",
+  "generatedAt": "2026-10-20T06:45:31Z",
   "data": {
     "tournament": {
       "slug": "demo-2026",
@@ -48,7 +48,8 @@
           "rank": 1,
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "points": 31
         },
@@ -64,7 +65,8 @@
           "rank": 3,
           "player": {
             "slug": "echo",
-            "name": "Echo"
+            "name": "Echo",
+            "avatarUrl": "avatars/echo.png"
           },
           "points": 17
         }
@@ -74,7 +76,8 @@
           "award": "challenger",
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "detail": null
         },
@@ -98,7 +101,8 @@
           "award": "believer",
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "detail": null
         },
@@ -165,7 +169,8 @@
           "rank": 1,
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "points": 31,
           "isChallenger": true,
@@ -216,7 +221,8 @@
           "rank": 3,
           "player": {
             "slug": "echo",
-            "name": "Echo"
+            "name": "Echo",
+            "avatarUrl": "avatars/echo.png"
           },
           "points": 17,
           "isChallenger": false,
@@ -311,7 +317,8 @@
           },
           "winner": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           }
         },
         {
@@ -339,7 +346,8 @@
           },
           "winner": {
             "slug": "echo",
-            "name": "Echo"
+            "name": "Echo",
+            "avatarUrl": "avatars/echo.png"
           }
         },
         {
@@ -353,7 +361,8 @@
           },
           "winner": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           }
         },
         {
@@ -413,13 +422,15 @@
           "playedAt": "2026-10-16T14:00:00Z",
           "winner": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "results": [
             {
               "player": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "placement": 1,
               "points": 7,
@@ -448,7 +459,8 @@
             {
               "player": {
                 "slug": "echo",
-                "name": "Echo"
+                "name": "Echo",
+                "avatarUrl": "avatars/echo.png"
               },
               "placement": 3,
               "points": 3,
@@ -534,7 +546,8 @@
             {
               "player": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "placement": 2,
               "points": 4,
@@ -560,7 +573,8 @@
             {
               "player": {
                 "slug": "echo",
-                "name": "Echo"
+                "name": "Echo",
+                "avatarUrl": "avatars/echo.png"
               },
               "placement": 4,
               "points": 3,
@@ -617,13 +631,15 @@
           "playedAt": "2026-10-16T18:45:00Z",
           "winner": {
             "slug": "echo",
-            "name": "Echo"
+            "name": "Echo",
+            "avatarUrl": "avatars/echo.png"
           },
           "results": [
             {
               "player": {
                 "slug": "echo",
-                "name": "Echo"
+                "name": "Echo",
+                "avatarUrl": "avatars/echo.png"
               },
               "placement": 1,
               "points": 7,
@@ -632,14 +648,16 @@
               "doubleDown": false,
               "nemesis": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "defeatedNemesis": true
             },
             {
               "player": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "placement": 2,
               "points": 4,
@@ -719,13 +737,15 @@
           "playedAt": "2026-10-16T20:30:00Z",
           "winner": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "results": [
             {
               "player": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "placement": 1,
               "points": 12,
@@ -764,7 +784,8 @@
             {
               "player": {
                 "slug": "echo",
-                "name": "Echo"
+                "name": "Echo",
+                "avatarUrl": "avatars/echo.png"
               },
               "placement": 4,
               "points": 2,
@@ -804,7 +825,8 @@
           "newChallengers": [
             {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             }
           ],
           "decidedTournament": false
@@ -838,14 +860,16 @@
               "doubleDown": false,
               "nemesis": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "defeatedNemesis": true
             },
             {
               "player": {
                 "slug": "tnoy",
-                "name": "Tnoy"
+                "name": "Tnoy",
+                "avatarUrl": "avatars/tnoy.png"
               },
               "placement": 2,
               "points": 4,
@@ -874,7 +898,8 @@
             {
               "player": {
                 "slug": "echo",
-                "name": "Echo"
+                "name": "Echo",
+                "avatarUrl": "avatars/echo.png"
               },
               "placement": 4,
               "points": 2,
@@ -926,7 +951,8 @@
           "value": "12 pts",
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           }
         }
       ]

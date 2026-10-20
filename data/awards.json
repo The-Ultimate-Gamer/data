@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T16:02:31Z",
+  "generatedAt": "2026-10-20T06:45:31Z",
   "data": {
     "awards": [
       {
@@ -14,7 +14,8 @@
             "award": "ultimate-gamer",
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -35,7 +36,8 @@
             "award": "challenger",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "tournament": {
               "slug": "demo-2026",
@@ -71,7 +73,8 @@
             "award": "challenger",
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -83,7 +86,8 @@
             "award": "challenger",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -179,7 +183,8 @@
             "award": "believer",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "tournament": {
               "slug": "demo-2026",
@@ -191,7 +196,8 @@
             "award": "believer",
             "player": {
               "slug": "echo",
-              "name": "Echo"
+              "name": "Echo",
+              "avatarUrl": "avatars/echo.png"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -265,7 +271,8 @@
             "award": "nemesis",
             "player": {
               "slug": "tnoy",
-              "name": "Tnoy"
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.png"
             },
             "tournament": {
               "slug": "demo-2025",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:20:11Z",
+  "generatedAt": "2026-10-20T06:45:31Z",
   "data": {
     "player": {
       "slug": "rook",
@@ -199,7 +199,8 @@
           "doubleDown": false,
           "nemesis": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "defeatedNemesis": false
         },
@@ -293,7 +294,8 @@
         {
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "nemesisWins": 0,
           "nemesisLosses": 2

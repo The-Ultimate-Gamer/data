@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:20:11Z",
+  "generatedAt": "2026-10-20T06:45:31Z",
   "data": {
     "player": {
       "slug": "echo",
       "name": "Echo",
       "initials": null,
-      "avatarUrl": null,
+      "avatarUrl": "avatars/echo.png",
       "firstTournament": {
         "slug": "demo-2025",
         "name": "Demo LAN 2025"
@@ -26,7 +26,11 @@
         "rank": 3,
         "points": 17
       },
-      "discord": null,
+      "discord": {
+        "id": "414084813276839949",
+        "username": "brallexj",
+        "displayName": "Brallex"
+      },
       "tournaments": [
         {
           "tournament": {
@@ -164,7 +168,8 @@
           "doubleDown": false,
           "nemesis": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "defeatedNemesis": true
         },
@@ -315,7 +320,8 @@
         {
           "player": {
             "slug": "tnoy",
-            "name": "Tnoy"
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.png"
           },
           "nemesisWins": 1,
           "nemesisLosses": 0
