@@ -600,3 +600,45 @@ fn migrate_adds_is_demo_columns_to_old_databases() {
             == 1
     );
 }
+
+#[test]
+fn discord_profile_link() {
+    use crate::discord::DiscordUser;
+    use crate::repo::{PlayerInput, save_discord_names, save_player};
+
+    let conn = empty_db();
+    let input = PlayerInput { name: "Ann".into(), discord_id: "not-an-id".into(), ..Default::default() };
+    assert!(save_player(&conn, None, &input).is_err());
+    // The database refuses a malformed id too.
+    assert!(conn.execute("INSERT INTO players (slug, name, discord_id) VALUES ('x', 'X', '12ab')", []).is_err());
+
+    let mut input = PlayerInput { name: "Ann".into(), discord_id: " 80351110224678912 ".into(), ..Default::default() };
+    let id = save_player(&conn, None, &input).unwrap();
+    let user = DiscordUser {
+        id: "80351110224678912".into(),
+        username: "ann_plays".into(),
+        global_name: Some("Ann".into()),
+        avatar: None,
+    };
+    save_discord_names(&conn, id, &user).unwrap();
+
+    let docs = docs(&conn);
+    let profile = &docs["players/ann.json"]["player"];
+    assert_eq!(profile["discord"], json!({"id": "80351110224678912", "username": "ann_plays", "displayName": "Ann"}));
+    assert_eq!(docs["players/index.json"]["players"][0]["discord"]["username"], "ann_plays");
+
+    // A different account drops the names copied from the old one.
+    input.discord_id = "175928847299117063".into();
+    save_player(&conn, Some(id), &input).unwrap();
+    assert!(save_discord_names(&conn, id, &user).is_err());
+    let profile = &docs_of(&conn, "players/ann.json")["player"];
+    assert_eq!(profile["discord"], json!({"id": "175928847299117063", "username": null, "displayName": null}));
+
+    input.discord_id.clear();
+    save_player(&conn, Some(id), &input).unwrap();
+    assert_eq!(docs_of(&conn, "players/ann.json")["player"]["discord"], Value::Null);
+}
+
+fn docs_of(conn: &Connection, rel: &str) -> Value {
+    docs(conn).remove(rel).unwrap()
+}

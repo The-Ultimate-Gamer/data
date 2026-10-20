@@ -58,7 +58,7 @@ admin/src/tests.rs           end-to-end tests (in-memory databases)
 
 ## Admin app rules (`admin/`)
 
-- **A desktop app, not a server.** It never listens on the network. Its only network use is the GitHub API, to download and publish.
+- **A desktop app, not a server.** It never listens on the network. It calls the GitHub API to download and publish, and, only when an organiser presses Fetch (or runs `ug-admin discord`), Discord's API to copy a linked player's names and picture. The Discord bot token lives in the per-user settings file, never in the repository.
 - **Writes go through `src/repo.rs`.** Reads go through `src/model.rs`. Screens never touch the database directly: they return `Action`s, and `App::apply_db` (`src/gui/mod.rs`) runs them. It takes an undo snapshot, applies the change, re-exports, re-validates and reloads.
 - **No tournament rules outside `rules.rs`.** Screens read derived values (standings, Challengers, champion) from the `TournamentState` it computes.
 - **Publishing is limited:** it only sends `database/`, `data/` and `avatars/`, as one commit on top of the branch, never a force push. It refuses when validation reports errors, and it is off in practice mode and in `--repo` folder mode. If someone else published data in the meantime, it stops and asks.

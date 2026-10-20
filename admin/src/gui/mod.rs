@@ -21,6 +21,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender, channel};
+
+use crate::discord::DiscordUser;
 use std::time::{Duration, Instant};
 
 use anyhow::{Result, anyhow};
@@ -135,6 +137,13 @@ pub enum Action {
     StartEmpty,
     SaveConfig(Config),
     OpenUrl(String),
+    /// Copy a player's names (and optionally picture) from their Discord account.
+    FetchDiscord {
+        player_id: i64,
+        slug: String,
+        discord_id: String,
+        picture: bool,
+    },
 }
 
 impl Action {
@@ -285,6 +294,11 @@ enum Done {
     Deployment {
         commit: String,
         result: Result<Option<Run>>,
+    },
+    Discord {
+        player_id: i64,
+        slug: String,
+        result: Result<(DiscordUser, Option<Vec<u8>>)>,
     },
 }
 
@@ -449,9 +463,20 @@ impl App {
             Action::Download => self.download(ctx),
             Action::Publish { message, overwrite } => self.publish(ctx, message, overwrite),
             Action::SetAvatar { slug, from } => self.set_avatar(ctx, &slug, &from),
+            Action::FetchDiscord { player_id, slug, discord_id, picture } => {
+                let Some(token) = self.config.discord_token.clone() else {
+                    self.toast("Add a Discord bot token in Settings first.", true);
+                    return;
+                };
+                self.spawn("Fetching the Discord profile…", ctx, move || Done::Discord {
+                    player_id,
+                    slug,
+                    result: crate::discord::fetch(&token, &discord_id, picture),
+                });
+            }
             Action::RemoveAvatar { slug } => {
                 if let Some(s) = &self.session {
-                    remove_avatars(&s.data.avatars_dir, &slug);
+                    crate::export::remove_avatars(&s.data.avatars_dir, &slug);
                 }
                 self.after_file_change(ctx, "Picture removed.");
             }
@@ -550,7 +575,7 @@ impl App {
         let result = (|| -> Result<()> {
             let bytes = std::fs::read(from)?;
             std::fs::create_dir_all(&dir)?;
-            remove_avatars(&dir, slug);
+            crate::export::remove_avatars(&dir, slug);
             std::fs::write(dir.join(format!("{slug}.{ext}")), bytes)?;
             Ok(())
         })();
@@ -654,6 +679,21 @@ impl App {
             self.busy = None;
         }
         match done {
+            Done::Discord { player_id, slug, result } => match result {
+                Ok((user, png)) => {
+                    let Some(dir) = self.session.as_ref().map(|s| s.data.avatars_dir.clone()) else { return };
+                    if let Some(png) = &png {
+                        if let Err(e) = crate::discord::save_picture(&dir, &slug, png) {
+                            self.toast(format!("Couldn't save the Discord picture: {e:#}"), true);
+                        }
+                        ctx.forget_all_images();
+                    }
+                    let shown = user.global_name.clone().unwrap_or_else(|| user.username.clone());
+                    let label = format!("Discord profile copied: {shown} (@{})", user.username);
+                    self.apply(Action::db(label, move |c| crate::repo::save_discord_names(c, player_id, &user)), ctx);
+                }
+                Err(e) => self.toast(format!("{e:#}"), true),
+            },
             Done::DeviceCode { seq, result } => {
                 let Some(d) = self.device.as_mut().filter(|d| d.seq == seq) else { return };
                 match result {
@@ -995,13 +1035,6 @@ impl App {
     }
 }
 
-fn remove_avatars(dir: &std::path::Path, slug: &str) {
-    for ext in crate::export::AVATAR_EXTENSIONS {
-        let _ = std::fs::remove_file(dir.join(format!("{slug}{ext}")));
-        let _ = std::fs::remove_file(dir.join(format!("{slug}{}", ext.to_uppercase())));
-    }
-}
-
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         while let Ok(done) = self.rx.try_recv() {
@@ -1100,7 +1133,10 @@ impl App {
                 }
                 _ => actions.push(Action::Go(Page::Tournaments)),
             },
-            Page::Players => players::show(ui, ctx, s, &mut self.forms.players, actions),
+            Page::Players => {
+                let discord = self.config.discord_token.is_some();
+                players::show(ui, ctx, s, discord, &mut self.forms.players, actions)
+            }
             Page::Games => games::show(ui, s, &mut self.forms.games, actions),
             Page::Library => library::show(ui, s, &mut self.forms.library, actions),
             Page::Publish => publish::show(ui, s, &self.config, self.deploy.as_ref(), &mut self.forms.publish, actions),

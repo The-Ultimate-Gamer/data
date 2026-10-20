@@ -16,6 +16,8 @@ pub struct Config {
     /// The GitHub user the token belongs to (shown in the app).
     pub github_login: Option<String>,
     pub repo: RepoRef,
+    /// A Discord bot token, used only to copy players' names and pictures from Discord.
+    pub discord_token: Option<String>,
 }
 
 impl Config {

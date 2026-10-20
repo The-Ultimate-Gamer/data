@@ -16,6 +16,13 @@ const ADDED_COLUMNS: &[(&str, &str, &str)] = &[
     ("players", "is_demo", "INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))"),
     ("games", "is_demo", "INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))"),
     ("tournaments", "is_demo", "INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))"),
+    (
+        "players",
+        "discord_id",
+        "TEXT CHECK (discord_id IS NULL OR (length(discord_id) BETWEEN 15 AND 21 AND discord_id NOT GLOB '*[^0-9]*'))",
+    ),
+    ("players", "discord_username", "TEXT"),
+    ("players", "discord_display_name", "TEXT"),
 ];
 
 pub fn connect(path: &Path) -> Result<Connection> {

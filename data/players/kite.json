@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T16:02:31Z",
+  "generatedAt": "2026-10-20T06:20:11Z",
   "data": {
     "player": {
       "slug": "kite",
@@ -26,6 +26,7 @@
         "rank": 6,
         "points": 5
       },
+      "discord": null,
       "tournaments": [
         {
           "tournament": {

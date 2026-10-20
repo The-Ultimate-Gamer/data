@@ -6,6 +6,7 @@
 mod cli;
 mod config;
 mod db;
+mod discord;
 mod export;
 mod github;
 #[cfg(feature = "gui")]

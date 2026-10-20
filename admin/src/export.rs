@@ -472,6 +472,11 @@ impl Exporter {
             // The crown counts as 1st: finish, not points rank.
             "bestPlacement": best,
             "current": null,
+            "discord": p.discord_id.as_ref().map_or(Value::Null, |id| json!({
+                "id": id,
+                "username": p.discord_username,
+                "displayName": p.discord_display_name,
+            })),
         });
         if let Some(current) = current
             && let Some(ps) = current.players.get(&pid)
@@ -1046,6 +1051,14 @@ pub fn avatar_stem(name: &str) -> Option<&str> {
     let dot = name.rfind('.')?;
     let (stem, ext) = name.split_at(dot);
     (!stem.is_empty() && AVATAR_EXTENSIONS.contains(&ext.to_lowercase().as_str())).then_some(stem)
+}
+
+/// Delete every stored picture of a player.
+pub fn remove_avatars(dir: &Path, slug: &str) {
+    for ext in AVATAR_EXTENSIONS {
+        let _ = std::fs::remove_file(dir.join(format!("{slug}{ext}")));
+        let _ = std::fs::remove_file(dir.join(format!("{slug}{}", ext.to_uppercase())));
+    }
 }
 
 /// Map player slug -> file name for pictures in avatars_dir named after an existing player.

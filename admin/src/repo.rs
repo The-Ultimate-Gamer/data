@@ -93,6 +93,8 @@ pub struct PlayerInput {
     pub slug: String,
     pub initials: String,
     pub avatar_url: String,
+    /// Discord user id; empty for none.
+    pub discord_id: String,
 }
 
 impl PlayerInput {
@@ -102,6 +104,7 @@ impl PlayerInput {
             slug: p.slug.clone(),
             initials: p.initials.clone().unwrap_or_default(),
             avatar_url: p.avatar_url.clone().unwrap_or_default(),
+            discord_id: p.discord_id.clone().unwrap_or_default(),
         }
     }
 }
@@ -123,22 +126,46 @@ pub fn save_player(conn: &Connection, id: Option<i64>, p: &PlayerInput) -> Resul
     ensure_unique_slug(conn, Table::Players, &slug, id)?;
     let avatar = https(&p.avatar_url)?;
     let initials = clean(&p.initials);
+    let discord = clean(&p.discord_id);
+    if let Some(d) = &discord
+        && !crate::discord::is_user_id(d)
+    {
+        user_bail!("A Discord user ID is a number of 15 to 21 digits (right-click the user → Copy User ID).");
+    }
     match id {
         None => {
             conn.execute(
-                "INSERT INTO players (slug, name, initials, avatar_url) VALUES (?1, ?2, ?3, ?4)",
-                params![slug, name, initials, avatar],
+                "INSERT INTO players (slug, name, initials, avatar_url, discord_id) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![slug, name, initials, avatar, discord],
             )?;
             Ok(conn.last_insert_rowid())
         }
         Some(id) => {
+            // Names copied from another Discord account no longer apply.
             conn.execute(
-                "UPDATE players SET slug = ?1, name = ?2, initials = ?3, avatar_url = ?4 WHERE id = ?5",
-                params![slug, name, initials, avatar, id],
+                "UPDATE players SET discord_username = NULL, discord_display_name = NULL
+                 WHERE id = ?1 AND discord_id IS NOT ?2",
+                params![id, discord],
+            )?;
+            conn.execute(
+                "UPDATE players SET slug = ?1, name = ?2, initials = ?3, avatar_url = ?4, discord_id = ?5 WHERE id = ?6",
+                params![slug, name, initials, avatar, discord, id],
             )?;
             Ok(id)
         }
     }
+}
+
+/// Store the names fetched from the player's Discord account.
+pub fn save_discord_names(conn: &Connection, id: i64, user: &crate::discord::DiscordUser) -> Result<()> {
+    let changed = conn.execute(
+        "UPDATE players SET discord_username = ?1, discord_display_name = ?2 WHERE id = ?3 AND discord_id = ?4",
+        params![clean(&user.username), user.global_name.as_deref().and_then(clean), id, user.id],
+    )?;
+    if changed == 0 {
+        user_bail!("The player's Discord ID changed while fetching; fetch again.");
+    }
+    Ok(())
 }
 
 pub fn delete_player(conn: &Connection, id: i64) -> Result<()> {

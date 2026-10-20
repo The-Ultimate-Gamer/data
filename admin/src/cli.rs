@@ -115,6 +115,18 @@ pub enum Command {
         #[arg(long)]
         overwrite: bool,
     },
+    /// Copy players' Discord names (and optionally pictures) from their linked Discord accounts.
+    /// Needs a Discord bot token: the app's Settings, or UG_DISCORD_TOKEN.
+    Discord {
+        #[command(flatten)]
+        paths: Paths,
+        /// Only this player (slug).
+        #[arg(long)]
+        player: Option<String>,
+        /// Also replace their stored picture with their Discord avatar.
+        #[arg(long)]
+        pictures: bool,
+    },
     /// Load reference data (categories and awards), or manage the flagged demo data.
     Seed {
         #[command(flatten)]
@@ -230,6 +242,44 @@ pub fn run(command: Command) -> Result<ExitCode> {
                     }
                     bail!("download their version, or publish again with --overwrite to replace it");
                 }
+            }
+        }
+        Command::Discord { paths, player, pictures } => {
+            let token = std::env::var("UG_DISCORD_TOKEN").ok().or(Config::load().discord_token);
+            let Some(token) = token else {
+                bail!("no Discord bot token: add one in the app's Settings, or set UG_DISCORD_TOKEN")
+            };
+            let ws = paths.workspace();
+            let conn = open_existing(&ws)?;
+            let linked: Vec<_> = crate::model::players(&conn)?
+                .into_iter()
+                .filter(|p| p.discord_id.is_some() && player.as_ref().is_none_or(|s| *s == p.slug))
+                .collect();
+            if linked.is_empty() {
+                bail!("no matching player has a Discord ID");
+            }
+            let mut failed = 0;
+            for p in linked {
+                let id = p.discord_id.clone().unwrap_or_default();
+                match crate::discord::fetch(&token, &id, pictures) {
+                    Ok((user, png)) => {
+                        crate::repo::save_discord_names(&conn, p.id, &user)?;
+                        if let Some(png) = &png {
+                            crate::discord::save_picture(&ws.avatars, &p.slug, png)?;
+                        }
+                        let shown = user.global_name.as_deref().unwrap_or(&user.username);
+                        let pic = if png.is_some() { ", picture saved" } else { "" };
+                        println!("{}: {shown} (@{}){pic}", p.slug, user.username);
+                    }
+                    Err(e) => {
+                        failed += 1;
+                        println!("{}: {e:#}", p.slug);
+                    }
+                }
+            }
+            ws.export(&conn)?;
+            if failed > 0 {
+                return Ok(ExitCode::FAILURE);
             }
         }
         Command::Seed { paths, add_demo, remove_demo, demo } => {

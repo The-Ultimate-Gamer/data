@@ -11,6 +11,10 @@ pub struct Player {
     pub initials: Option<String>,
     pub avatar_url: Option<String>,
     pub is_demo: bool,
+    /// Discord user id (snowflake), and the names last copied from that account.
+    pub discord_id: Option<String>,
+    pub discord_username: Option<String>,
+    pub discord_display_name: Option<String>,
 }
 
 impl Player {
@@ -22,6 +26,9 @@ impl Player {
             initials: r.get("initials")?,
             avatar_url: r.get("avatar_url")?,
             is_demo: r.get("is_demo")?,
+            discord_id: r.get("discord_id")?,
+            discord_username: r.get("discord_username")?,
+            discord_display_name: r.get("discord_display_name")?,
         })
     }
 }

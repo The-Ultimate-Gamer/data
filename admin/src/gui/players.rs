@@ -11,9 +11,18 @@ pub struct Form {
     quick_name: String,
     /// The player being edited, the data revision it was loaded at, and the values.
     editing: Option<(i64, u64, PlayerInput)>,
+    /// Also copy the Discord picture when fetching a profile.
+    discord_picture: bool,
 }
 
-pub fn show(ui: &mut egui::Ui, ctx: &egui::Context, s: &Session, form: &mut Form, actions: &mut Vec<Action>) {
+pub fn show(
+    ui: &mut egui::Ui,
+    ctx: &egui::Context,
+    s: &Session,
+    discord_ready: bool,
+    form: &mut Form,
+    actions: &mut Vec<Action>,
+) {
     let d = &s.data;
     theme::page_title(
         ui,
@@ -58,7 +67,10 @@ pub fn show(ui: &mut egui::Ui, ctx: &egui::Context, s: &Session, form: &mut Form
         ui.vertical(|ui| {
             ui.set_width(editor_width);
             match form.editing.as_mut() {
-                Some((id, _, input)) => editor(ui, ctx, s, *id, input, actions),
+                Some((id, _, input)) => {
+                    editor(ui, ctx, s, *id, input, actions);
+                    discord(ui, s, *id, input, discord_ready, &mut form.discord_picture, actions);
+                }
                 None => {
                     theme::card(ui, |ui| {
                         ui.label(theme::muted("Select a player to edit their name, web address or picture."));
@@ -248,7 +260,7 @@ fn editor(
         }
         ui.add_space(4.0);
         egui::CollapsingHeader::new("Or link to a picture online").show(ui, |ui| {
-            theme::hint(ui, "Used only when there's no stored picture. Must start with https://. Discord links expire, so avoid them.");
+            theme::hint(ui, "Used only when there's no stored picture. Must start with https://. Discord links expire, so use the Discord section below instead.");
             ui.horizontal(|ui| {
                 theme::narrow_text(ui, &mut input.avatar_url, "https://…", 300.0);
                 if ui.button("Save").clicked() {
@@ -257,5 +269,59 @@ fn editor(
                 }
             });
         });
+    });
+}
+
+/// Link the player's Discord account and copy its names and picture.
+fn discord(
+    ui: &mut egui::Ui,
+    s: &Session,
+    id: i64,
+    input: &mut PlayerInput,
+    ready: bool,
+    picture: &mut bool,
+    actions: &mut Vec<Action>,
+) {
+    let Some(p) = s.data.player(id) else { return };
+    ui.add_space(8.0);
+    theme::card(ui, |ui| {
+        theme::section_title(ui, "Discord");
+        theme::hint(
+            ui,
+            "Links the profile page to their Discord account. In Discord: Settings → Advanced → Developer Mode, then right-click the player → Copy User ID.",
+        );
+        ui.horizontal(|ui| {
+            theme::narrow_text(ui, &mut input.discord_id, "User ID, e.g. 80351110224678912", 240.0);
+            if input.discord_id.trim() != p.discord_id.as_deref().unwrap_or("") && ui.button("Save").clicked() {
+                let input = input.clone();
+                actions
+                    .push(Action::db("Discord ID saved", move |c| repo::save_player(c, Some(id), &input).map(|_| ())));
+            }
+        });
+        let Some(discord_id) = p.discord_id.clone() else { return };
+        match (&p.discord_display_name, &p.discord_username) {
+            (_, Some(user)) => {
+                let shown = p.discord_display_name.as_deref().unwrap_or(user);
+                ui.label(format!("{shown} (@{user})"));
+            }
+            _ => {
+                ui.label(theme::muted("Name not fetched yet."));
+            }
+        }
+        ui.horizontal(|ui| {
+            let fetch = ui.add_enabled(ready, egui::Button::new("Fetch from Discord"));
+            if fetch.on_disabled_hover_text("Add a Discord bot token in Settings first").clicked() {
+                actions.push(Action::FetchDiscord {
+                    player_id: id,
+                    slug: p.slug.clone(),
+                    discord_id: discord_id.clone(),
+                    picture: *picture,
+                });
+            }
+            ui.checkbox(picture, "Also use their Discord picture");
+        });
+        if ready {
+            theme::hint(ui, "Copies their display name and @username. The picture replaces the stored one.");
+        }
     });
 }

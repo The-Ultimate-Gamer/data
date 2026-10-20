@@ -9,6 +9,7 @@ use crate::seed;
 #[derive(Default)]
 pub struct Form {
     pub token: String,
+    discord_token: String,
     repo: Option<(String, String, String)>,
 }
 
@@ -81,6 +82,35 @@ pub fn show(
                     theme::hint(ui, "You'll need to download from it before publishing.");
                 });
             }
+        });
+
+        cols[0].add_space(8.0);
+        theme::card(&mut cols[0], |ui| {
+            theme::section_title(ui, "Discord");
+            ui.label("Optional. Lets the Players page copy a player's Discord name and picture. Only this app talks to Discord, and only when you press Fetch.");
+            if config.discord_token.is_some() {
+                ui.horizontal(|ui| {
+                    ui.label("A bot token is saved.");
+                    if ui.button("Remove").clicked() {
+                        let mut next = config.clone();
+                        next.discord_token = None;
+                        actions.push(Action::SaveConfig(next));
+                    }
+                });
+            }
+            ui.horizontal(|ui| {
+                ui.add(egui::TextEdit::singleline(&mut form.discord_token).password(true).hint_text("paste a bot token").desired_width(260.0));
+                if ui.add_enabled(!form.discord_token.trim().is_empty(), egui::Button::new("Save")).clicked() {
+                    let mut next = config.clone();
+                    next.discord_token = Some(std::mem::take(&mut form.discord_token).trim().to_string());
+                    actions.push(Action::SaveConfig(next));
+                    actions.push(Action::Toast("Discord bot token saved.".into(), false));
+                }
+            });
+            if ui.link("Create a bot at discord.com/developers/applications → Bot → Reset Token").clicked() {
+                actions.push(Action::OpenUrl("https://discord.com/developers/applications".into()));
+            }
+            theme::hint(ui, "The bot needs no permissions and doesn't have to join a server. The token is stored only in this computer's settings file.");
         });
 
         let ui = &mut cols[1];

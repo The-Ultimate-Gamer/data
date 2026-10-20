@@ -16,7 +16,12 @@ CREATE TABLE IF NOT EXISTS players (
 	initials TEXT,
 	avatar_url TEXT CHECK (avatar_url IS NULL OR avatar_url LIKE 'https://%'),
 	-- 1 = fictional demo data (scripts/seed.py --add-demo); removed with --remove-demo.
-	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1))
+	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1)),
+	-- Optional Discord account (numeric user id). Username and display name are copied from
+	-- Discord by `ug-admin discord` / the Players screen, so the website never calls Discord.
+	discord_id TEXT CHECK (discord_id IS NULL OR (length(discord_id) BETWEEN 15 AND 21 AND discord_id NOT GLOB '*[^0-9]*')),
+	discord_username TEXT,
+	discord_display_name TEXT
 );
 
 CREATE TABLE IF NOT EXISTS categories (

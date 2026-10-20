@@ -64,6 +64,16 @@ Fixing mistakes:
 - Categories can be reordered or removed until their game has started.
 - Web addresses (slugs) can be changed. The website follows, but links people already shared stop working, and the app warns you about this.
 
+### Discord profiles
+
+A player's profile page can link to their Discord account and show their Discord name.
+
+1. Once: create a bot at [discord.com/developers/applications](https://discord.com/developers/applications) (New Application → Bot → Reset Token). It needs no permissions and doesn't have to join a server. Paste the token in **Settings → Discord**. It stays on this computer.
+2. Ask the player for their **User ID**: in Discord, Settings → Advanced → Developer Mode, then right-click their name → Copy User ID.
+3. **Players →** select them → **Discord**: paste the ID and save. Press **Fetch from Discord** to copy their display name and @username. Tick **Also use their Discord picture** to store their avatar as their picture.
+
+Names aren't refreshed automatically: fetch again when someone renames, then publish. Without a bot token, the ID alone still gives a working "Discord" link on the website.
+
 ### Several organisers
 
 Each computer has its own copy of the data. If someone else published after you last downloaded, Publish stops and offers a choice:
@@ -84,8 +94,11 @@ ug-admin init                      # new, empty database with reference data
 ug-admin migrate                   # bring an older database up to date with schema/schema.sql
 ug-admin seed --add-demo           # add flagged demo data (--remove-demo takes it out again)
 ug-admin seed --demo --repo demo   # a separate demo-only database in demo/
+ug-admin discord --pictures         # copy linked players' Discord names (and avatars) — needs a bot token
 ug-admin --repo .                  # the desktop app on this folder (publish with git yourself)
 ```
+
+`ug-admin discord` uses the bot token from the app's Settings, or `UG_DISCORD_TOKEN`. Add `--player <slug>` for one player.
 
 The commands below work on the app's own synced data, or on `--workspace <folder>`:
 
@@ -143,6 +156,7 @@ Run with `UG_AUTOSHOT=<folder>` to visit every screen, save a screenshot of each
 | `src/repo.rs` | Every change the app makes to the database, with friendly errors |
 | `src/db.rs`, `src/seed.rs` | Open, create and migrate the database (`schema/schema.sql` is compiled in); reference and demo data |
 | `src/github.rs`, `src/sync.rs` | GitHub REST client; download, pending changes, publish as one commit (blobs → tree → commit → branch) |
+| `src/discord.rs` | Fetches a linked player's public Discord profile (names, avatar) with a bot token |
 | `src/workspace.rs`, `src/config.rs` | Folder layout (`database/`, `data/`, `avatars/`); per-user settings |
 | `src/cli.rs` | The commands above |
 | `src/gui/` | The desktop app (egui). Screens return `Action`s; `mod.rs` applies them (undo snapshot → change → export → validate → reload) |
