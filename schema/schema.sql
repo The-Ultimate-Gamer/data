@@ -1,6 +1,6 @@
 -- The Ultimate Gamer — authoritative tournament database (SQLite).
--- Raw facts only: standings, Challenger/champion status, tokens and statistics
--- are derived by scripts/export_json.py.
+-- Raw facts only: standings, Challenger/champion status, tokens, awards and statistics
+-- are derived by ug-admin (admin/src/rules.rs).
 
 PRAGMA foreign_keys = ON;
 
@@ -17,8 +17,9 @@ CREATE TABLE IF NOT EXISTS players (
 	avatar_url TEXT CHECK (avatar_url IS NULL OR avatar_url LIKE 'https://%'),
 	-- 1 = fictional demo data (scripts/seed.py --add-demo); removed with --remove-demo.
 	is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1)),
-	-- Optional Discord account (numeric user id). Username and display name are copied from
-	-- Discord by `ug-admin discord` / the Players screen, so the website never calls Discord.
+	-- Discord account (numeric user id); required for real players, enforced by the admin.
+	-- Username, display name and picture (avatars/<slug>.discord.png) are copied from Discord
+	-- by `ug-admin discord` / the Players screen, so the website never calls Discord.
 	discord_id TEXT CHECK (discord_id IS NULL OR (length(discord_id) BETWEEN 15 AND 21 AND discord_id NOT GLOB '*[^0-9]*')),
 	discord_username TEXT,
 	discord_display_name TEXT
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS categories (
 	sort_order INTEGER NOT NULL DEFAULT 0
 );
 
+-- Award definitions. Recipients are computed from the rules (admin/src/rules.rs), never entered.
 CREATE TABLE IF NOT EXISTS awards (
 	slug TEXT PRIMARY KEY,
 	name TEXT NOT NULL,
@@ -153,24 +155,5 @@ CREATE TABLE IF NOT EXISTS nominations (
 	CHECK (source = 'vote' OR player_id IS NOT NULL)
 );
 
--- Authoritative award recipients, entered by the organisers (ties resolved by them).
-CREATE TABLE IF NOT EXISTS award_grants (
-	id INTEGER PRIMARY KEY,
-	award_slug TEXT NOT NULL REFERENCES awards (slug),
-	player_id INTEGER NOT NULL REFERENCES players (id),
-	tournament_id INTEGER REFERENCES tournaments (id) ON DELETE CASCADE,
-	detail TEXT
-);
-
-CREATE TABLE IF NOT EXISTS tournament_records (
-	tournament_id INTEGER NOT NULL REFERENCES tournaments (id) ON DELETE CASCADE,
-	position INTEGER NOT NULL,
-	label TEXT NOT NULL,
-	value TEXT NOT NULL,
-	player_id INTEGER REFERENCES players (id),
-	PRIMARY KEY (tournament_id, position)
-);
-
 CREATE INDEX IF NOT EXISTS idx_results_player ON results (player_id);
-CREATE INDEX IF NOT EXISTS idx_grants_player ON award_grants (player_id);
 CREATE INDEX IF NOT EXISTS idx_nominations_round ON nominations (tournament_id, round_number);

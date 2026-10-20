@@ -30,7 +30,8 @@ pub struct Exporter {
     pub tournaments: Vec<Tournament>,
     tournament_rank: HashMap<i64, usize>,
     pub states: HashMap<i64, TournamentState>,
-    grants: Vec<Grant>,
+    /// Awards from the rules (`compute_awards`), for awards still defined in the database.
+    pub grants: Vec<Grant>,
     /// (tournament, round) -> nominations, in id order; `nomination_keys` keeps first-seen order.
     nominations: HashMap<(i64, i64), Vec<Nomination>>,
     nomination_keys: Vec<(i64, i64)>,
@@ -38,7 +39,6 @@ pub struct Exporter {
     points_tables: HashMap<i64, Vec<(i64, i64)>>,
     nemesis_assignments: HashMap<(i64, i64), Vec<(i64, i64)>>,
     category_use: HashMap<String, i64>,
-    records: HashMap<i64, Vec<model::Record>>,
 }
 
 fn opt<T: Into<Value>>(v: Option<T>) -> Value {
@@ -50,7 +50,15 @@ impl Exporter {
         let players = model::players(conn)?;
         let player_index = players.iter().enumerate().map(|(i, p)| (p.id, i)).collect();
         let slugs: Vec<&str> = players.iter().map(|p| p.slug.as_str()).collect();
-        let avatar_files = avatar_files(avatars_dir, &slugs);
+        let uploads = avatar_files(avatars_dir, &slugs);
+        // The picture file each player publishes: an upload, else their Discord picture (unless a link is set).
+        let avatar_files = players
+            .iter()
+            .filter_map(|p| match player_picture(avatars_dir, &uploads, p)? {
+                (PictureSource::Link, _) => None,
+                (_, file) => Some((p.slug.clone(), file)),
+            })
+            .collect();
         let names: HashMap<i64, String> = players.iter().map(|p| (p.id, p.name.clone())).collect();
 
         let mut games = model::games(conn)?;
@@ -87,10 +95,8 @@ impl Exporter {
 
         let mut points_tables: HashMap<i64, Vec<(i64, i64)>> = HashMap::new();
         let mut nemesis_assignments: HashMap<(i64, i64), Vec<(i64, i64)>> = HashMap::new();
-        let mut records = HashMap::new();
         for t in &tournaments {
             points_tables.insert(t.id, model::points_table(conn, t.id)?);
-            records.insert(t.id, model::records(conn, t.id)?);
             for number in states[&t.id].rounds.keys() {
                 let pairs = model::nemesis_assignments(conn, t.id, *number)?;
                 if !pairs.is_empty() {
@@ -106,6 +112,22 @@ impl Exporter {
             stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?.collect::<Result<HashMap<_, _>, _>>()?
         };
 
+        let grants: Vec<Grant> = crate::rules::compute_awards(conn, &tournaments, &states)?
+            .into_iter()
+            .enumerate()
+            .filter_map(|(i, g)| {
+                let award = awards.iter().find(|a| a.slug == g.award)?;
+                Some(Grant {
+                    id: i as i64,
+                    award_slug: g.award.to_string(),
+                    player_id: g.player_id,
+                    tournament_id: g.tournament_id,
+                    detail: g.detail,
+                    sort_order: award.sort_order,
+                })
+            })
+            .collect();
+
         Ok(Self {
             players,
             player_index,
@@ -119,14 +141,13 @@ impl Exporter {
             tournaments,
             tournament_rank,
             states,
-            grants: model::grants(conn)?,
+            grants,
             nominations,
             nomination_keys,
             meta,
             points_tables,
             nemesis_assignments,
             category_use,
-            records,
         })
     }
 
@@ -402,10 +423,6 @@ impl Exporter {
     }
 
     fn tournament_detail(&self, state: &TournamentState) -> Value {
-        let records: Vec<Value> = self.records[&state.id()]
-            .iter()
-            .map(|r| json!({"label": r.label, "value": r.value, "player": self.player_ref(r.player_id)}))
-            .collect();
         let mut doc = self.tournament_summary(state);
         doc.extend(self.live_fields(state));
         doc.insert("standings".into(), self.standings(state).into());
@@ -414,7 +431,6 @@ impl Exporter {
             "games".into(),
             state.completed_rounds().map(|r| self.game_result(state, r)).collect::<Vec<_>>().into(),
         );
-        doc.insert("records".into(), records.into());
         Value::Object(doc)
     }
 
@@ -1051,6 +1067,45 @@ pub fn avatar_stem(name: &str) -> Option<&str> {
     let dot = name.rfind('.')?;
     let (stem, ext) = name.split_at(dot);
     (!stem.is_empty() && AVATAR_EXTENSIONS.contains(&ext.to_lowercase().as_str())).then_some(stem)
+}
+
+/// The file name of a player's picture copied from Discord (kept apart from uploaded pictures).
+pub fn discord_picture_name(slug: &str) -> String {
+    format!("{slug}.discord.png")
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PictureSource {
+    Upload,
+    Link,
+    Discord,
+}
+
+impl PictureSource {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Upload => "uploaded picture",
+            Self::Link => "picture link",
+            Self::Discord => "Discord picture",
+        }
+    }
+}
+
+/// Which picture a player shows: an uploaded file, else a picture link, else their Discord
+/// picture. Returns the file name in the avatars folder (or the link). None means initials.
+pub fn player_picture(
+    avatars_dir: Option<&Path>,
+    uploads: &BTreeMap<String, String>,
+    p: &Player,
+) -> Option<(PictureSource, String)> {
+    if let Some(file) = uploads.get(&p.slug) {
+        return Some((PictureSource::Upload, file.clone()));
+    }
+    if let Some(url) = p.avatar_url.as_ref().filter(|u| !u.is_empty()) {
+        return Some((PictureSource::Link, url.clone()));
+    }
+    let name = discord_picture_name(&p.slug);
+    avatars_dir.filter(|d| d.join(&name).is_file()).map(|_| (PictureSource::Discord, name))
 }
 
 /// Delete every stored picture of a player.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T16:02:31Z",
+  "generatedAt": "2026-10-20T08:10:40Z",
   "data": {
     "games": [
       {
@@ -13,7 +13,7 @@
         "minPlayers": 2,
         "maxPlayers": 8,
         "timesPlayed": 1,
-        "timesNominated": 0,
+        "timesNominated": 1,
         "lastPlayed": {
           "tournament": {
             "slug": "demo-2026",
@@ -33,16 +33,9 @@
         "description": null,
         "minPlayers": 2,
         "maxPlayers": 8,
-        "timesPlayed": 1,
+        "timesPlayed": 0,
         "timesNominated": 0,
-        "lastPlayed": {
-          "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
-          },
-          "gameNumber": 4,
-          "playedAt": "2025-11-07T22:00:00Z"
-        },
+        "lastPlayed": null,
         "available": false
       },
       {
@@ -63,7 +56,7 @@
             "name": "Demo LAN 2025"
           },
           "gameNumber": 5,
-          "playedAt": "2025-11-08T12:00:00Z"
+          "playedAt": "2025-11-08T14:00:00Z"
         },
         "available": true
       },
@@ -77,9 +70,16 @@
         "description": null,
         "minPlayers": 1,
         "maxPlayers": 1,
-        "timesPlayed": 0,
-        "timesNominated": 0,
-        "lastPlayed": null,
+        "timesPlayed": 1,
+        "timesNominated": 2,
+        "lastPlayed": {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 4,
+          "playedAt": "2026-10-16T20:00:00Z"
+        },
         "available": true
       },
       {
@@ -106,15 +106,15 @@
         "description": null,
         "minPlayers": 2,
         "maxPlayers": 10,
-        "timesPlayed": 1,
-        "timesNominated": 0,
+        "timesPlayed": 2,
+        "timesNominated": 3,
         "lastPlayed": {
           "tournament": {
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
           "gameNumber": 2,
-          "playedAt": "2026-10-16T16:30:00Z"
+          "playedAt": "2026-10-16T16:00:00Z"
         },
         "available": true
       },
@@ -128,7 +128,7 @@
         "minPlayers": 2,
         "maxPlayers": 8,
         "timesPlayed": 0,
-        "timesNominated": 1,
+        "timesNominated": 0,
         "lastPlayed": null,
         "available": true
       },
@@ -142,9 +142,16 @@
         "description": null,
         "minPlayers": 1,
         "maxPlayers": 8,
-        "timesPlayed": 0,
-        "timesNominated": 0,
-        "lastPlayed": null,
+        "timesPlayed": 1,
+        "timesNominated": 1,
+        "lastPlayed": {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 7,
+          "playedAt": "2025-11-08T18:00:00Z"
+        },
         "available": true
       },
       {
@@ -156,16 +163,9 @@
         "description": null,
         "minPlayers": 1,
         "maxPlayers": 32,
-        "timesPlayed": 1,
-        "timesNominated": 0,
-        "lastPlayed": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "gameNumber": 5,
-          "playedAt": "2026-10-16T22:10:00Z"
-        },
+        "timesPlayed": 0,
+        "timesNominated": 1,
+        "lastPlayed": null,
         "available": true
       },
       {
@@ -178,16 +178,9 @@
         "description": null,
         "minPlayers": 1,
         "maxPlayers": 12,
-        "timesPlayed": 1,
+        "timesPlayed": 0,
         "timesNominated": 0,
-        "lastPlayed": {
-          "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
-          },
-          "gameNumber": 1,
-          "playedAt": "2025-11-07T15:00:00Z"
-        },
+        "lastPlayed": null,
         "available": true
       },
       {
@@ -201,7 +194,7 @@
         "minPlayers": 1,
         "maxPlayers": 12,
         "timesPlayed": 0,
-        "timesNominated": 1,
+        "timesNominated": 2,
         "lastPlayed": null,
         "available": true
       },
@@ -219,11 +212,11 @@
         "timesNominated": 1,
         "lastPlayed": {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
           },
-          "gameNumber": 6,
-          "playedAt": "2025-11-08T15:00:00Z"
+          "gameNumber": 5,
+          "playedAt": "2026-10-17T14:00:00Z"
         },
         "available": true
       },
@@ -237,9 +230,16 @@
         "description": null,
         "minPlayers": 2,
         "maxPlayers": 2,
-        "timesPlayed": 0,
-        "timesNominated": 0,
-        "lastPlayed": null,
+        "timesPlayed": 1,
+        "timesNominated": 2,
+        "lastPlayed": {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 6,
+          "playedAt": "2025-11-08T16:00:00Z"
+        },
         "available": true
       },
       {
@@ -252,9 +252,16 @@
         "description": null,
         "minPlayers": 2,
         "maxPlayers": 8,
-        "timesPlayed": 0,
+        "timesPlayed": 1,
         "timesNominated": 1,
-        "lastPlayed": null,
+        "lastPlayed": {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 1,
+          "playedAt": "2025-11-07T14:00:00Z"
+        },
         "available": true
       },
       {
@@ -266,16 +273,9 @@
         "description": null,
         "minPlayers": 1,
         "maxPlayers": 4,
-        "timesPlayed": 1,
-        "timesNominated": 0,
-        "lastPlayed": {
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "gameNumber": 4,
-          "playedAt": "2026-10-16T20:30:00Z"
-        },
+        "timesPlayed": 0,
+        "timesNominated": 1,
+        "lastPlayed": null,
         "available": true
       },
       {
@@ -288,14 +288,14 @@
         "minPlayers": 1,
         "maxPlayers": 99,
         "timesPlayed": 1,
-        "timesNominated": 0,
+        "timesNominated": 2,
         "lastPlayed": {
           "tournament": {
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
           "gameNumber": 3,
-          "playedAt": "2026-10-16T18:45:00Z"
+          "playedAt": "2026-10-16T18:00:00Z"
         },
         "available": true
       },
@@ -310,14 +310,14 @@
         "minPlayers": 1,
         "maxPlayers": 64,
         "timesPlayed": 1,
-        "timesNominated": 1,
+        "timesNominated": 3,
         "lastPlayed": {
           "tournament": {
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
           "gameNumber": 3,
-          "playedAt": "2025-11-07T19:30:00Z"
+          "playedAt": "2025-11-07T18:00:00Z"
         },
         "available": true
       },
@@ -332,14 +332,14 @@
         "minPlayers": 1,
         "maxPlayers": 8,
         "timesPlayed": 1,
-        "timesNominated": 0,
+        "timesNominated": 1,
         "lastPlayed": {
           "tournament": {
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
           "gameNumber": 2,
-          "playedAt": "2025-11-07T17:00:00Z"
+          "playedAt": "2025-11-07T16:00:00Z"
         },
         "available": true
       }

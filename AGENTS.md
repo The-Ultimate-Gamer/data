@@ -12,13 +12,13 @@ Guidance for developers and AI coding agents working in this repository. The REA
 
 1. **SQLite is the single source of truth. Never edit `data/` by hand.** Always regenerate it with `ug-admin export`. CI fails if `data/` is out of date.
 2. **The database stores facts; the admin tool derives everything else.**
-   - Facts: participants, placements, base points, Double Down use, Nemesis assignments, nominations and award grants.
-   - Derived: points, Challenger and champion status, ranks, tokens left and statistics.
+   - Facts: participants, placements, base points, Double Down use, Nemesis assignments, nominations and players' Discord accounts.
+   - Derived: points, Challenger and champion status, ranks, tokens left, awards and statistics.
    - Don't add columns for derived values.
 3. **All tournament rules live in `admin/src/rules.rs`** (`compute_tournament`). Nothing else may re-implement them: not the website, and not the admin's screens. The admin's "If you finish now…" preview runs these rules on an in-memory copy of the database.
 4. **Never invent results or tie-breaks.**
    - Ties in points share a rank.
-   - Award recipients are entered by the organisers in `award_grants`, because the data repo has no authority to decide ambiguous awards.
+   - Awards are computed by `compute_awards` in `rules.rs` from the results. Everyone tied for an award gets it; nothing is decided by hand.
 5. **Fictional data must be flagged.**
    - Demo data goes into the real database only through `ug-admin seed --add-demo` (or the admin's Settings → Demo data). Every demo row has `is_demo = 1`, and `--remove-demo` deletes exactly those rows.
    - While demo data exists, `site.json` exports `demo: true` and the website shows a banner.
@@ -37,6 +37,10 @@ Guidance for developers and AI coding agents working in this repository. The REA
 - **Nemeses are public.** Pairs for the next game go in `nemesis_assignments` and are exported as `nextNemeses`. Anyone but yourself can be drawn, so Nemeses can be shared and need not be mutual. `results.nemesis_player_id` still records the Nemesis a player actually had.
 - **Base points sanity check:** `ug-admin validate` fails when base points exceed the tournament's points table, and warns when they differ from the value for that placement.
 - **Final placement (`finish`):** in a finished tournament the champion is 1st and everyone else follows by points. `bestPlacement` uses it, so the crown counts as 1st.
+- **Finishing the deciding game completes the tournament** (status and end date), and the first drawn or finished game starts it. Reopening that game puts it back to live.
+- **Awards** (`compute_awards`): Ultimate Gamer, Challenger, Believer (won with Double Down), Nominator (a Nominate token's game was drawn) and Survivor (won while last, from game 2) appear live. Dominator, Contender, Podium, Nemesis, Victim, Ghost, Rookie (needs a returning player), Underdog and Fallout (vs. the player's previous tournament) once it's over. Legend is a career award (3+ titles). New awards need a rule there; the admin only edits names, icons and descriptions.
+- **Players need a Discord user ID** (except fictional demo players). Their names and picture (`avatars/<slug>.discord.png`) are copied from Discord. Picture priority: uploaded `avatars/<slug>.<ext>` > `avatar_url` > Discord picture > initials.
+- **Demo data** is played out by a seeded random generator (`seed.rs`) with the real roster when it has at least 4 players, else with fictional flagged players.
 
 ## Layout
 

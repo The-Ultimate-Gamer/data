@@ -2,7 +2,7 @@
 
 One program for everything an organiser does with the tournament data:
 
-- **Desktop app:** add players, games and tournaments, record every game during the LAN, and grant awards.
+- **Desktop app:** add players (linked to Discord), games and tournaments, and record every game during the LAN. Points, Challengers, the champion and awards follow automatically.
 - **Export and checks:** turn the database into the website's JSON, and check the data.
 - **Publish:** send the changes to GitHub with one button. The website updates itself a minute or two later.
 
@@ -44,18 +44,17 @@ The sign-in is stored only on your computer, in the app's settings file, which o
 The **Dashboard** always shows the next step.
 
 1. **Before the LAN:**
-   - **Players:** type a name and press Enter. Add a picture by dropping an image file on the window.
+   - **Players:** type their nickname and Discord user ID, then **+ Add player**. Their Discord name and picture are fetched right away (once a bot token is set, see below); **🔄 Refresh all from Discord** updates everyone. Drop an image file on the window, or link one, to override the Discord picture.
    - **Games:** build the library and tag each game with its categories.
+   - **Categories & awards:** rename them or click an icon to pick a new one from the palette. Awards are granted by the rules, so new ones can't be added here.
    - **Tournaments → + New tournament:** set the threshold, tokens and points per placement.
-   - On the tournament's **Setup** tab, tick the players and add the categories in play order. Then press **▶ Start tournament**.
+   - On the tournament's **Setup** tab, tick the players (or **Add everyone**) and add the categories in play order, or **🎲 Add at random** and **🔀 Shuffle order**. The tournament goes live with its first game, or press **▶ Start tournament**.
 2. **Every game:** press **▶ Enter game N** on the dashboard.
-   1. Record nominations, then press **🎲 Draw at random**, or pick the game directly.
-   2. Announce the Nemeses: draw them, or choose them per player.
-   3. **Tap players in finishing order.** Places and base points fill in from the points table. You can edit both for ties.
-   4. Tick Double Down where it was used. The **= Points** column and the "If you finish now…" line show the result *before* you save, including new Challengers or a new Ultimate Gamer.
-   5. Press **✔ Finish game**.
+   1. **Tick every game that can be picked.** Mark a winner's pick or a Nominate token where one was used. Then press **🎲 Draw**: one click picks the game and everyone's Nemesis. **Change or redraw…** undoes it.
+   2. **Tap players in finishing order.** For a tie, give them the same place (two 2nds, then 4th). Tick Double Down where it was used. Base points come from the points table, and Nemesis bonuses from the draw. The **= Points** column and the "If you finish now…" line show the result *before* you save.
+   3. Press **✔ Finish game**.
 3. **Publish** whenever the website should update. The top bar tells you when something isn't on the website yet. The Publish page lists what will change and shows the data checks. After you publish, it follows the website update until it's live.
-4. **The end:** when a Challenger wins, press **🏁 Mark completed**. Then grant the awards on the **Awards & records** tab, which suggests the clear-cut ones.
+4. **The end:** when a Challenger wins a game, the tournament completes by itself and its awards appear on the **Awards** tab. Publish to show them.
 
 Fixing mistakes:
 
@@ -70,9 +69,9 @@ A player's profile page can link to their Discord account and show their Discord
 
 1. Once: create a bot at [discord.com/developers/applications](https://discord.com/developers/applications) (New Application → Bot → Reset Token). It needs no permissions and doesn't have to join a server. Paste the token in **Settings → Discord**. It stays on this computer.
 2. Ask the player for their **User ID**: in Discord, Settings → Advanced → Developer Mode, then right-click their name → Copy User ID.
-3. **Players →** select them → **Discord**: paste the ID and save. Press **Fetch from Discord** to copy their display name and @username. Tick **Also use their Discord picture** to store their avatar as their picture.
+3. **Players:** add them with their nickname and ID; their Discord name and picture are fetched straight away. **🔄 Refresh all from Discord** updates everyone in one go (do it when people change their picture, then publish).
 
-Names aren't refreshed automatically: fetch again when someone renames, then publish. Without a bot token, the ID alone still gives a working "Discord" link on the website.
+An uploaded picture or a picture link overrides the Discord picture; initials show only when there's no picture at all.
 
 ### Several organisers
 
@@ -94,7 +93,7 @@ ug-admin init                      # new, empty database with reference data
 ug-admin migrate                   # bring an older database up to date with schema/schema.sql
 ug-admin seed --add-demo           # add flagged demo data (--remove-demo takes it out again)
 ug-admin seed --demo --repo demo   # a separate demo-only database in demo/
-ug-admin discord --pictures         # copy linked players' Discord names (and avatars) — needs a bot token
+ug-admin discord                   # refresh every player's Discord name and picture — needs a bot token
 ug-admin --repo .                  # the desktop app on this folder (publish with git yourself)
 ```
 

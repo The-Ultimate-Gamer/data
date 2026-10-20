@@ -1,8 +1,12 @@
-//! Reference data (categories and awards) and the fictional, flagged demo dataset.
+//! Reference data (categories and awards) and the flagged demo dataset: two demo tournaments
+//! played out at random (seeded, so always the same) by the real roster, or by fictional players.
 
 use std::collections::HashMap;
 
 use anyhow::{Result, bail};
+use rand::rngs::StdRng;
+use rand::seq::SliceRandom;
+use rand::{Rng, SeedableRng};
 use rusqlite::{Connection, OptionalExtension, params};
 
 const CATEGORIES: &[(&str, &str, &str, &str)] = &[
@@ -63,7 +67,7 @@ pub fn seed_reference(conn: &Connection) -> Result<()> {
 }
 
 // ------------------------------------------------------------------------- demo
-// Entirely fictional. Flagged is_demo = 1 so it can be removed again in one step.
+// Fictional results, flagged is_demo = 1 so they can be removed again in one step.
 
 const DEMO_PLAYERS: &[&str] = &["Nova", "Blitz", "Echo", "Rook", "Vex", "Kite"];
 
@@ -98,181 +102,56 @@ const DEMO_GAMES: &[DemoGame] = &[
 ];
 const DEMO_UNAVAILABLE: &[&str] = &["brawlhalla"];
 
-/// (game, finishing order, Double Down users, (player, Nemesis) pairs, played at)
-type DemoRound = (
-    &'static str,
-    &'static [&'static str],
-    &'static [&'static str],
-    &'static [(&'static str, &'static str)],
-    &'static str,
-);
-
-/// (game, nominating player, source)
-type DemoNomination = (&'static str, Option<&'static str>, &'static str);
-
+/// A demo tournament; its games are played out by a seeded random generator.
 struct DemoTournament {
     slug: &'static str,
     name: &'static str,
-    edition: &'static str,
-    start_date: &'static str,
+    start: &'static str,
     end_date: Option<&'static str>,
     location: &'static str,
-    status: &'static str,
-    threshold: i64,
-    players: &'static [&'static str],
-    points: &'static [i64],
     categories: &'static [&'static str],
-    rounds: &'static [DemoRound],
-    /// (round, [(game, player, source)])
-    nominations: &'static [(i64, &'static [DemoNomination])],
-    pending: Option<&'static str>,
-    announced_nemeses: &'static [(&'static str, &'static str)],
-    grants: &'static [(&'static str, &'static str, Option<&'static str>)],
-    records: &'static [(&'static str, &'static str, Option<&'static str>)],
+    /// None: play until a Challenger wins (completed). Some(n): play n games, then leave the
+    /// next one drawn but unplayed (live).
+    games_played: Option<usize>,
+    /// Leave the newest player out, so the next tournament has a first-timer.
+    without_newest: bool,
 }
 
 const DEMO_TOURNAMENTS: &[DemoTournament] = &[
     DemoTournament {
         slug: "demo-2025",
         name: "Demo LAN 2025",
-        edition: "Demo edition",
-        start_date: "2025-11-07",
+        start: "2025-11-07",
         end_date: Some("2025-11-08"),
         location: "The basement",
-        status: "completed",
-        threshold: 20,
-        players: &["blitz", "echo", "nova", "rook", "vex"],
-        points: &[6, 4, 3, 2, 1],
-        categories: &["wildcard", "knowledge", "racing", "combat", "tabletop", "teamwork", "simulation"],
-        rounds: &[
-            ("golf-with-your-friends", &["blitz", "rook", "nova", "echo", "vex"], &[], &[], "2025-11-07T15:00:00Z"),
-            ("trivia-murder-party", &["blitz", "echo", "nova", "vex", "rook"], &[], &[], "2025-11-07T17:00:00Z"),
-            (
-                "trackmania",
-                &["nova", "blitz", "echo", "rook", "vex"],
-                &[],
-                &[("nova", "rook"), ("vex", "blitz")],
-                "2025-11-07T19:30:00Z",
-            ),
-            ("brawlhalla", &["rook", "blitz", "nova", "echo", "vex"], &[], &[("echo", "vex")], "2025-11-07T22:00:00Z"),
-            ("catan", &["echo", "blitz", "nova", "rook", "vex"], &["echo"], &[], "2025-11-08T12:00:00Z"),
-            (
-                "overcooked-2",
-                &["echo", "blitz", "nova", "rook", "vex"],
-                &["blitz"],
-                &[("nova", "vex"), ("rook", "nova")],
-                "2025-11-08T15:00:00Z",
-            ),
-        ],
-        nominations: &[(
-            5,
-            &[("darts", Some("rook"), "winner"), ("overcooked-2", None, "vote"), ("catan", Some("rook"), "token")],
-        )],
-        pending: None,
-        announced_nemeses: &[],
-        grants: &[
-            ("ultimate-gamer", "echo", Some("Won Overcooked! 2 as a Challenger")),
-            ("dominator", "blitz", Some("32 points")),
-            ("challenger", "blitz", None),
-            ("challenger", "echo", None),
-            ("challenger", "nova", None),
-            ("contender", "rook", Some("17 points")),
-            ("podium", "blitz", Some("6 podium finishes")),
-            ("believer", "echo", None),
-            ("nominator", "rook", None),
-            ("nemesis", "nova", Some("2 Nemesis wins")),
-            ("victim", "vex", None),
-            ("ghost", "blitz", None),
-        ],
-        records: &[("Games played", "6", None), ("Biggest single-game haul", "12 pts", Some("echo"))],
+        categories: &["wildcard", "knowledge", "racing", "combat", "tabletop", "teamwork", "simulation", "chaos"],
+        games_played: None,
+        without_newest: true,
     },
     DemoTournament {
         slug: "demo-2026",
         name: "Demo LAN 2026",
-        edition: "Demo edition",
-        start_date: "2026-10-16",
+        start: "2026-10-16",
         end_date: None,
         location: "Somewhere with good Wi-Fi",
-        status: "ongoing",
-        threshold: 20,
-        players: &["nova", "blitz", "echo", "rook", "vex", "kite"],
-        points: &[6, 4, 3, 2, 1, 0],
         categories: &["strategy", "combat", "puzzle", "platform", "chaos", "racing", "knowledge", "wildcard"],
-        rounds: &[
-            (
-                "age-of-empires-2",
-                &["nova", "blitz", "echo", "rook", "vex", "kite"],
-                &[],
-                &[("nova", "rook")],
-                "2026-10-16T14:00:00Z",
-            ),
-            (
-                "counter-strike-2",
-                &["blitz", "nova", "rook", "echo", "kite", "vex"],
-                &["blitz"],
-                &[("echo", "vex")],
-                "2026-10-16T16:30:00Z",
-            ),
-            (
-                "tetris-99",
-                &["echo", "nova", "kite", "blitz", "rook", "vex"],
-                &[],
-                &[("echo", "nova")],
-                "2026-10-16T18:45:00Z",
-            ),
-            (
-                "super-mario-bros-wonder",
-                &["nova", "rook", "vex", "echo", "blitz", "kite"],
-                &["nova"],
-                &[],
-                "2026-10-16T20:30:00Z",
-            ),
-            (
-                "fall-guys",
-                &["vex", "blitz", "nova", "echo", "kite", "rook"],
-                &[],
-                &[("vex", "nova")],
-                "2026-10-16T22:10:00Z",
-            ),
-        ],
-        nominations: &[(
-            6,
-            &[
-                ("mario-kart-8-deluxe", Some("vex"), "winner"),
-                ("trackmania", None, "vote"),
-                ("rocket-league", Some("kite"), "token"),
-            ],
-        )],
-        pending: Some("mario-kart-8-deluxe"),
-        // Public Nemesis pairs for the next game: one-way, and Nova is shared by two players.
-        announced_nemeses: &[
-            ("nova", "vex"),
-            ("blitz", "echo"),
-            ("echo", "nova"),
-            ("rook", "nova"),
-            ("vex", "kite"),
-            ("kite", "blitz"),
-        ],
-        grants: &[
-            ("challenger", "nova", None),
-            ("challenger", "blitz", None),
-            ("believer", "blitz", None),
-            ("believer", "nova", None),
-            ("survivor", "vex", Some("Won Fall Guys from last place")),
-        ],
-        records: &[("Biggest single-game haul", "12 pts", Some("nova"))],
+        games_played: Some(5),
+        without_newest: false,
     },
 ];
 
-fn seed_demo(conn: &Connection) -> Result<()> {
-    let mut player = HashMap::new();
-    for name in DEMO_PLAYERS {
-        let slug = name.to_lowercase();
-        conn.execute("INSERT INTO players (slug, name, is_demo) VALUES (?1, ?2, 1)", params![slug, name])?;
-        player.insert(slug, conn.last_insert_rowid());
-    }
-    let p = |slug: &str| player[slug];
+const DEMO_THRESHOLD: i64 = 20;
+const DEMO_POINTS: &[i64] = &[6, 4, 3, 2, 1];
 
+/// The players the demo uses: the real roster when it has at least four players (so the demo
+/// shows the people who will actually play), else fictional ones flagged as demo data.
+fn demo_roster(conn: &Connection) -> Result<(Vec<i64>, bool)> {
+    let mut stmt = conn.prepare("SELECT id FROM players WHERE is_demo = 0 ORDER BY id")?;
+    let real: Vec<i64> = stmt.query_map([], |r| r.get(0))?.collect::<Result<_, _>>()?;
+    Ok((real.clone(), real.len() >= 4))
+}
+
+fn demo_games(conn: &Connection) -> Result<HashMap<&'static str, i64>> {
     let mut game = HashMap::new();
     for (slug, name, cats, lo, hi, desc) in DEMO_GAMES {
         let existing: Option<i64> =
@@ -293,88 +172,171 @@ fn seed_demo(conn: &Connection) -> Result<()> {
             conn.execute("INSERT INTO game_categories (game_id, category_slug) VALUES (?1, ?2)", params![gid, c])?;
         }
     }
+    Ok(game)
+}
 
-    for t in DEMO_TOURNAMENTS {
-        conn.execute(
-            "INSERT INTO tournaments (slug, name, edition, start_date, end_date, location, status, challenger_threshold, is_demo)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1)",
-            params![t.slug, t.name, t.edition, t.start_date, t.end_date, t.location, t.status, t.threshold],
+/// Games of a category, falling back to the whole demo library.
+fn games_for(category: &str, game: &HashMap<&'static str, i64>) -> Vec<i64> {
+    let mut list: Vec<i64> = DEMO_GAMES
+        .iter()
+        .filter(|(slug, _, cats, ..)| cats.contains(&category) && !DEMO_UNAVAILABLE.contains(slug))
+        .map(|(slug, ..)| game[slug])
+        .collect();
+    if list.is_empty() {
+        list = DEMO_GAMES.iter().filter(|(slug, ..)| !DEMO_UNAVAILABLE.contains(slug)).map(|(s, ..)| game[s]).collect();
+    }
+    list
+}
+
+/// Nominations for a round: the previous winner's pick, a vote, and now and then a Nominate token.
+#[allow(clippy::too_many_arguments)]
+fn demo_nominations(
+    tx: &Connection,
+    rng: &mut StdRng,
+    tid: i64,
+    number: i64,
+    category: &str,
+    game: &HashMap<&'static str, i64>,
+    players: &[i64],
+    previous_winner: Option<i64>,
+    tokens_used: &mut HashMap<i64, i64>,
+) -> Result<()> {
+    let mut options = games_for(category, game);
+    options.shuffle(rng);
+    let mut picks: Vec<(i64, &str, Option<i64>)> = Vec::new();
+    if let Some(w) = previous_winner {
+        picks.push((options[0], "winner", Some(w)));
+    }
+    picks.push((options[picks.len() % options.len()], "vote", None));
+    if rng.random_bool(0.35) {
+        let p = players[rng.random_range(0..players.len())];
+        if tokens_used.get(&p).copied().unwrap_or(0) == 0 {
+            *tokens_used.entry(p).or_default() += 1;
+            picks.push((options[picks.len() % options.len()], "token", Some(p)));
+        }
+    }
+    picks.dedup_by_key(|(g, _, _)| *g);
+    for (g, source, who) in picks {
+        tx.execute(
+            "INSERT INTO nominations (tournament_id, round_number, game_id, player_id, source) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![tid, number, g, who, source],
         )?;
-        let tid = conn.last_insert_rowid();
-        for slug in t.players {
-            conn.execute(
-                "INSERT INTO tournament_players (tournament_id, player_id) VALUES (?1, ?2)",
-                params![tid, p(slug)],
-            )?;
+    }
+    Ok(())
+}
+
+/// Play one demo tournament with this seed. Returns false (nothing kept) if it didn't turn out
+/// as wanted: the completed one must crown a champion, the live one must still be open.
+fn play_demo(
+    conn: &Connection,
+    t: &DemoTournament,
+    players: &[i64],
+    game: &HashMap<&'static str, i64>,
+    seed: u64,
+) -> Result<bool> {
+    let mut rng = StdRng::seed_from_u64(seed);
+    let tx = crate::db::begin(conn)?;
+    let status = if t.games_played.is_some() { "ongoing" } else { "completed" };
+    tx.execute(
+        "INSERT INTO tournaments (slug, name, edition, start_date, end_date, location, status, challenger_threshold, is_demo)
+         VALUES (?1, ?2, 'Demo edition', ?3, ?4, ?5, ?6, ?7, 1)",
+        params![t.slug, t.name, t.start, t.end_date, t.location, status, DEMO_THRESHOLD],
+    )?;
+    let tid = tx.last_insert_rowid();
+    for p in players {
+        tx.execute("INSERT INTO tournament_players (tournament_id, player_id) VALUES (?1, ?2)", params![tid, p])?;
+    }
+    for placement in 1..=players.len() {
+        let points = DEMO_POINTS.get(placement - 1).copied().unwrap_or(0);
+        tx.execute(
+            "INSERT INTO tournament_points (tournament_id, placement, points) VALUES (?1, ?2, ?3)",
+            params![tid, placement as i64, points],
+        )?;
+    }
+    for (i, c) in t.categories.iter().enumerate() {
+        tx.execute(
+            "INSERT INTO tournament_categories (tournament_id, position, category_slug) VALUES (?1, ?2, ?3)",
+            params![tid, i as i64 + 1, c],
+        )?;
+    }
+    let row = crate::model::tournament(&tx, tid)?.expect("just inserted");
+    let names = HashMap::new();
+    let mut dd_used: HashMap<i64, i64> = HashMap::new();
+    let mut tokens_used: HashMap<i64, i64> = HashMap::new();
+    let mut previous_winner = None;
+    let start = time::Date::parse(t.start, time::macros::format_description!("[year]-[month]-[day]"))?;
+
+    for (i, category) in t.categories.iter().enumerate() {
+        let number = i as i64 + 1;
+        let live_next = t.games_played == Some(i);
+        tx.execute("INSERT INTO rounds (tournament_id, number, completed) VALUES (?1, ?2, 0)", params![tid, number])?;
+        demo_nominations(&tx, &mut rng, tid, number, category, game, players, previous_winner, &mut tokens_used)?;
+        crate::repo::draw_game_with(&tx, tid, number, &mut rng)?;
+        crate::repo::draw_nemeses_with(&tx, tid, number, &mut rng)?;
+        if live_next {
+            break;
         }
-        for (i, points) in t.points.iter().enumerate() {
-            conn.execute(
-                "INSERT INTO tournament_points (tournament_id, placement, points) VALUES (?1, ?2, ?3)",
-                params![tid, i as i64 + 1, points],
-            )?;
-        }
-        for (i, c) in t.categories.iter().enumerate() {
-            conn.execute(
-                "INSERT INTO tournament_categories (tournament_id, position, category_slug) VALUES (?1, ?2, ?3)",
-                params![tid, i as i64 + 1, c],
-            )?;
-        }
-        for (i, (game_slug, order, double_downs, nemeses, played_at)) in t.rounds.iter().enumerate() {
-            let number = i as i64 + 1;
-            conn.execute(
-                "INSERT INTO rounds (tournament_id, number, game_id, played_at, completed) VALUES (?1, ?2, ?3, ?4, 1)",
-                params![tid, number, game[game_slug], played_at],
-            )?;
-            for (placement, slug) in order.iter().enumerate() {
-                let nemesis = nemeses.iter().find(|(who, _)| who == slug).map(|(_, n)| p(n));
-                conn.execute(
-                    "INSERT INTO results (tournament_id, round_number, player_id, placement, base_points,
-                     double_down, nemesis_player_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                    params![
-                        tid,
-                        number,
-                        p(slug),
-                        placement as i64 + 1,
-                        t.points[placement],
-                        i64::from(double_downs.contains(slug)),
-                        nemesis
-                    ],
-                )?;
+
+        let mut order = players.to_vec();
+        order.shuffle(&mut rng);
+        let nemesis: HashMap<i64, i64> = crate::model::nemesis_assignments(&tx, tid, number)?.into_iter().collect();
+        for (place, p) in order.iter().enumerate() {
+            let double_down = dd_used.get(p).copied().unwrap_or(0) == 0 && rng.random_bool(0.18);
+            if double_down {
+                dd_used.insert(*p, 1);
             }
-        }
-        if let Some(pending) = t.pending {
-            let number = t.rounds.len() as i64 + 1;
-            conn.execute(
-                "INSERT INTO rounds (tournament_id, number, game_id, completed) VALUES (?1, ?2, ?3, 0)",
-                params![tid, number, game[pending]],
+            let points = DEMO_POINTS.get(place).copied().unwrap_or(0);
+            tx.execute(
+                "INSERT INTO results (tournament_id, round_number, player_id, placement, base_points, double_down,
+                 nemesis_player_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                params![tid, number, p, place as i64 + 1, points, double_down, nemesis.get(p)],
             )?;
-            for (who, nemesis) in t.announced_nemeses {
-                conn.execute(
-                    "INSERT INTO nemesis_assignments (tournament_id, round_number, player_id, nemesis_player_id)
-                     VALUES (?1, ?2, ?3, ?4)",
-                    params![tid, number, p(who), p(nemesis)],
-                )?;
+        }
+        let played_at = format!("{}T{:02}:00:00Z", start + time::Duration::days(i as i64 / 4), 14 + (i % 4) * 2);
+        tx.execute(
+            "UPDATE rounds SET completed = 1, played_at = ?1 WHERE tournament_id = ?2 AND number = ?3",
+            params![played_at, tid, number],
+        )?;
+        previous_winner = Some(order[0]);
+        let state = crate::rules::compute_tournament(&tx, &row, &names)?;
+        if state.champion_id.is_some() {
+            if t.games_played.is_some() {
+                return Ok(false); // the live demo must still be open
             }
+            tx.commit()?;
+            return Ok(true);
         }
-        for (number, noms) in t.nominations {
-            for (g, who, source) in *noms {
-                conn.execute(
-                    "INSERT INTO nominations (tournament_id, round_number, game_id, player_id, source) VALUES (?1, ?2, ?3, ?4, ?5)",
-                    params![tid, number, game[g], who.map(p), source],
-                )?;
-            }
-        }
-        for (award, who, detail) in t.grants {
+    }
+    if t.games_played.is_none() {
+        return Ok(false); // no champion: try another seed
+    }
+    tx.commit()?;
+    Ok(true)
+}
+
+fn seed_demo(conn: &Connection) -> Result<()> {
+    let (real, use_real) = demo_roster(conn)?;
+    let roster = if use_real {
+        real
+    } else {
+        let mut ids = Vec::new();
+        for name in DEMO_PLAYERS {
             conn.execute(
-                "INSERT INTO award_grants (award_slug, player_id, tournament_id, detail) VALUES (?1, ?2, ?3, ?4)",
-                params![award, p(who), tid, detail],
+                "INSERT INTO players (slug, name, is_demo) VALUES (?1, ?2, 1)",
+                params![name.to_lowercase(), name],
             )?;
+            ids.push(conn.last_insert_rowid());
         }
-        for (i, (label, value, who)) in t.records.iter().enumerate() {
-            conn.execute(
-                "INSERT INTO tournament_records (tournament_id, position, label, value, player_id) VALUES (?1, ?2, ?3, ?4, ?5)",
-                params![tid, i as i64 + 1, label, value, who.map(p)],
-            )?;
+        ids
+    };
+    let game = demo_games(conn)?;
+    for t in DEMO_TOURNAMENTS {
+        let players = if t.without_newest { &roster[..roster.len() - 1] } else { &roster[..] };
+        let played = (1..500u64)
+            .find_map(|seed| play_demo(conn, t, players, &game, seed).map(|ok| ok.then_some(())).transpose());
+        match played {
+            Some(result) => result?,
+            None => bail!("couldn't play out the demo tournament {}", t.slug),
         }
     }
     Ok(())
@@ -386,10 +348,12 @@ pub fn add_demo(conn: &Connection) -> Result<()> {
         bail!("Demo data is already loaded.");
     }
     let mut clashes = Vec::new();
-    for name in DEMO_PLAYERS {
-        let slug = name.to_lowercase();
-        if conn.query_row("SELECT 1 FROM players WHERE slug = ?1", [&slug], |_| Ok(())).optional()?.is_some() {
-            clashes.push(format!("player '{slug}'"));
+    if !demo_roster(conn)?.1 {
+        for name in DEMO_PLAYERS {
+            let slug = name.to_lowercase();
+            if conn.query_row("SELECT 1 FROM players WHERE slug = ?1", [&slug], |_| Ok(())).optional()?.is_some() {
+                clashes.push(format!("player '{slug}'"));
+            }
         }
     }
     for t in DEMO_TOURNAMENTS {
@@ -400,7 +364,7 @@ pub fn add_demo(conn: &Connection) -> Result<()> {
     if !clashes.is_empty() {
         bail!("Demo data would clash with existing {}.", clashes.join(", "));
     }
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     seed_demo(&tx)?;
     tx.commit()?;
     Ok(())
@@ -427,11 +391,10 @@ pub fn remove_demo(conn: &Connection) -> Result<Removed> {
     if let Some((player, tournament)) = mixed {
         bail!("Demo player {player} is registered in the real tournament {tournament}; remove them there first.");
     }
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     let count = |sql: &str| tx.query_row(sql, [], |r| r.get::<_, i64>(0));
     let tournaments = count("SELECT COUNT(*) FROM tournaments WHERE is_demo = 1")?;
     let players = count("SELECT COUNT(*) FROM players WHERE is_demo = 1")?;
-    tx.execute("DELETE FROM award_grants WHERE player_id IN (SELECT id FROM players WHERE is_demo = 1)", [])?;
     tx.execute("DELETE FROM tournaments WHERE is_demo = 1", [])?;
     tx.execute("DELETE FROM players WHERE is_demo = 1", [])?;
     let games = tx.execute(

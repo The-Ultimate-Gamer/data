@@ -31,6 +31,7 @@ const FALLBACK_FONTS: &[&str] = &[
     "/usr/share/fonts/noto/NotoSansSymbols2-Regular.ttf",
     "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",
     "C:\\Windows\\Fonts\\seguisym.ttf",
+    "C:\\Windows\\Fonts\\seguiemj.ttf",
     "/System/Library/Fonts/Apple Symbols.ttf",
     "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
 ];
@@ -97,6 +98,9 @@ pub fn apply(ctx: &egui::Context) {
     style.spacing.interact_size.y = 30.0;
     style.spacing.combo_width = 180.0;
     style.spacing.text_edit_width = 260.0;
+    // Selectable labels catch clicks meant for the row or button around them, which made
+    // clickable rows feel like only a small area worked. Text is never copied from the app.
+    style.interaction.selectable_labels = false;
 
     let mut v = Visuals::dark();
     v.panel_fill = BG_RAISED;
@@ -204,6 +208,22 @@ pub fn danger(ui: &mut Ui, text: &str) -> Response {
     )
 }
 
+/// A full-width row that reacts to a click anywhere on it, not just on its text.
+pub fn clickable_row(ui: &mut Ui, selected: bool, add: impl FnOnce(&mut Ui)) -> Response {
+    let resp = ui
+        .scope_builder(egui::UiBuilder::new().sense(egui::Sense::click()), |ui| {
+            ui.set_width(ui.available_width());
+            ui.horizontal(add);
+        })
+        .response
+        .on_hover_cursor(egui::CursorIcon::PointingHand);
+    if resp.hovered() || selected {
+        let color = if selected { GOLD } else { BORDER_STRONG };
+        ui.painter().rect_stroke(resp.rect.expand(3.0), 6.0, Stroke::new(1.0_f32, color), egui::StrokeKind::Outside);
+    }
+    resp
+}
+
 /// A small coloured tag, e.g. "Live", "Demo", "Challenger".
 pub fn badge(ui: &mut Ui, text: &str, color: Color32) -> Response {
     egui::Frame::new()
@@ -245,8 +265,11 @@ pub fn text(ui: &mut Ui, value: &mut String, hint_text: &str) -> Response {
     ui.add(egui::TextEdit::singleline(value).hint_text(hint_text))
 }
 
+/// A single-line text box of a fixed width. (In a grid, a plain `desired_width` gets squeezed
+/// to the column's width from the first frame, which left boxes a few letters wide.)
 pub fn narrow_text(ui: &mut Ui, value: &mut String, hint_text: &str, width: f32) -> Response {
-    ui.add(egui::TextEdit::singleline(value).hint_text(hint_text).desired_width(width))
+    let height = ui.spacing().interact_size.y;
+    ui.add_sized(Vec2::new(width, height), egui::TextEdit::singleline(value).hint_text(hint_text))
 }
 
 /// A generic "pick one of these" combo box; `None` is shown as `none_label` when allowed.

@@ -16,12 +16,7 @@ pub struct Form {
     /// Settings being edited: (tournament id, data revision it was loaded at, values).
     settings: Option<(i64, u64, TournamentInput)>,
     add_category: Option<usize>,
-    grant_award: Option<usize>,
-    grant_player: Option<i64>,
-    grant_detail: String,
-    record_label: String,
-    record_value: String,
-    record_player: Option<i64>,
+    random_count: usize,
 }
 
 pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<Action>) {
@@ -36,7 +31,7 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
             if !form.creating && theme::primary(ui, "+ New tournament").clicked() {
                 form.creating = true;
                 form.new = TournamentInput::default();
-                form.copy_players_from = d.tournaments.iter().find(|t| !t.t.is_demo).map(|t| t.t.id);
+                form.copy_players_from = Some(repo::EVERYONE);
             }
         });
     });
@@ -84,8 +79,9 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                     })
                 });
                 theme::field(ui, "Players", |ui| {
-                    let options: Vec<(i64, String)> =
-                        d.tournaments.iter().map(|t| (t.t.id, format!("Same as {}", t.t.name))).collect();
+                    let options: Vec<(i64, String)> = std::iter::once((repo::EVERYONE, "Everyone".to_string()))
+                        .chain(d.tournaments.iter().map(|t| (t.t.id, format!("Same as {}", t.t.name))))
+                        .collect();
                     theme::pick(
                         ui,
                         "copy-players",
@@ -123,6 +119,7 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
     theme::card(ui, |ui| {
         TableBuilder::new(ui)
             .striped(true)
+            .sense(egui::Sense::click())
             .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
             .column(Column::remainder().at_least(220.0))
             .column(Column::auto().at_least(90.0))
@@ -141,9 +138,7 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                 for t in &d.tournaments {
                     body.row(34.0, |mut row| {
                         row.col(|ui| {
-                            if ui.link(RichText::new(&t.t.name).strong()).clicked() {
-                                actions.push(Action::Go(Page::Tournament(t.t.id, Tab::Overview)));
-                            }
+                            ui.label(RichText::new(&t.t.name).strong().color(theme::GOLD));
                             if t.t.is_demo {
                                 theme::badge(ui, "Demo", theme::CHALLENGER);
                             }
@@ -163,6 +158,9 @@ pub fn list(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                         row.col(|ui| {
                             ui.label(t.state.champion_id.map_or(String::new(), |c| format!("👑 {}", d.player_name(c))));
                         });
+                        if row.response().on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+                            actions.push(Action::Go(Page::Tournament(t.t.id, Tab::Overview)));
+                        }
                     });
                 }
             });
@@ -193,7 +191,7 @@ pub fn detail(
     });
     ui.add_space(4.0);
     ui.horizontal(|ui| {
-        for (value, label) in [(Tab::Overview, "Overview"), (Tab::Setup, "Setup"), (Tab::Awards, "Awards & records")] {
+        for (value, label) in [(Tab::Overview, "Overview"), (Tab::Setup, "Setup"), (Tab::Awards, "Awards")] {
             if ui.selectable_label(tab == value, RichText::new(label).size(16.0)).clicked() {
                 actions.push(Action::Go(Page::Tournament(tid, value)));
             }
@@ -203,7 +201,7 @@ pub fn detail(
     match tab {
         Tab::Overview => overview(ui, d, t, actions),
         Tab::Setup => setup(ui, d, t, form, actions),
-        Tab::Awards => awards(ui, d, t, form, actions),
+        Tab::Awards => awards(ui, d, t),
     }
 }
 
@@ -330,9 +328,7 @@ fn overview(ui: &mut egui::Ui, d: &Data, t: &TournamentData, actions: &mut Vec<A
                 .size(19.0)
                 .strong(),
             );
-            if t.t.status != Status::Completed {
-                ui.label("Mark the tournament completed, then grant the awards on the Awards tab.");
-            }
+            ui.label("The tournament is complete and its awards are on the Awards tab.");
         });
         ui.add_space(6.0);
     }
@@ -401,7 +397,7 @@ fn overview(ui: &mut egui::Ui, d: &Data, t: &TournamentData, actions: &mut Vec<A
                         } else if next == Some(*n)
                             && ui
                                 .small_button("Prepare")
-                                .on_hover_text("Record nominations and Nemeses before starting")
+                                .on_hover_text("Pick the game and draw the Nemeses before starting")
                                 .clicked()
                         {
                             actions.push(Action::Go(Page::Round(tid, *n)));
@@ -416,6 +412,9 @@ fn overview(ui: &mut egui::Ui, d: &Data, t: &TournamentData, actions: &mut Vec<A
 
 fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actions: &mut Vec<Action>) {
     let tid = t.t.id;
+    if form.random_count == 0 {
+        form.random_count = 8;
+    }
     // Reload the settings form when the tournament or the data changed underneath it.
     let stale = form.settings.as_ref().is_none_or(|(id, rev, _)| *id != tid || *rev != d.rev);
     if stale {
@@ -449,7 +448,12 @@ fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actio
                     }
                 }
             });
-            ui.label(theme::muted(format!("{} playing", t.participants.len())).small());
+            ui.horizontal(|ui| {
+                ui.label(theme::muted(format!("{} playing", t.participants.len())).small());
+                if ui.small_button("Add everyone").clicked() {
+                    actions.push(Action::db("Everyone added", move |c| repo::add_everyone(c, tid)));
+                }
+            });
         });
         ui.add_space(8.0);
         theme::card(ui, |ui| {
@@ -493,6 +497,25 @@ fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actio
                     actions.push(Action::db(format!("{} added", c.name), move |conn| {
                         repo::add_position(conn, tid, &slug)
                     }));
+                }
+            });
+            ui.horizontal(|ui| {
+                ui.label(theme::muted("Or"));
+                ui.add(egui::DragValue::new(&mut form.random_count).range(1..=20).suffix(" categories"));
+                if ui.button("🎲 Add at random").on_hover_text("Picks categories not in the order yet").clicked() {
+                    let n = form.random_count;
+                    actions.push(Action::db_msg("Categories added", move |c| {
+                        let added = repo::add_random_positions(c, tid, n)?;
+                        Ok(format!("{added} random categories added"))
+                    }));
+                }
+                let open = t.positions.iter().filter(|(n, _)| t.round(*n).is_none()).count();
+                if ui
+                    .add_enabled(open > 1, egui::Button::new("🔀 Shuffle order"))
+                    .on_hover_text("Shuffles the categories that haven't started")
+                    .clicked()
+                {
+                    actions.push(Action::db("Order shuffled", move |c| repo::shuffle_positions(c, tid)));
                 }
             });
         });
@@ -574,107 +597,31 @@ fn setup(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actio
     });
 }
 
-fn awards(ui: &mut egui::Ui, d: &Data, t: &TournamentData, form: &mut Form, actions: &mut Vec<Action>) {
-    let tid = t.t.id;
-    let participants: Vec<(i64, String)> = t.participants.iter().map(|p| (*p, d.player_name(*p))).collect();
-    ui.columns(2, |cols| {
-        theme::card(&mut cols[0], |ui| {
-            theme::section_title(ui, "Awards");
+fn awards(ui: &mut egui::Ui, d: &Data, t: &TournamentData) {
+    theme::card(ui, |ui| {
+        theme::section_title(ui, "Awards");
+        theme::hint(
+            ui,
+            "Granted automatically from the results. Challenger, Believer, Nominator and Survivor appear as they happen; the rest when the tournament ends. Everyone tied for an award gets it.",
+        );
+        ui.add_space(4.0);
+        if t.grants.is_empty() {
+            ui.label(theme::muted("No awards yet."));
+        }
+        egui::Grid::new(("awards", t.t.id)).num_columns(3).striped(true).spacing([16.0, 6.0]).show(ui, |ui| {
+            for g in &t.grants {
+                ui.label(RichText::new(d.award_label(&g.award_slug)).strong());
+                ui.label(d.player_name(g.player_id));
+                ui.label(theme::muted(g.detail.clone().unwrap_or_default()));
+                ui.end_row();
+            }
+        });
+        if !t.state.finished() {
+            ui.add_space(4.0);
             theme::hint(
                 ui,
-                "Award winners are decided by the organisers. The suggestions only cover the clear-cut ones.",
+                "Dominator, Contender, Podium, Nemesis, Victim, Ghost, Rookie, Underdog and Fallout follow when the tournament ends.",
             );
-            let has = |award: &str, pid: i64| t.grants.iter().any(|g| g.award_slug == award && g.player_id == pid);
-            let mut suggestions: Vec<(String, i64)> = Vec::new();
-            if let Some(c) = t.state.champion_id.filter(|c| !has("ultimate-gamer", *c)) {
-                suggestions.push(("ultimate-gamer".into(), c));
-            }
-            for p in t.state.standings().filter(|p| p.challenger_since.is_some() && !has("challenger", p.player_id)) {
-                suggestions.push(("challenger".into(), p.player_id));
-            }
-            suggestions.retain(|(a, _)| d.awards.iter().any(|x| &x.slug == a));
-            if !suggestions.is_empty() {
-                theme::callout(ui, theme::GOLD, |ui| {
-                    for (award, pid) in &suggestions {
-                        ui.horizontal(|ui| {
-                            ui.label(format!("{} ➡ {}", d.award_label(award), d.player_name(*pid)));
-                            if ui.small_button("Grant").clicked() {
-                                let (award, pid) = (award.clone(), *pid);
-                                actions.push(Action::db("Award granted", move |c| {
-                                    repo::grant_award(c, tid, &award, pid, "")
-                                }));
-                            }
-                        });
-                    }
-                });
-            }
-            if t.grants.is_empty() {
-                ui.label(theme::muted("No awards granted yet."));
-            }
-            for g in &t.grants {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new(d.award_label(&g.award_slug)).strong());
-                    ui.label(d.player_name(g.player_id));
-                    if let Some(detail) = &g.detail {
-                        theme::hint(ui, detail);
-                    }
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.small_button("✖").on_hover_text("Remove").clicked() {
-                            let id = g.id;
-                            actions.push(Action::db("Award removed", move |c| repo::revoke_award(c, id)));
-                        }
-                    });
-                });
-            }
-            ui.separator();
-            let options: Vec<(usize, String)> =
-                d.awards.iter().enumerate().map(|(i, a)| (i, d.award_label(&a.slug))).collect();
-            ui.horizontal_wrapped(|ui| {
-                theme::pick(ui, "grant-award", &mut form.grant_award, &options, None, 180.0);
-                theme::pick(ui, "grant-player", &mut form.grant_player, &participants, None, 140.0);
-                theme::narrow_text(ui, &mut form.grant_detail, "detail (optional)", 160.0);
-                let ready = form.grant_award.is_some() && form.grant_player.is_some();
-                if ui.add_enabled(ready, egui::Button::new("Grant")).clicked()
-                    && let (Some(a), Some(pid)) = (form.grant_award.and_then(|i| d.awards.get(i)), form.grant_player)
-                {
-                    let (award, detail) = (a.slug.clone(), std::mem::take(&mut form.grant_detail));
-                    actions.push(Action::db("Award granted", move |c| repo::grant_award(c, tid, &award, pid, &detail)));
-                }
-            });
-        });
-        theme::card(&mut cols[1], |ui| {
-            theme::section_title(ui, "Records");
-            theme::hint(ui, "Fun facts shown on the tournament page, e.g. \"Biggest single-game haul: 12 pts\".");
-            for r in &t.records {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new(&r.label).strong());
-                    ui.label(&r.value);
-                    if let Some(p) = r.player_id {
-                        theme::hint(ui, d.player_name(p));
-                    }
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        if ui.small_button("✖").clicked() {
-                            let position = r.position;
-                            actions.push(Action::db("Record removed", move |c| repo::remove_record(c, tid, position)));
-                        }
-                    });
-                });
-            }
-            ui.separator();
-            ui.horizontal_wrapped(|ui| {
-                theme::narrow_text(ui, &mut form.record_label, "label", 160.0);
-                theme::narrow_text(ui, &mut form.record_value, "value", 90.0);
-                theme::pick(ui, "record-player", &mut form.record_player, &participants, Some("no player"), 130.0);
-                let ready = !form.record_label.trim().is_empty() && !form.record_value.trim().is_empty();
-                if ui.add_enabled(ready, egui::Button::new("Add")).clicked() {
-                    let (label, value, player) = (
-                        std::mem::take(&mut form.record_label),
-                        std::mem::take(&mut form.record_value),
-                        form.record_player.take(),
-                    );
-                    actions.push(Action::db("Record added", move |c| repo::add_record(c, tid, &label, &value, player)));
-                }
-            });
-        });
+        }
     });
 }

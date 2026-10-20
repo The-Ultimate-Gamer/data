@@ -119,6 +119,11 @@ fn https(value: &str) -> Result<Option<String>> {
     Ok(v)
 }
 
+fn is_demo_player(conn: &Connection, id: Option<i64>) -> Result<bool> {
+    let Some(id) = id else { return Ok(false) };
+    Ok(conn.query_row("SELECT is_demo FROM players WHERE id = ?1", [id], |r| r.get(0)).optional()?.unwrap_or(false))
+}
+
 /// Create (id = None) or update a player. Returns the player's id.
 pub fn save_player(conn: &Connection, id: Option<i64>, p: &PlayerInput) -> Result<i64> {
     let name = required(&p.name, "Name")?;
@@ -127,10 +132,15 @@ pub fn save_player(conn: &Connection, id: Option<i64>, p: &PlayerInput) -> Resul
     let avatar = https(&p.avatar_url)?;
     let initials = clean(&p.initials);
     let discord = clean(&p.discord_id);
-    if let Some(d) = &discord
-        && !crate::discord::is_user_id(d)
-    {
-        user_bail!("A Discord user ID is a number of 15 to 21 digits (right-click the user → Copy User ID).");
+    match &discord {
+        Some(d) if !crate::discord::is_user_id(d) => {
+            user_bail!("A Discord user ID is a number of 15 to 21 digits (right-click the user → Copy User ID).")
+        }
+        // Fictional demo players (practice mode) have no Discord account; everyone else needs one.
+        None if !is_demo_player(conn, id)? => {
+            user_bail!("A Discord user ID is required. In Discord: right-click the player → Copy User ID.")
+        }
+        _ => {}
     }
     match id {
         None => {
@@ -169,12 +179,7 @@ pub fn save_discord_names(conn: &Connection, id: i64, user: &crate::discord::Dis
 }
 
 pub fn delete_player(conn: &Connection, id: i64) -> Result<()> {
-    let used = count(
-        conn,
-        "SELECT (SELECT COUNT(*) FROM tournament_players WHERE player_id = ?1) +
-                (SELECT COUNT(*) FROM award_grants WHERE player_id = ?1)",
-        [id],
-    )?;
+    let used = count(conn, "SELECT COUNT(*) FROM tournament_players WHERE player_id = ?1", [id])?;
     if used > 0 {
         user_bail!("This player has tournament history and can't be deleted.");
     }
@@ -231,7 +236,7 @@ pub fn save_game(conn: &Connection, id: Option<i64>, g: &GameInput) -> Result<i6
     {
         user_bail!("Minimum players can't be more than maximum players.");
     }
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     let gid = match id {
         None => {
             tx.execute(
@@ -421,6 +426,9 @@ fn int(value: &str, what: &str, min: i64) -> Result<i64> {
     }
 }
 
+/// `copy_players_from` value that registers every real player.
+pub const EVERYONE: i64 = 0;
+
 pub fn save_tournament(
     conn: &Connection,
     id: Option<i64>,
@@ -435,7 +443,7 @@ pub fn save_tournament(
     let nom = int(&t.nominate_tokens, "Nominate tokens", 0)?;
     let points = parse_points(&t.points)?;
     let (start, end) = (date(&t.start_date, "Start date")?, date(&t.end_date, "End date")?);
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     let tid = match id {
         None => {
             tx.execute(
@@ -458,7 +466,9 @@ pub fn save_tournament(
     for (i, p) in points.iter().enumerate() {
         tx.execute("INSERT INTO tournament_points VALUES (?1, ?2, ?3)", params![tid, i as i64 + 1, p])?;
     }
-    if let Some(from) = copy_players_from {
+    if copy_players_from == Some(EVERYONE) {
+        add_everyone(&tx, tid)?;
+    } else if let Some(from) = copy_players_from {
         tx.execute(
             "INSERT OR IGNORE INTO tournament_players SELECT ?1, player_id FROM tournament_players WHERE tournament_id = ?2",
             params![tid, from],
@@ -498,16 +508,13 @@ pub fn set_participant(conn: &Connection, tid: i64, pid: i64, playing: bool) -> 
     let used = count(
         conn,
         "SELECT (SELECT COUNT(*) FROM results WHERE tournament_id = ?1 AND player_id = ?2) +
-                (SELECT COUNT(*) FROM award_grants WHERE tournament_id = ?1 AND player_id = ?2) +
                 (SELECT COUNT(*) FROM nominations WHERE tournament_id = ?1 AND player_id = ?2) +
                 (SELECT COUNT(*) FROM nemesis_assignments WHERE tournament_id = ?1 AND (player_id = ?2 OR nemesis_player_id = ?2))",
         params![tid, pid],
     )?;
     if used > 0 {
         let name: String = conn.query_row("SELECT name FROM players WHERE id = ?1", [pid], |r| r.get(0))?;
-        user_bail!(
-            "{name} already has results, nominations, Nemeses or awards in this tournament and can't be removed."
-        );
+        user_bail!("{name} already has results, nominations or Nemeses in this tournament and can't be removed.");
     }
     conn.execute("DELETE FROM tournament_players WHERE tournament_id = ?1 AND player_id = ?2", params![tid, pid])?;
     Ok(())
@@ -532,8 +539,50 @@ fn assert_unplayed(conn: &Connection, tid: i64, position: i64) -> Result<()> {
     Ok(())
 }
 
+/// Add `n` random categories that aren't in the order yet.
+pub fn add_random_positions(conn: &Connection, tid: i64, n: usize) -> Result<usize> {
+    use rand::seq::SliceRandom;
+    let used: Vec<String> = model::positions(conn, tid)?.into_iter().map(|(_, c)| c).collect();
+    let mut free: Vec<String> =
+        model::categories(conn)?.into_iter().map(|c| c.slug).filter(|c| !used.contains(c)).collect();
+    free.shuffle(&mut rand::rng());
+    let tx = crate::db::begin(conn)?;
+    let added = free.into_iter().take(n).map(|c| add_position(&tx, tid, &c)).collect::<Result<Vec<_>>>()?.len();
+    tx.commit()?;
+    Ok(added)
+}
+
+/// Shuffle the categories whose games haven't started.
+pub fn shuffle_positions(conn: &Connection, tid: i64) -> Result<()> {
+    use rand::seq::SliceRandom;
+    let started: Vec<i64> = model::rounds(conn, tid)?.into_iter().map(|r| r.number).collect();
+    let open: Vec<(i64, String)> =
+        model::positions(conn, tid)?.into_iter().filter(|(p, _)| !started.contains(p)).collect();
+    let mut categories: Vec<String> = open.iter().map(|(_, c)| c.clone()).collect();
+    categories.shuffle(&mut rand::rng());
+    let tx = crate::db::begin(conn)?;
+    for ((position, _), category) in open.iter().zip(categories) {
+        tx.execute(
+            "UPDATE tournament_categories SET category_slug = ?1 WHERE tournament_id = ?2 AND position = ?3",
+            params![category, tid, position],
+        )?;
+    }
+    tx.commit()?;
+    Ok(())
+}
+
+/// Register every real player (and, in a demo tournament, the demo players too).
+pub fn add_everyone(conn: &Connection, tid: i64) -> Result<()> {
+    conn.execute(
+        "INSERT OR IGNORE INTO tournament_players (tournament_id, player_id)
+         SELECT ?1, p.id FROM players p, tournaments t WHERE t.id = ?1 AND (p.is_demo = 0 OR t.is_demo = 1)",
+        [tid],
+    )?;
+    Ok(())
+}
+
 pub fn remove_position(conn: &Connection, tid: i64, position: i64) -> Result<()> {
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     assert_unplayed(&tx, tid, position)?;
     tx.execute("DELETE FROM tournament_categories WHERE tournament_id = ?1 AND position = ?2", params![tid, position])?;
     // Close the gap so positions stay 1..n.
@@ -549,7 +598,7 @@ pub fn remove_position(conn: &Connection, tid: i64, position: i64) -> Result<()>
 }
 
 pub fn swap_positions(conn: &Connection, tid: i64, a: i64, b: i64) -> Result<()> {
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     assert_unplayed(&tx, tid, a)?;
     assert_unplayed(&tx, tid, b)?;
     let list = model::positions(&tx, tid)?;
@@ -595,7 +644,7 @@ pub fn add_nomination(
     if entries < 1 {
         user_bail!("Entries must be 1 or more.");
     }
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     ensure_round(&tx, tid, number)?;
     tx.execute(
         "INSERT INTO nominations (tournament_id, round_number, game_id, player_id, source, entries) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
@@ -605,21 +654,64 @@ pub fn add_nomination(
     Ok(())
 }
 
-pub fn remove_nomination(conn: &Connection, tid: i64, id: i64) -> Result<()> {
-    conn.execute("DELETE FROM nominations WHERE id = ?1 AND tournament_id = ?2", params![id, tid])?;
-    Ok(())
-}
-
 pub fn set_round_game(conn: &Connection, tid: i64, number: i64, game: Option<i64>) -> Result<()> {
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     ensure_round(&tx, tid, number)?;
     tx.execute("UPDATE rounds SET game_id = ?1 WHERE tournament_id = ?2 AND number = ?3", params![game, tid, number])?;
     tx.commit()?;
     Ok(())
 }
 
+/// A game that may be drawn for a round, and who put it there.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Candidate {
+    pub game: i64,
+    pub source: Source,
+    /// The player for a winner's pick or a Nominate token.
+    pub player: Option<i64>,
+}
+
+/// One click before a game: save the candidate games, draw one of them and draw everyone's
+/// Nemesis. Starts the tournament if it hadn't started yet. Returns the drawn game.
+pub fn draw_round(conn: &Connection, tid: i64, number: i64, candidates: &[Candidate]) -> Result<i64> {
+    if candidates.is_empty() {
+        user_bail!("Tick at least one game that can be picked.");
+    }
+    let t = model::tournament(conn, tid)?.ok_or_else(|| UserError("No such tournament.".into()))?;
+    let tx = crate::db::begin(conn)?;
+    ensure_round(&tx, tid, number)?;
+    tx.execute("DELETE FROM nominations WHERE tournament_id = ?1 AND round_number = ?2", params![tid, number])?;
+    for c in candidates {
+        if c.source == Source::Token
+            && let Some(p) = c.player
+        {
+            let used = count(
+                &tx,
+                "SELECT COUNT(*) FROM nominations WHERE tournament_id = ?1 AND player_id = ?2 AND source = 'token'",
+                params![tid, p],
+            )?;
+            if used >= t.nominate_tokens {
+                let name: String = tx.query_row("SELECT name FROM players WHERE id = ?1", [p], |r| r.get(0))?;
+                user_bail!("{name} has no Nominate token left.");
+            }
+        }
+        add_nomination(&tx, tid, number, c.game, c.source, c.player, 1)?;
+    }
+    let game = draw_game(&tx, tid, number)?;
+    draw_nemeses(&tx, tid, number)?;
+    if t.status == Status::Upcoming {
+        set_status(&tx, tid, Status::Ongoing)?;
+    }
+    tx.commit()?;
+    Ok(game)
+}
+
 /// Pick a game from the nominations, weighted by entries. Returns the game id.
 pub fn draw_game(conn: &Connection, tid: i64, number: i64) -> Result<i64> {
+    draw_game_with(conn, tid, number, &mut rand::rng())
+}
+
+pub fn draw_game_with(conn: &Connection, tid: i64, number: i64, rng: &mut impl rand::Rng) -> Result<i64> {
     let tickets: Vec<i64> = model::nominations(conn, tid, number)?
         .iter()
         .flat_map(|n| std::iter::repeat_n(n.game_id, n.entries.max(1) as usize))
@@ -627,7 +719,7 @@ pub fn draw_game(conn: &Connection, tid: i64, number: i64) -> Result<i64> {
     if tickets.is_empty() {
         user_bail!("Add nominations before drawing.");
     }
-    let picked = tickets[rand::random_range(0..tickets.len())];
+    let picked = tickets[rng.random_range(0..tickets.len())];
     set_round_game(conn, tid, number, Some(picked))?;
     Ok(picked)
 }
@@ -674,7 +766,7 @@ pub fn save_results(conn: &Connection, tid: i64, number: i64, rows: &[ResultInpu
             user_bail!("Choose which game was played before finishing it.");
         }
     }
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     ensure_round(&tx, tid, number)?;
     tx.execute("DELETE FROM results WHERE tournament_id = ?1 AND round_number = ?2", params![tid, number])?;
     for r in rows {
@@ -688,6 +780,16 @@ pub fn save_results(conn: &Connection, tid: i64, number: i64, rows: &[ResultInpu
             "UPDATE rounds SET completed = 1, played_at = COALESCE(played_at, ?1) WHERE tournament_id = ?2 AND number = ?3",
             params![utc_now(), tid, number],
         )?;
+        // A finished game means the tournament is under way; a Challenger's win ends it.
+        if let Some(t) = model::tournament(&tx, tid)? {
+            let names = model::players(&tx)?.into_iter().map(|p| (p.id, p.name)).collect();
+            let state = crate::rules::compute_tournament(&tx, &t, &names)?;
+            if state.champion_id.is_some() {
+                set_status(&tx, tid, Status::Completed)?;
+            } else if t.status == Status::Upcoming {
+                set_status(&tx, tid, Status::Ongoing)?;
+            }
+        }
     }
     tx.commit()?;
     Ok(())
@@ -698,7 +800,7 @@ pub fn set_nemeses(conn: &Connection, tid: i64, number: i64, pairs: &[(i64, Opti
     if pairs.iter().any(|(p, n)| Some(*p) == *n) {
         user_bail!("A player can't be their own Nemesis.");
     }
-    let tx = conn.unchecked_transaction()?;
+    let tx = crate::db::begin(conn)?;
     ensure_round(&tx, tid, number)?;
     tx.execute("DELETE FROM nemesis_assignments WHERE tournament_id = ?1 AND round_number = ?2", params![tid, number])?;
     for (player, nemesis) in pairs {
@@ -715,7 +817,12 @@ pub fn set_nemeses(conn: &Connection, tid: i64, number: i64, pairs: &[(i64, Opti
 
 /// Independent draws: anyone but yourself. Nemeses can be shared and need not be mutual.
 pub fn draw_nemeses(conn: &Connection, tid: i64, number: i64) -> Result<()> {
-    let players = model::participant_ids(conn, tid)?;
+    draw_nemeses_with(conn, tid, number, &mut rand::rng())
+}
+
+pub fn draw_nemeses_with(conn: &Connection, tid: i64, number: i64, rng: &mut impl rand::Rng) -> Result<()> {
+    let mut players = model::participant_ids(conn, tid)?;
+    players.sort(); // a fixed order keeps seeded draws (demo data) reproducible
     if players.len() < 2 {
         user_bail!("Register at least two players first.");
     }
@@ -723,7 +830,7 @@ pub fn draw_nemeses(conn: &Connection, tid: i64, number: i64) -> Result<()> {
         .iter()
         .map(|p| {
             let others: Vec<i64> = players.iter().copied().filter(|o| o != p).collect();
-            (*p, Some(others[rand::random_range(0..others.len())]))
+            (*p, Some(others[rng.random_range(0..others.len())]))
         })
         .collect();
     set_nemeses(conn, tid, number, &pairs)
@@ -738,37 +845,8 @@ pub fn reopen_round(conn: &Connection, tid: i64, number: i64) -> Result<()> {
         user_bail!("Only the most recent finished game can be reopened.");
     }
     conn.execute("UPDATE rounds SET completed = 0 WHERE tournament_id = ?1 AND number = ?2", params![tid, number])?;
-    Ok(())
-}
-
-// ------------------------------------------------------------ awards/records
-
-pub fn grant_award(conn: &Connection, tid: i64, award: &str, player: i64, detail: &str) -> Result<()> {
-    conn.execute(
-        "INSERT INTO award_grants (award_slug, player_id, tournament_id, detail) VALUES (?1, ?2, ?3, ?4)",
-        params![award, player, tid, clean(detail)],
-    )?;
-    Ok(())
-}
-
-pub fn revoke_award(conn: &Connection, id: i64) -> Result<()> {
-    conn.execute("DELETE FROM award_grants WHERE id = ?1", [id])?;
-    Ok(())
-}
-
-pub fn add_record(conn: &Connection, tid: i64, label: &str, value: &str, player: Option<i64>) -> Result<()> {
-    let (label, value) = (required(label, "Label")?, required(value, "Value")?);
-    let next =
-        count(conn, "SELECT COALESCE(MAX(position), 0) + 1 FROM tournament_records WHERE tournament_id = ?1", [tid])?;
-    conn.execute(
-        "INSERT INTO tournament_records VALUES (?1, ?2, ?3, ?4, ?5)",
-        params![tid, next, label, value, player],
-    )?;
-    Ok(())
-}
-
-pub fn remove_record(conn: &Connection, tid: i64, position: i64) -> Result<()> {
-    conn.execute("DELETE FROM tournament_records WHERE tournament_id = ?1 AND position = ?2", params![tid, position])?;
+    // Reopening the deciding game puts the tournament back in play.
+    conn.execute("UPDATE tournaments SET status = 'ongoing' WHERE id = ?1 AND status = 'completed'", [tid])?;
     Ok(())
 }
 
@@ -790,11 +868,16 @@ mod tests {
     use super::*;
     use crate::db;
 
+    fn player(name: &str, n: usize) -> PlayerInput {
+        PlayerInput { name: name.into(), discord_id: format!("1000000000000000{n}"), ..Default::default() }
+    }
+
     fn setup() -> (Connection, i64, Vec<i64>) {
         let conn = db::memory().unwrap();
         let ids: Vec<i64> = ["Ann", "Bob", "Cy"]
             .iter()
-            .map(|n| save_player(&conn, None, &PlayerInput { name: (*n).into(), ..Default::default() }).unwrap())
+            .enumerate()
+            .map(|(i, n)| save_player(&conn, None, &player(n, i)).unwrap())
             .collect();
         let tid =
             save_tournament(&conn, None, &TournamentInput { name: "LAN 2026".into(), ..Default::default() }, None)
@@ -812,17 +895,60 @@ mod tests {
         let (conn, _, _) = setup();
         let p = model::players(&conn).unwrap();
         assert_eq!(p.iter().map(|p| p.slug.as_str()).collect::<Vec<_>>(), ["ann", "bob", "cy"]);
-        let err = save_player(&conn, None, &PlayerInput { name: "Ann".into(), ..Default::default() }).unwrap_err();
+        let err = save_player(&conn, None, &player("Ann", 7)).unwrap_err();
         assert!(friendly(&err).contains("already uses"));
-        let err = save_player(
-            &conn,
-            None,
-            &PlayerInput { name: "Dee".into(), avatar_url: "http://x".into(), ..Default::default() },
-        )
-        .unwrap_err();
+        let err =
+            save_player(&conn, None, &PlayerInput { avatar_url: "http://x".into(), ..player("Dee", 8) }).unwrap_err();
         assert!(friendly(&err).contains("https://"));
+        let err = save_player(&conn, None, &PlayerInput { name: "Eve".into(), ..Default::default() }).unwrap_err();
+        assert!(friendly(&err).contains("Discord user ID is required"));
         assert_eq!(model::tournament_by_slug(&conn, "lan-2026").unwrap().unwrap().challenger_threshold, 20);
         assert_eq!(model::points_table(&conn, 1).unwrap().len(), 6);
+    }
+
+    #[test]
+    fn one_draw_picks_the_game_and_every_nemesis() {
+        let (conn, tid, ids) = setup();
+        let game = save_game(
+            &conn,
+            None,
+            &GameInput { name: "Catan".into(), categories: vec!["strategy".into()], ..GameInput::new() },
+        )
+        .unwrap();
+        let other = save_game(&conn, None, &GameInput { name: "Chess".into(), ..GameInput::new() }).unwrap();
+        let token = Candidate { game: other, source: Source::Token, player: Some(ids[0]) };
+        let drawn =
+            draw_round(&conn, tid, 1, &[Candidate { game, source: Source::Vote, player: None }, token]).unwrap();
+        assert!([game, other].contains(&drawn));
+        assert_eq!(model::nemesis_assignments(&conn, tid, 1).unwrap().len(), 3);
+        assert_eq!(model::tournament(&conn, tid).unwrap().unwrap().status, Status::Ongoing, "started automatically");
+        // Ann's only Nominate token is used.
+        let err = draw_round(&conn, tid, 2, &[token]).unwrap_err();
+        assert!(friendly(&err).contains("no Nominate token left"));
+        // Redrawing the same round keeps its own token use.
+        draw_round(&conn, tid, 1, &[token]).unwrap();
+        assert!(draw_round(&conn, tid, 1, &[]).is_err());
+    }
+
+    #[test]
+    fn a_challengers_win_completes_the_tournament() {
+        let (conn, tid, ids) = setup();
+        conn.execute("UPDATE tournaments SET challenger_threshold = 5 WHERE id = ?1", [tid]).unwrap();
+        let game = save_game(&conn, None, &GameInput { name: "Catan".into(), ..GameInput::new() }).unwrap();
+        let row = |pid, placement, base_points| ResultInput {
+            player_id: pid,
+            placement,
+            base_points,
+            double_down: false,
+            nemesis_player_id: None,
+        };
+        for number in 1..=2 {
+            set_round_game(&conn, tid, number, Some(game)).unwrap();
+            save_results(&conn, tid, number, &[row(ids[0], 1, 6), row(ids[1], 2, 4), row(ids[2], 2, 4)], true).unwrap();
+        }
+        assert_eq!(model::tournament(&conn, tid).unwrap().unwrap().status, Status::Completed);
+        reopen_round(&conn, tid, 2).unwrap();
+        assert_eq!(model::tournament(&conn, tid).unwrap().unwrap().status, Status::Ongoing);
     }
 
     #[test]

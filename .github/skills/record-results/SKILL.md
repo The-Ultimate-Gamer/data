@@ -1,6 +1,6 @@
 ---
 name: record-results
-description: 'Record or edit tournament data in the SQLite database and republish the JSON. Use when adding players, games, a tournament, category order, a played round/results, Double Down or Nemesis info, nominations/game draws, award winners, records, or finishing a tournament.'
+description: 'Record or edit tournament data in the SQLite database and republish the JSON. Use when adding players, games, a tournament, category order, a played round/results, Double Down or Nemesis info, nominations/game draws, or finishing a tournament.'
 ---
 
 # Record tournament data
@@ -25,7 +25,7 @@ Look up ids by slug instead of guessing them, for example `(SELECT id FROM playe
 
 | Goal | Tables |
 | --- | --- |
-| New player | `players (slug, name, initials?, avatar_url? https only)`. For a picture that lasts, save it as `avatars/<slug>.jpg` instead of a (expiring) Discord link |
+| New player | `players (slug, name, discord_id)`; the Discord user ID is required. Then run `ug-admin discord --player <slug>` to copy their Discord name and picture. An uploaded `avatars/<slug>.jpg` or an `avatar_url` overrides the Discord picture |
 | New game in the library | `games (slug, name, description?, min_players?, max_players?, available)` + `game_categories (game_id, category_slug)` |
 | New tournament | `tournaments (slug, name, edition?, start_date, end_date?, location?, status, challenger_threshold, double_down_tokens=1, nominate_tokens=1)` + `tournament_points (tournament_id, placement, points)` for prefill |
 | Register participants | `tournament_players (tournament_id, player_id)` |
@@ -35,10 +35,8 @@ Look up ids by slug instead of guessing them, for example `(SELECT id FROM playe
 | Nemeses announced | `nemesis_assignments (tournament_id, round_number, player_id, nemesis_player_id)` for the next round. Public on the website; shared and one-way Nemeses are allowed |
 | Game finished | one `results` row per player: `placement`, `base_points`, `double_down` (0/1), `nemesis_player_id` (the Nemesis assigned before the game). Then `UPDATE rounds SET completed = 1, played_at = '<ISO UTC>'` |
 | Tournament decided | `ug-admin validate` reports when a Challenger has won. Set `status = 'completed'` and `end_date` |
-| Award winners | `award_grants (award_slug, player_id, tournament_id, detail?)`, as decided by the organisers |
-| Fun records | `tournament_records (tournament_id, position, label, value, player_id?)` |
 
-**Do not store derived values.** Points, Challenger and champion status, ranks, tokens left and statistics are all computed by the admin tool (`admin/src/rules.rs` and `admin/src/export.rs`).
+**Do not store derived values.** Points, Challenger and champion status, ranks, tokens left, awards and statistics are all computed by the admin tool (`admin/src/rules.rs` and `admin/src/export.rs`).
 
 **Ask the user whenever a fact is unknown.** This includes placements, base points, who used Double Down and Nemesis assignments. Do not guess them.
 

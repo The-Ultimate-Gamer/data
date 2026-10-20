@@ -6,8 +6,9 @@ use std::path::PathBuf;
 use anyhow::Result;
 use rusqlite::Connection;
 
+use crate::export::PictureSource;
 use crate::export::{Exporter, avatar_files};
-use crate::model::{self, Award, Category, Game, Nomination, Player, Record, ResultRow, RoundRow, Tournament};
+use crate::model::{self, Award, Category, Game, Nomination, Player, ResultRow, RoundRow, Tournament};
 use crate::rules::TournamentState;
 use crate::workspace::Workspace;
 
@@ -21,8 +22,8 @@ pub struct TournamentData {
     pub results: Vec<(i64, ResultRow)>,
     /// (round, player, Nemesis) announced before each round.
     pub nemeses: Vec<(i64, i64, i64)>,
+    /// Awards earned in this tournament, computed by the rules.
     pub grants: Vec<model::Grant>,
-    pub records: Vec<Record>,
     /// Standings, Challengers and champion, from the rules module.
     pub state: TournamentState,
 }
@@ -64,10 +65,6 @@ impl TournamentData {
         usize::try_from(placement - 1).ok().and_then(|i| self.points.get(i)).copied().unwrap_or(0)
     }
 
-    pub fn max_points(&self) -> Option<i64> {
-        self.points.iter().max().copied()
-    }
-
     pub fn has_played(&self, pid: i64) -> bool {
         self.results.iter().any(|(_, r)| r.player_id == pid)
     }
@@ -84,8 +81,10 @@ pub struct Data {
     pub tournaments: Vec<TournamentData>,
     pub demo_present: bool,
     pub meta: BTreeMap<String, String>,
-    /// Player slug -> picture file in avatars/.
+    /// Player slug -> uploaded picture file in avatars/.
     pub avatars: BTreeMap<String, PathBuf>,
+    /// Player slug -> the picture they show (upload, link or Discord) and its file or link.
+    pub pictures: BTreeMap<String, (PictureSource, String)>,
     pub avatars_dir: PathBuf,
     pub site_url: String,
 }
@@ -95,7 +94,7 @@ impl Data {
         let exporter = Exporter::new(conn, Some(&ws.avatars))?;
         let mut states = exporter.states;
         let all_nominations = model::all_nominations(conn)?;
-        let grants = model::grants(conn)?;
+        let grants = exporter.grants;
         let mut tournaments = Vec::new();
         for t in exporter.tournaments.iter().rev() {
             let tid = t.id;
@@ -116,7 +115,6 @@ impl Data {
                 results: model::results(conn, tid)?,
                 nemeses,
                 grants: grants.iter().filter(|g| g.tournament_id == Some(tid)).cloned().collect(),
-                records: model::records(conn, tid)?,
                 state: states.remove(&tid).expect("state for every tournament"),
             });
         }
@@ -130,10 +128,12 @@ impl Data {
         });
         let players = model::players(conn)?;
         let slugs: Vec<&str> = players.iter().map(|p| p.slug.as_str()).collect();
-        let avatars = avatar_files(Some(&ws.avatars), &slugs)
-            .into_iter()
-            .map(|(slug, file)| (slug, ws.avatars.join(file)))
+        let uploads = avatar_files(Some(&ws.avatars), &slugs);
+        let pictures = players
+            .iter()
+            .filter_map(|p| Some((p.slug.clone(), crate::export::player_picture(Some(&ws.avatars), &uploads, p)?)))
             .collect();
+        let avatars = uploads.into_iter().map(|(slug, file)| (slug, ws.avatars.join(file))).collect();
         let meta: BTreeMap<String, String> = model::meta(conn)?.into_iter().collect();
         let site_url = crate::export::with_slash(
             meta.get("site_url").filter(|s| !s.is_empty()).map_or(crate::export::DEFAULT_SITE_URL, String::as_str),
@@ -148,6 +148,7 @@ impl Data {
             players,
             meta,
             avatars,
+            pictures,
             avatars_dir: ws.avatars.clone(),
             site_url,
         })
@@ -206,7 +207,11 @@ impl Data {
         self.tournaments.iter().any(|t| !t.t.is_demo)
     }
 
+    /// The picture to show in the app (links aren't loaded here, so they show initials).
     pub fn avatar_uri(&self, slug: &str) -> Option<String> {
-        self.avatars.get(slug).map(|p| format!("file://{}", p.display()))
+        match self.pictures.get(slug)? {
+            (PictureSource::Link, _) => None,
+            (_, file) => Some(format!("file://{}", self.avatars_dir.join(file).display())),
+        }
     }
 }

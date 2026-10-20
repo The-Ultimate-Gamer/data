@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:45:31Z",
+  "generatedAt": "2026-10-20T08:10:40Z",
   "data": {
     "player": {
       "slug": "tnoy",
       "name": "Tnoy",
       "initials": null,
-      "avatarUrl": "avatars/tnoy.png",
+      "avatarUrl": "avatars/tnoy.discord.png",
       "firstTournament": {
         "slug": "demo-2025",
         "name": "Demo LAN 2025"
       },
       "tournamentsPlayed": 2,
       "ultimateGamerWins": 0,
-      "challengerAppearances": 2,
-      "gameWins": 3,
-      "podiumFinishes": 11,
-      "awardCount": 4,
-      "bestPlacement": 3,
+      "challengerAppearances": 1,
+      "gameWins": 4,
+      "podiumFinishes": 7,
+      "awardCount": 3,
+      "bestPlacement": 2,
       "current": {
         "tournament": {
           "slug": "demo-2026",
           "name": "Demo LAN 2026"
         },
         "rank": 1,
-        "points": 31
+        "points": 19
       },
       "discord": {
         "id": "396358775663099915",
@@ -41,10 +41,10 @@
           "status": "ongoing",
           "placement": 1,
           "finish": null,
-          "points": 31,
+          "points": 19,
           "gamesWon": 2,
-          "podiums": 5,
-          "wasChallenger": true,
+          "podiums": 3,
+          "wasChallenger": false,
           "wasChampion": false
         },
         {
@@ -54,11 +54,11 @@
           },
           "startDate": "2025-11-07",
           "status": "completed",
-          "placement": 3,
-          "finish": 3,
-          "points": 23,
-          "gamesWon": 1,
-          "podiums": 6,
+          "placement": 2,
+          "finish": 2,
+          "points": 25,
+          "gamesWon": 2,
+          "podiums": 4,
           "wasChallenger": true,
           "wasChampion": false
         }
@@ -67,59 +67,55 @@
         {
           "award": "challenger",
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
           },
-          "detail": null
+          "detail": "Since game 6"
         },
         {
-          "award": "believer",
+          "award": "podium",
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
           },
-          "detail": null
+          "detail": "4 podium finishes"
         },
         {
-          "award": "challenger",
+          "award": "ghost",
           "tournament": {
             "slug": "demo-2025",
             "name": "Demo LAN 2025"
           },
           "detail": null
-        },
-        {
-          "award": "nemesis",
-          "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
-          },
-          "detail": "2 Nemesis wins"
         }
       ],
       "categoryWins": [
         {
-          "category": "strategy",
+          "category": "combat",
           "wins": 1
         },
         {
-          "category": "platform",
+          "category": "puzzle",
           "wins": 1
         },
         {
-          "category": "racing",
+          "category": "wildcard",
+          "wins": 1
+        },
+        {
+          "category": "knowledge",
           "wins": 1
         }
       ],
       "nemesis": {
-        "defeated": 3,
-        "defeatedBy": 2,
-        "timesAssigned": 4
+        "defeated": 7,
+        "defeatedBy": 5,
+        "timesAssigned": 12
       },
       "doubleDown": {
-        "used": 1,
-        "wins": 1,
-        "bonusPoints": 6
+        "used": 2,
+        "wins": 0,
+        "bonusPoints": 1
       },
       "nominate": {
         "used": 0,
@@ -134,15 +130,16 @@
           "gameNumber": 5,
           "category": "chaos",
           "game": {
-            "slug": "fall-guys",
-            "name": "Fall Guys"
+            "slug": "overcooked-2",
+            "name": "Overcooked! 2"
           },
-          "placement": 2,
-          "points": 4,
-          "doubleDown": false,
+          "placement": 8,
+          "points": 0,
+          "doubleDown": true,
           "nemesis": {
-            "slug": "vex",
-            "name": "Vex"
+            "slug": "brallex",
+            "name": "Brallex",
+            "avatarUrl": "avatars/brallex.discord.png"
           },
           "defeatedNemesis": false
         },
@@ -154,14 +151,18 @@
           "gameNumber": 4,
           "category": "platform",
           "game": {
-            "slug": "super-mario-bros-wonder",
-            "name": "Super Mario Bros. Wonder"
+            "slug": "celeste",
+            "name": "Celeste"
           },
-          "placement": 1,
-          "points": 12,
-          "doubleDown": true,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "placement": 6,
+          "points": 0,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "bumbi",
+            "name": "Bumbi",
+            "avatarUrl": "avatars/bumbi.discord.png"
+          },
+          "defeatedNemesis": false
         },
         {
           "tournament": {
@@ -174,11 +175,15 @@
             "slug": "tetris-99",
             "name": "Tetris 99"
           },
-          "placement": 2,
-          "points": 4,
+          "placement": 1,
+          "points": 7,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "mavva",
+            "name": "Mavvä",
+            "avatarUrl": "avatars/mavva.discord.png"
+          },
+          "defeatedNemesis": true
         },
         {
           "tournament": {
@@ -191,11 +196,15 @@
             "slug": "counter-strike-2",
             "name": "Counter-Strike 2"
           },
-          "placement": 2,
-          "points": 4,
+          "placement": 1,
+          "points": 7,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "zourax",
+            "name": "Zourax",
+            "avatarUrl": "avatars/zourax.discord.png"
+          },
+          "defeatedNemesis": true
         },
         {
           "tournament": {
@@ -208,12 +217,34 @@
             "slug": "age-of-empires-2",
             "name": "Age of Empires II"
           },
-          "placement": 1,
-          "points": 7,
+          "placement": 2,
+          "points": 5,
           "doubleDown": false,
           "nemesis": {
-            "slug": "rook",
-            "name": "Rook"
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2025",
+            "name": "Demo LAN 2025"
+          },
+          "gameNumber": 7,
+          "category": "simulation",
+          "game": {
+            "slug": "factorio",
+            "name": "Factorio"
+          },
+          "placement": 3,
+          "points": 4,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "zourax",
+            "name": "Zourax",
+            "avatarUrl": "avatars/zourax.discord.png"
           },
           "defeatedNemesis": true
         },
@@ -225,17 +256,18 @@
           "gameNumber": 6,
           "category": "teamwork",
           "game": {
-            "slug": "overcooked-2",
-            "name": "Overcooked! 2"
+            "slug": "portal-2",
+            "name": "Portal 2 (co-op)"
           },
-          "placement": 3,
-          "points": 4,
-          "doubleDown": false,
+          "placement": 5,
+          "points": 2,
+          "doubleDown": true,
           "nemesis": {
-            "slug": "vex",
-            "name": "Vex"
+            "slug": "milo",
+            "name": "Milo",
+            "avatarUrl": "avatars/milo.discord.png"
           },
-          "defeatedNemesis": true
+          "defeatedNemesis": false
         },
         {
           "tournament": {
@@ -248,11 +280,15 @@
             "slug": "catan",
             "name": "Catan"
           },
-          "placement": 3,
-          "points": 3,
+          "placement": 2,
+          "points": 5,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "brallex",
+            "name": "Brallex",
+            "avatarUrl": "avatars/brallex.discord.png"
+          },
+          "defeatedNemesis": true
         },
         {
           "tournament": {
@@ -262,14 +298,18 @@
           "gameNumber": 4,
           "category": "combat",
           "game": {
-            "slug": "brawlhalla",
-            "name": "Brawlhalla"
+            "slug": "counter-strike-2",
+            "name": "Counter-Strike 2"
           },
-          "placement": 3,
-          "points": 3,
+          "placement": 7,
+          "points": 0,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "defeatedNemesis": false
         },
         {
           "tournament": {
@@ -282,14 +322,15 @@
             "slug": "trackmania",
             "name": "Trackmania"
           },
-          "placement": 1,
-          "points": 7,
+          "placement": 7,
+          "points": 0,
           "doubleDown": false,
           "nemesis": {
-            "slug": "rook",
-            "name": "Rook"
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
           },
-          "defeatedNemesis": true
+          "defeatedNemesis": false
         },
         {
           "tournament": {
@@ -302,11 +343,15 @@
             "slug": "trivia-murder-party",
             "name": "Trivia Murder Party"
           },
-          "placement": 3,
-          "points": 3,
+          "placement": 1,
+          "points": 7,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "defeatedNemesis": true
         },
         {
           "tournament": {
@@ -316,41 +361,83 @@
           "gameNumber": 1,
           "category": "wildcard",
           "game": {
-            "slug": "golf-with-your-friends",
-            "name": "Golf With Your Friends"
+            "slug": "rocket-league",
+            "name": "Rocket League"
           },
-          "placement": 3,
-          "points": 3,
+          "placement": 1,
+          "points": 7,
           "doubleDown": false,
-          "nemesis": null,
-          "defeatedNemesis": null
+          "nemesis": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "defeatedNemesis": true
         }
       ],
       "rivals": [
         {
           "player": {
-            "slug": "echo",
-            "name": "Echo",
-            "avatarUrl": "avatars/echo.png"
+            "slug": "brallex",
+            "name": "Brallex",
+            "avatarUrl": "avatars/brallex.discord.png"
+          },
+          "nemesisWins": 1,
+          "nemesisLosses": 0
+        },
+        {
+          "player": {
+            "slug": "bumbi",
+            "name": "Bumbi",
+            "avatarUrl": "avatars/bumbi.discord.png"
           },
           "nemesisWins": 0,
           "nemesisLosses": 1
         },
         {
           "player": {
-            "slug": "rook",
-            "name": "Rook"
+            "slug": "mavva",
+            "name": "Mavvä",
+            "avatarUrl": "avatars/mavva.discord.png"
           },
-          "nemesisWins": 2,
+          "nemesisWins": 1,
           "nemesisLosses": 0
         },
         {
           "player": {
-            "slug": "vex",
-            "name": "Vex"
+            "slug": "milo",
+            "name": "Milo",
+            "avatarUrl": "avatars/milo.discord.png"
           },
-          "nemesisWins": 1,
+          "nemesisWins": 0,
           "nemesisLosses": 1
+        },
+        {
+          "player": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "nemesisWins": 3,
+          "nemesisLosses": 2
+        },
+        {
+          "player": {
+            "slug": "sudden94",
+            "name": "Sudden94",
+            "avatarUrl": "avatars/sudden94.discord.png"
+          },
+          "nemesisWins": 0,
+          "nemesisLosses": 1
+        },
+        {
+          "player": {
+            "slug": "zourax",
+            "name": "Zourax",
+            "avatarUrl": "avatars/zourax.discord.png"
+          },
+          "nemesisWins": 2,
+          "nemesisLosses": 0
         }
       ]
     }

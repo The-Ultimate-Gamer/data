@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T16:02:31Z",
+  "generatedAt": "2026-10-20T08:10:40Z",
   "data": {
     "categories": [
       {
@@ -36,7 +36,7 @@
         "name": "Chaos",
         "icon": "🌀",
         "description": "Unpredictable party games where anything can happen.",
-        "tournamentsUsed": 1
+        "tournamentsUsed": 2
       },
       {
         "slug": "racing",

@@ -1,6 +1,6 @@
 //! The game library: every game that can be nominated or played, tagged with categories.
 
-use eframe::egui::{self, RichText, Vec2};
+use eframe::egui::{self, RichText};
 
 use super::{Action, Confirm, Data, Session, theme};
 use crate::repo::{self, GameInput};
@@ -102,46 +102,42 @@ fn list(ui: &mut egui::Ui, d: &Data, form: &mut Form) {
         let selected = form.editing.as_ref().is_some_and(|(id, _, _)| *id == g.id);
         let played =
             d.tournaments.iter().flat_map(|t| &t.rounds).filter(|r| r.completed && r.game_id == Some(g.id)).count();
-        let resp = ui
-            .horizontal(|ui| {
-                ui.vertical(|ui| {
-                    ui.horizontal(|ui| {
-                        let name = RichText::new(&g.name).strong();
-                        let name = if selected {
-                            name.color(theme::GOLD)
-                        } else if g.available {
-                            name
-                        } else {
-                            name.color(theme::SUBTLE)
-                        };
-                        ui.label(name);
-                        if !g.available {
-                            theme::badge(ui, "Unavailable", theme::SUBTLE);
-                        }
-                        if g.is_demo {
-                            theme::badge(ui, "Demo", theme::CHALLENGER);
-                        }
-                    });
-                    let cats: Vec<String> = g.categories.iter().map(|c| d.category_label(c)).collect();
-                    let players = match (g.min_players, g.max_players) {
-                        (Some(a), Some(b)) if a == b => format!(" · {a} players"),
-                        (Some(a), Some(b)) => format!(" · {a}–{b} players"),
-                        (Some(a), None) => format!(" · {a}+ players"),
-                        (None, Some(b)) => format!(" · up to {b} players"),
-                        (None, None) => String::new(),
+        let resp = theme::clickable_row(ui, selected, |ui| {
+            ui.vertical(|ui| {
+                ui.horizontal(|ui| {
+                    let name = RichText::new(&g.name).strong();
+                    let name = if selected {
+                        name.color(theme::GOLD)
+                    } else if g.available {
+                        name
+                    } else {
+                        name.color(theme::SUBTLE)
                     };
-                    let played = if played > 0 { format!(" · played {played}×") } else { String::new() };
-                    let cats = if cats.is_empty() { "⚠ no category".to_string() } else { cats.join(", ") };
-                    theme::hint(ui, format!("{cats}{players}{played}"));
+                    ui.label(name);
+                    if !g.available {
+                        theme::badge(ui, "Unavailable", theme::SUBTLE);
+                    }
+                    if g.is_demo {
+                        theme::badge(ui, "Demo", theme::CHALLENGER);
+                    }
                 });
-                ui.allocate_space(Vec2::new(ui.available_width(), 1.0));
-            })
-            .response
-            .interact(egui::Sense::click());
+                let cats: Vec<String> = g.categories.iter().map(|c| d.category_label(c)).collect();
+                let players = match (g.min_players, g.max_players) {
+                    (Some(a), Some(b)) if a == b => format!(" · {a} players"),
+                    (Some(a), Some(b)) => format!(" · {a}–{b} players"),
+                    (Some(a), None) => format!(" · {a}+ players"),
+                    (None, Some(b)) => format!(" · up to {b} players"),
+                    (None, None) => String::new(),
+                };
+                let played = if played > 0 { format!(" · played {played}×") } else { String::new() };
+                let cats = if cats.is_empty() { "⚠ no category".to_string() } else { cats.join(", ") };
+                theme::hint(ui, format!("{cats}{players}{played}"));
+            });
+        });
         if resp.clicked() {
             form.editing = Some((g.id, d.rev, GameInput::from(g)));
         }
-        ui.separator();
+        ui.add_space(2.0);
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:45:31Z",
+  "generatedAt": "2026-10-20T08:10:40Z",
   "data": {
     "tournaments": [
       {
@@ -8,7 +8,7 @@
         "name": "Demo LAN 2026",
         "edition": "Demo edition",
         "startDate": "2026-10-16",
-        "endDate": "2026-10-17",
+        "endDate": null,
         "location": "Somewhere with good Wi-Fi",
         "status": "ongoing",
         "isDemo": true,
@@ -37,9 +37,21 @@
           {
             "placement": 6,
             "points": 0
+          },
+          {
+            "placement": 7,
+            "points": 0
+          },
+          {
+            "placement": 8,
+            "points": 0
+          },
+          {
+            "placement": 9,
+            "points": 0
           }
         ],
-        "playerCount": 6,
+        "playerCount": 9,
         "gamesPlayed": 5,
         "categoriesCompleted": 5,
         "categoriesPlanned": 8,
@@ -48,72 +60,49 @@
           {
             "rank": 1,
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "slug": "mavva",
+              "name": "Mavvä",
+              "avatarUrl": "avatars/mavva.discord.png"
             },
-            "points": 31
+            "points": 19
           },
           {
-            "rank": 2,
+            "rank": 1,
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
-            "points": 23
+            "points": 19
           },
           {
             "rank": 3,
             "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
+              "slug": "bumbi",
+              "name": "Bumbi",
+              "avatarUrl": "avatars/bumbi.discord.png"
             },
             "points": 17
           }
         ],
         "awards": [
           {
-            "award": "challenger",
+            "award": "nominator",
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
             "detail": null
           },
           {
-            "award": "challenger",
+            "award": "nominator",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
             },
             "detail": null
-          },
-          {
-            "award": "believer",
-            "player": {
-              "slug": "blitz",
-              "name": "Blitz"
-            },
-            "detail": null
-          },
-          {
-            "award": "believer",
-            "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
-            },
-            "detail": null
-          },
-          {
-            "award": "survivor",
-            "player": {
-              "slug": "vex",
-              "name": "Vex"
-            },
-            "detail": "Won Fall Guys from last place"
           }
         ]
       },
@@ -147,144 +136,209 @@
           {
             "placement": 5,
             "points": 1
+          },
+          {
+            "placement": 6,
+            "points": 0
+          },
+          {
+            "placement": 7,
+            "points": 0
+          },
+          {
+            "placement": 8,
+            "points": 0
           }
         ],
-        "playerCount": 5,
-        "gamesPlayed": 6,
-        "categoriesCompleted": 6,
-        "categoriesPlanned": 7,
+        "playerCount": 8,
+        "gamesPlayed": 7,
+        "categoriesCompleted": 7,
+        "categoriesPlanned": 8,
         "champion": {
-          "slug": "echo",
-          "name": "Echo",
-          "avatarUrl": "avatars/echo.png"
+          "slug": "noxarn",
+          "name": "Noxarn",
+          "avatarUrl": "avatars/noxarn.discord.png"
         },
         "leaders": [
           {
             "rank": 1,
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
-            "points": 32
+            "points": 27
           },
           {
             "rank": 2,
             "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
-            "points": 30
+            "points": 25
           },
           {
             "rank": 3,
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
             },
-            "points": 23
+            "points": 24
           }
         ],
         "awards": [
           {
             "award": "ultimate-gamer",
             "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
-            "detail": "Won Overcooked! 2 as a Challenger"
+            "detail": "Decided in game 7"
           },
           {
             "award": "challenger",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
-            "detail": null
-          },
-          {
-            "award": "challenger",
-            "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
-            },
-            "detail": null
+            "detail": "Since game 6"
           },
           {
             "award": "challenger",
             "player": {
               "slug": "tnoy",
               "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
-            "detail": null
+            "detail": "Since game 6"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
+            },
+            "detail": "Since game 6"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "milo",
+              "name": "Milo",
+              "avatarUrl": "avatars/milo.discord.png"
+            },
+            "detail": "Since game 5"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "bumbi",
+              "name": "Bumbi",
+              "avatarUrl": "avatars/bumbi.discord.png"
+            },
+            "detail": "Since game 7"
           },
           {
             "award": "dominator",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
-            "detail": "32 points"
+            "detail": "27 points"
           },
           {
             "award": "contender",
             "player": {
-              "slug": "rook",
-              "name": "Rook"
+              "slug": "sudden94",
+              "name": "Sudden94",
+              "avatarUrl": "avatars/sudden94.discord.png"
             },
-            "detail": "17 points"
+            "detail": "16 points"
           },
           {
             "award": "podium",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
-            "detail": "6 podium finishes"
+            "detail": "4 podium finishes"
           },
           {
-            "award": "believer",
+            "award": "podium",
             "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
-            "detail": null
+            "detail": "4 podium finishes"
           },
           {
             "award": "nominator",
             "player": {
-              "slug": "rook",
-              "name": "Rook"
+              "slug": "zourax",
+              "name": "Zourax",
+              "avatarUrl": "avatars/zourax.discord.png"
             },
             "detail": null
           },
           {
             "award": "nemesis",
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
-            "detail": "2 Nemesis wins"
+            "detail": "5 Nemesis wins"
+          },
+          {
+            "award": "nemesis",
+            "player": {
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
+            },
+            "detail": "5 Nemesis wins"
           },
           {
             "award": "victim",
             "player": {
-              "slug": "vex",
-              "name": "Vex"
+              "slug": "brallex",
+              "name": "Brallex",
+              "avatarUrl": "avatars/brallex.discord.png"
+            },
+            "detail": "Beaten 8 times as a Nemesis"
+          },
+          {
+            "award": "ghost",
+            "player": {
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
             "detail": null
           },
           {
             "award": "ghost",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "brallex",
+              "name": "Brallex",
+              "avatarUrl": "avatars/brallex.discord.png"
+            },
+            "detail": null
+          },
+          {
+            "award": "ghost",
+            "player": {
+              "slug": "bumbi",
+              "name": "Bumbi",
+              "avatarUrl": "avatars/bumbi.discord.png"
             },
             "detail": null
           }

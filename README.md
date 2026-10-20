@@ -82,8 +82,9 @@ The database stores **facts only**:
 | Final placement | Once a tournament is over, the champion finishes 1st and everyone else follows by points. "Best finish" uses this |
 | Tokens left | Starting tokens minus Double Downs used and Nominate tokens spent |
 | Statistics | Game wins, podiums, category wins, Nemesis record, rivalries, token usage, last played and similar |
+| Awards | See `compute_awards`: some appear as they happen, the rest when the tournament ends |
 
-**Award recipients** are not computed. Several awards need tie-breaking or judgement calls that the rules don't settle, so the organisers record them in `award_grants`.
+**Awards** are computed from the results by `compute_awards` in `admin/src/rules.rs`. Everyone tied for an award gets it, so nothing is entered by hand.
 
 ### Validation rules (`ug-admin validate`, `admin/src/validate.rs`)
 
@@ -151,16 +152,15 @@ UPDATE rounds SET completed = 1, played_at = '2026-11-14T15:00:00Z' WHERE tourna
 ```
 
 - **Nominations** go in `nominations`, using `source` = `winner`, `vote` or `token`. Each nomination is linked to the round whose game it competes for.
-- **Award recipients** go in `award_grants`.
-- **Tournament records** go in `tournament_records`.
-- **When a Challenger wins a round**, set the tournament's `status = 'completed'` and its `end_date`. Validation reminds you if you forget.
+- **Awards** are computed; there's nothing to enter.
+- **When a Challenger wins a round**, set the tournament's `status = 'completed'` and its `end_date` (the admin app does this for you). Validation reminds you if you forget.
 
 ## Demo data and local development
 
 To **show the website off before the first real tournament**, use **Settings → Demo data on the website** in the admin app, then publish. Or run:
 
 ```sh
-ug-admin seed --add-demo      # fictional players, games and 2 tournaments, all flagged is_demo
+ug-admin seed --add-demo      # 2 demo tournaments (and games) played by your players, all flagged is_demo
 ug-admin export && git add database data && git commit -m "Add demo data" && git push
 ```
 

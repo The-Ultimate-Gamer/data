@@ -1,50 +1,54 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:45:31Z",
+  "generatedAt": "2026-10-20T08:10:40Z",
   "data": {
     "players": [
       {
-        "slug": "blitz",
-        "name": "Blitz",
+        "slug": "brallex",
+        "name": "Brallex",
         "initials": null,
-        "avatarUrl": null,
+        "avatarUrl": "avatars/brallex.discord.png",
         "firstTournament": {
           "slug": "demo-2025",
           "name": "Demo LAN 2025"
         },
         "tournamentsPlayed": 2,
         "ultimateGamerWins": 0,
-        "challengerAppearances": 2,
-        "gameWins": 3,
-        "podiumFinishes": 9,
-        "awardCount": 6,
-        "bestPlacement": 2,
+        "challengerAppearances": 0,
+        "gameWins": 0,
+        "podiumFinishes": 2,
+        "awardCount": 2,
+        "bestPlacement": 7,
         "current": {
           "tournament": {
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "rank": 2,
-          "points": 23
+          "rank": 6,
+          "points": 11
         },
-        "discord": null
+        "discord": {
+          "id": "414084813276839949",
+          "username": "brallexj",
+          "displayName": "Brallex"
+        }
       },
       {
-        "slug": "echo",
-        "name": "Echo",
+        "slug": "bumbi",
+        "name": "Bumbi",
         "initials": null,
-        "avatarUrl": "avatars/echo.png",
+        "avatarUrl": "avatars/bumbi.discord.png",
         "firstTournament": {
           "slug": "demo-2025",
           "name": "Demo LAN 2025"
         },
         "tournamentsPlayed": 2,
-        "ultimateGamerWins": 1,
+        "ultimateGamerWins": 0,
         "challengerAppearances": 1,
-        "gameWins": 3,
-        "podiumFinishes": 6,
-        "awardCount": 3,
-        "bestPlacement": 1,
+        "gameWins": 1,
+        "podiumFinishes": 5,
+        "awardCount": 2,
+        "bestPlacement": 5,
         "current": {
           "tournament": {
             "slug": "demo-2026",
@@ -54,16 +58,46 @@
           "points": 17
         },
         "discord": {
-          "id": "414084813276839949",
-          "username": "brallexj",
-          "displayName": "Brallex"
+          "id": "361933607297875978",
+          "username": "mrbumbi",
+          "displayName": "Mr Bumbi"
         }
       },
       {
-        "slug": "kite",
-        "name": "Kite",
+        "slug": "kricka",
+        "name": "Krickä",
         "initials": null,
-        "avatarUrl": null,
+        "avatarUrl": "avatars/kricka.discord.png",
+        "firstTournament": {
+          "slug": "demo-2025",
+          "name": "Demo LAN 2025"
+        },
+        "tournamentsPlayed": 2,
+        "ultimateGamerWins": 0,
+        "challengerAppearances": 1,
+        "gameWins": 1,
+        "podiumFinishes": 4,
+        "awardCount": 3,
+        "bestPlacement": 3,
+        "current": {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "rank": 6,
+          "points": 11
+        },
+        "discord": {
+          "id": "648559847662682157",
+          "username": "krickeee",
+          "displayName": "krickeee"
+        }
+      },
+      {
+        "slug": "mavva",
+        "name": "Mavvä",
+        "initials": null,
+        "avatarUrl": "avatars/mavva.discord.png",
         "firstTournament": {
           "slug": "demo-2026",
           "name": "Demo LAN 2026"
@@ -71,8 +105,8 @@
         "tournamentsPlayed": 1,
         "ultimateGamerWins": 0,
         "challengerAppearances": 0,
-        "gameWins": 0,
-        "podiumFinishes": 1,
+        "gameWins": 2,
+        "podiumFinishes": 3,
         "awardCount": 0,
         "bestPlacement": null,
         "current": {
@@ -80,16 +114,80 @@
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "rank": 6,
-          "points": 5
+          "rank": 1,
+          "points": 19
         },
-        "discord": null
+        "discord": {
+          "id": "396076535414652949",
+          "username": "mavvvvvve",
+          "displayName": "Mavve"
+        }
       },
       {
-        "slug": "rook",
-        "name": "Rook",
+        "slug": "milo",
+        "name": "Milo",
         "initials": null,
-        "avatarUrl": null,
+        "avatarUrl": "avatars/milo.discord.png",
+        "firstTournament": {
+          "slug": "demo-2025",
+          "name": "Demo LAN 2025"
+        },
+        "tournamentsPlayed": 2,
+        "ultimateGamerWins": 0,
+        "challengerAppearances": 1,
+        "gameWins": 2,
+        "podiumFinishes": 5,
+        "awardCount": 1,
+        "bestPlacement": 4,
+        "current": {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "rank": 4,
+          "points": 14
+        },
+        "discord": {
+          "id": "962327349842558976",
+          "username": "milotheflipper",
+          "displayName": "Milotheflipper"
+        }
+      },
+      {
+        "slug": "noxarn",
+        "name": "Noxarn",
+        "initials": null,
+        "avatarUrl": "avatars/noxarn.discord.png",
+        "firstTournament": {
+          "slug": "demo-2025",
+          "name": "Demo LAN 2025"
+        },
+        "tournamentsPlayed": 2,
+        "ultimateGamerWins": 1,
+        "challengerAppearances": 1,
+        "gameWins": 2,
+        "podiumFinishes": 4,
+        "awardCount": 6,
+        "bestPlacement": 1,
+        "current": {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "rank": 8,
+          "points": 5
+        },
+        "discord": {
+          "id": "445666058200678403",
+          "username": "katzlr",
+          "displayName": "Noxarn Gnomesnorter"
+        }
+      },
+      {
+        "slug": "sudden94",
+        "name": "Sudden94",
+        "initials": null,
+        "avatarUrl": "avatars/sudden94.discord.png",
         "firstTournament": {
           "slug": "demo-2025",
           "name": "Demo LAN 2025"
@@ -97,43 +195,47 @@
         "tournamentsPlayed": 2,
         "ultimateGamerWins": 0,
         "challengerAppearances": 0,
-        "gameWins": 1,
+        "gameWins": 0,
         "podiumFinishes": 4,
-        "awardCount": 2,
-        "bestPlacement": 4,
+        "awardCount": 1,
+        "bestPlacement": 6,
         "current": {
           "tournament": {
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "rank": 5,
-          "points": 10
+          "rank": 9,
+          "points": 4
         },
-        "discord": null
+        "discord": {
+          "id": "370116771782459392",
+          "username": "jeffaklumpen",
+          "displayName": "Jeffaklumpen"
+        }
       },
       {
         "slug": "tnoy",
         "name": "Tnoy",
         "initials": null,
-        "avatarUrl": "avatars/tnoy.png",
+        "avatarUrl": "avatars/tnoy.discord.png",
         "firstTournament": {
           "slug": "demo-2025",
           "name": "Demo LAN 2025"
         },
         "tournamentsPlayed": 2,
         "ultimateGamerWins": 0,
-        "challengerAppearances": 2,
-        "gameWins": 3,
-        "podiumFinishes": 11,
-        "awardCount": 4,
-        "bestPlacement": 3,
+        "challengerAppearances": 1,
+        "gameWins": 4,
+        "podiumFinishes": 7,
+        "awardCount": 3,
+        "bestPlacement": 2,
         "current": {
           "tournament": {
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
           "rank": 1,
-          "points": 31
+          "points": 19
         },
         "discord": {
           "id": "396358775663099915",
@@ -142,10 +244,10 @@
         }
       },
       {
-        "slug": "vex",
-        "name": "Vex",
+        "slug": "zourax",
+        "name": "Zourax",
         "initials": null,
-        "avatarUrl": null,
+        "avatarUrl": "avatars/zourax.discord.png",
         "firstTournament": {
           "slug": "demo-2025",
           "name": "Demo LAN 2025"
@@ -153,19 +255,23 @@
         "tournamentsPlayed": 2,
         "ultimateGamerWins": 0,
         "challengerAppearances": 0,
-        "gameWins": 1,
+        "gameWins": 0,
         "podiumFinishes": 2,
-        "awardCount": 2,
-        "bestPlacement": 5,
+        "awardCount": 1,
+        "bestPlacement": 8,
         "current": {
           "tournament": {
             "slug": "demo-2026",
             "name": "Demo LAN 2026"
           },
-          "rank": 4,
-          "points": 11
+          "rank": 5,
+          "points": 13
         },
-        "discord": null
+        "discord": {
+          "id": "240065641481109504",
+          "username": "zourax",
+          "displayName": "Zourax"
+        }
       }
     ]
   }

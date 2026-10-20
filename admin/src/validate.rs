@@ -70,6 +70,13 @@ pub fn validate_database(conn: &Connection, avatars_dir: Option<&Path>) -> Resul
         }
     }
 
+    {
+        let mut stmt =
+            conn.prepare("SELECT name FROM players WHERE is_demo = 0 AND discord_id IS NULL ORDER BY name")?;
+        for name in stmt.query_map([], |r| r.get::<_, String>(0))? {
+            report.warn(format!("player {}: no Discord ID (add it on the Players page)", name?));
+        }
+    }
     for table in ["players", "games", "tournaments", "categories", "awards"] {
         let mut stmt = conn.prepare(&format!("SELECT slug FROM {table}"))?;
         for slug in stmt.query_map([], |r| r.get::<_, String>(0))? {
@@ -105,6 +112,8 @@ pub fn validate_database(conn: &Connection, avatars_dir: Option<&Path>) -> Resul
                 continue;
             }
             let (stem, ext) = name.rfind('.').map_or((name.as_str(), ""), |i| name.split_at(i));
+            // Pictures copied from Discord are named <slug>.discord.png.
+            let stem = stem.strip_suffix(".discord").unwrap_or(stem);
             if !AVATAR_EXTENSIONS.contains(&ext.to_lowercase().as_str()) || stem.is_empty() {
                 report.warn(format!("avatars/{name}: not a supported picture ({})", AVATAR_EXTENSIONS.join(", ")));
             } else if !slugs.contains(stem) {
@@ -283,42 +292,6 @@ pub fn validate_database(conn: &Connection, avatars_dir: Option<&Path>) -> Resul
         }
         if !pending.is_empty() && state.champion_id.is_some() {
             report.error(format!("{label}: has an unfinished round although the tournament is decided"));
-        }
-    }
-
-    let mut stmt = conn.prepare(
-        "SELECT g.id, g.award_slug, g.player_id, g.tournament_id, a.scope, t.slug
-         FROM award_grants g JOIN awards a ON a.slug = g.award_slug LEFT JOIN tournaments t ON t.id = g.tournament_id",
-    )?;
-    let grants = stmt
-        .query_map([], |r| {
-            Ok((
-                r.get::<_, i64>(0)?,
-                r.get::<_, String>(1)?,
-                r.get::<_, i64>(2)?,
-                r.get::<_, Option<i64>>(3)?,
-                r.get::<_, String>(4)?,
-                r.get::<_, Option<String>>(5)?,
-            ))
-        })?
-        .collect::<Result<Vec<_>, _>>()?;
-    for (id, award, player_id, tournament_id, scope, t_slug) in grants {
-        if scope == "tournament" && tournament_id.is_none() {
-            report.error(format!("award grant {id}: '{award}' is a tournament award but has no tournament"));
-        }
-        if let Some(tid) = tournament_id {
-            let registered: bool = conn.query_row(
-                "SELECT EXISTS (SELECT 1 FROM tournament_players WHERE tournament_id = ?1 AND player_id = ?2)",
-                params![tid, player_id],
-                |r| r.get(0),
-            )?;
-            if !registered {
-                report.error(format!(
-                    "award grant {id}: {} did not take part in {}",
-                    name_or_none(Some(player_id)),
-                    t_slug.unwrap_or_default()
-                ));
-            }
         }
     }
 

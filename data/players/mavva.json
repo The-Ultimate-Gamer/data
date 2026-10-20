@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-20T08:10:40Z",
+  "data": {
+    "player": {
+      "slug": "mavva",
+      "name": "Mavvä",
+      "initials": null,
+      "avatarUrl": "avatars/mavva.discord.png",
+      "firstTournament": {
+        "slug": "demo-2026",
+        "name": "Demo LAN 2026"
+      },
+      "tournamentsPlayed": 1,
+      "ultimateGamerWins": 0,
+      "challengerAppearances": 0,
+      "gameWins": 2,
+      "podiumFinishes": 3,
+      "awardCount": 0,
+      "bestPlacement": null,
+      "current": {
+        "tournament": {
+          "slug": "demo-2026",
+          "name": "Demo LAN 2026"
+        },
+        "rank": 1,
+        "points": 19
+      },
+      "discord": {
+        "id": "396076535414652949",
+        "username": "mavvvvvve",
+        "displayName": "Mavve"
+      },
+      "tournaments": [
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "startDate": "2026-10-16",
+          "status": "ongoing",
+          "placement": 1,
+          "finish": null,
+          "points": 19,
+          "gamesWon": 2,
+          "podiums": 3,
+          "wasChallenger": false,
+          "wasChampion": false
+        }
+      ],
+      "awards": [],
+      "categoryWins": [
+        {
+          "category": "platform",
+          "wins": 1
+        },
+        {
+          "category": "chaos",
+          "wins": 1
+        }
+      ],
+      "nemesis": {
+        "defeated": 3,
+        "defeatedBy": 3,
+        "timesAssigned": 5
+      },
+      "doubleDown": {
+        "used": 1,
+        "wins": 0,
+        "bonusPoints": 0
+      },
+      "nominate": {
+        "used": 0,
+        "selected": 0
+      },
+      "matches": [
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 5,
+          "category": "chaos",
+          "game": {
+            "slug": "overcooked-2",
+            "name": "Overcooked! 2"
+          },
+          "placement": 1,
+          "points": 7,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 4,
+          "category": "platform",
+          "game": {
+            "slug": "celeste",
+            "name": "Celeste"
+          },
+          "placement": 1,
+          "points": 7,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "kricka",
+            "name": "Krickä",
+            "avatarUrl": "avatars/kricka.discord.png"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 3,
+          "category": "puzzle",
+          "game": {
+            "slug": "tetris-99",
+            "name": "Tetris 99"
+          },
+          "placement": 2,
+          "points": 5,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "brallex",
+            "name": "Brallex",
+            "avatarUrl": "avatars/brallex.discord.png"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 2,
+          "category": "combat",
+          "game": {
+            "slug": "counter-strike-2",
+            "name": "Counter-Strike 2"
+          },
+          "placement": 8,
+          "points": 0,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "defeatedNemesis": false
+        },
+        {
+          "tournament": {
+            "slug": "demo-2026",
+            "name": "Demo LAN 2026"
+          },
+          "gameNumber": 1,
+          "category": "strategy",
+          "game": {
+            "slug": "age-of-empires-2",
+            "name": "Age of Empires II"
+          },
+          "placement": 9,
+          "points": 0,
+          "doubleDown": true,
+          "nemesis": {
+            "slug": "sudden94",
+            "name": "Sudden94",
+            "avatarUrl": "avatars/sudden94.discord.png"
+          },
+          "defeatedNemesis": false
+        }
+      ],
+      "rivals": [
+        {
+          "player": {
+            "slug": "brallex",
+            "name": "Brallex",
+            "avatarUrl": "avatars/brallex.discord.png"
+          },
+          "nemesisWins": 1,
+          "nemesisLosses": 0
+        },
+        {
+          "player": {
+            "slug": "bumbi",
+            "name": "Bumbi",
+            "avatarUrl": "avatars/bumbi.discord.png"
+          },
+          "nemesisWins": 0,
+          "nemesisLosses": 1
+        },
+        {
+          "player": {
+            "slug": "kricka",
+            "name": "Krickä",
+            "avatarUrl": "avatars/kricka.discord.png"
+          },
+          "nemesisWins": 1,
+          "nemesisLosses": 0
+        },
+        {
+          "player": {
+            "slug": "noxarn",
+            "name": "Noxarn",
+            "avatarUrl": "avatars/noxarn.discord.png"
+          },
+          "nemesisWins": 1,
+          "nemesisLosses": 1
+        },
+        {
+          "player": {
+            "slug": "sudden94",
+            "name": "Sudden94",
+            "avatarUrl": "avatars/sudden94.discord.png"
+          },
+          "nemesisWins": 0,
+          "nemesisLosses": 0
+        },
+        {
+          "player": {
+            "slug": "tnoy",
+            "name": "Tnoy",
+            "avatarUrl": "avatars/tnoy.discord.png"
+          },
+          "nemesisWins": 0,
+          "nemesisLosses": 1
+        }
+      ]
+    }
+  }
+}

@@ -71,9 +71,15 @@ pub fn init(path: &Path, force: bool) -> Result<()> {
     Ok(())
 }
 
+/// Tables of earlier versions whose facts are now derived (awards) or dropped (records).
+const DROPPED_TABLES: &[&str] = &["award_grants", "tournament_records"];
+
 /// Bring an existing database up to date: add new columns, then new tables and indexes.
 pub fn migrate(conn: &Connection) -> Result<()> {
     let tx = conn.unchecked_transaction()?;
+    for table in DROPPED_TABLES {
+        tx.execute_batch(&format!("DROP TABLE IF EXISTS {table}"))?;
+    }
     for (table, column, definition) in ADDED_COLUMNS {
         let mut stmt = tx.prepare(&format!("PRAGMA table_info({table})"))?;
         let existing: Vec<String> = stmt.query_map([], |r| r.get::<_, String>("name"))?.collect::<Result<_, _>>()?;
@@ -84,6 +90,44 @@ pub fn migrate(conn: &Connection) -> Result<()> {
     tx.execute_batch(SCHEMA_SQL)?;
     tx.commit()?;
     Ok(())
+}
+
+/// A change that can nest inside another one (SQLite savepoints): rolled back when dropped
+/// without `commit`. Derefs to the connection.
+pub struct Tx<'a> {
+    conn: &'a Connection,
+    name: String,
+    done: bool,
+}
+
+pub fn begin(conn: &Connection) -> Result<Tx<'_>> {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let name = format!("sp{}", NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed));
+    conn.execute_batch(&format!("SAVEPOINT {name}"))?;
+    Ok(Tx { conn, name, done: false })
+}
+
+impl Tx<'_> {
+    pub fn commit(mut self) -> Result<()> {
+        self.conn.execute_batch(&format!("RELEASE {}", self.name))?;
+        self.done = true;
+        Ok(())
+    }
+}
+
+impl std::ops::Deref for Tx<'_> {
+    type Target = Connection;
+    fn deref(&self) -> &Connection {
+        self.conn
+    }
+}
+
+impl Drop for Tx<'_> {
+    fn drop(&mut self) {
+        if !self.done {
+            let _ = self.conn.execute_batch(&format!("ROLLBACK TO {0}; RELEASE {0}", self.name));
+        }
+    }
 }
 
 pub fn utc_now() -> String {

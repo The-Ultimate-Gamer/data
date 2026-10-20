@@ -8,6 +8,7 @@ mod autoshot;
 mod data;
 mod games;
 mod home;
+mod icons;
 mod library;
 mod players;
 mod publish;
@@ -21,8 +22,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender, channel};
-
-use crate::discord::DiscordUser;
 use std::time::{Duration, Instant};
 
 use anyhow::{Result, anyhow};
@@ -137,13 +136,8 @@ pub enum Action {
     StartEmpty,
     SaveConfig(Config),
     OpenUrl(String),
-    /// Copy a player's names (and optionally picture) from their Discord account.
-    FetchDiscord {
-        player_id: i64,
-        slug: String,
-        discord_id: String,
-        picture: bool,
-    },
+    /// Copy names and pictures from Discord: these Discord user ids, or (None) every linked player.
+    RefreshDiscord(Option<Vec<String>>),
 }
 
 impl Action {
@@ -295,11 +289,7 @@ enum Done {
         commit: String,
         result: Result<Option<Run>>,
     },
-    Discord {
-        player_id: i64,
-        slug: String,
-        result: Result<(DiscordUser, Option<Vec<u8>>)>,
-    },
+    Discord(Vec<(i64, String, Result<crate::discord::Profile>)>),
 }
 
 pub struct Deploy {
@@ -463,16 +453,28 @@ impl App {
             Action::Download => self.download(ctx),
             Action::Publish { message, overwrite } => self.publish(ctx, message, overwrite),
             Action::SetAvatar { slug, from } => self.set_avatar(ctx, &slug, &from),
-            Action::FetchDiscord { player_id, slug, discord_id, picture } => {
+            Action::RefreshDiscord(only) => {
                 let Some(token) = self.config.discord_token.clone() else {
                     self.toast("Add a Discord bot token in Settings first.", true);
                     return;
                 };
-                self.spawn("Fetching the Discord profile…", ctx, move || Done::Discord {
-                    player_id,
-                    slug,
-                    result: crate::discord::fetch(&token, &discord_id, picture),
-                });
+                let Some(s) = &self.session else { return };
+                let players: Vec<(i64, String, String)> = s
+                    .data
+                    .players
+                    .iter()
+                    .filter_map(|p| Some((p.id, p.slug.clone(), p.discord_id.clone()?)))
+                    .filter(|(_, _, id)| only.as_ref().is_none_or(|ids| ids.contains(id)))
+                    .collect();
+                if players.is_empty() {
+                    return;
+                }
+                let what = if players.len() == 1 {
+                    "Fetching the Discord profile…".to_string()
+                } else {
+                    format!("Fetching {} Discord profiles…", players.len())
+                };
+                self.spawn(&what, ctx, move || Done::Discord(crate::discord::fetch_all(&token, &players)));
             }
             Action::RemoveAvatar { slug } => {
                 if let Some(s) = &self.session {
@@ -679,21 +681,22 @@ impl App {
             self.busy = None;
         }
         match done {
-            Done::Discord { player_id, slug, result } => match result {
-                Ok((user, png)) => {
-                    let Some(dir) = self.session.as_ref().map(|s| s.data.avatars_dir.clone()) else { return };
-                    if let Some(png) = &png {
-                        if let Err(e) = crate::discord::save_picture(&dir, &slug, png) {
-                            self.toast(format!("Couldn't save the Discord picture: {e:#}"), true);
-                        }
-                        ctx.forget_all_images();
-                    }
-                    let shown = user.global_name.clone().unwrap_or_else(|| user.username.clone());
-                    let label = format!("Discord profile copied: {shown} (@{})", user.username);
-                    self.apply(Action::db(label, move |c| crate::repo::save_discord_names(c, player_id, &user)), ctx);
+            Done::Discord(fetched) => {
+                let Some(dir) = self.session.as_ref().map(|s| s.data.avatars_dir.clone()) else { return };
+                let failed: Vec<String> = fetched
+                    .iter()
+                    .filter_map(|(_, slug, r)| r.as_ref().err().map(|e| format!("{slug}: {e:#}")))
+                    .collect();
+                let ok = fetched.len() - failed.len();
+                if ok > 0 {
+                    let label = format!("Discord profiles updated ({ok})");
+                    ctx.forget_all_images();
+                    self.apply(Action::db(label, move |c| crate::discord::apply(c, &dir, &fetched).map(|_| ())), ctx);
                 }
-                Err(e) => self.toast(format!("{e:#}"), true),
-            },
+                if !failed.is_empty() {
+                    self.toast(format!("Couldn't fetch from Discord — {}", failed.join("; ")), true);
+                }
+            }
             Done::DeviceCode { seq, result } => {
                 let Some(d) = self.device.as_mut().filter(|d| d.seq == seq) else { return };
                 match result {

@@ -2,7 +2,7 @@
 
 use eframe::egui::{self, RichText};
 
-use super::{Action, Session, theme};
+use super::{Action, Session, icons, theme};
 use crate::repo;
 
 #[derive(Default)]
@@ -11,7 +11,6 @@ pub struct Form {
     categories: Vec<(String, String, String, String)>,
     awards: Vec<(String, String, String, String, String)>,
     new_category: (String, String, String),
-    new_award: (String, String, String, bool),
     site: [String; 4],
 }
 
@@ -64,7 +63,7 @@ pub fn show(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
         theme::section_title(ui, "Categories");
         egui::Grid::new("categories").num_columns(5).striped(true).spacing([10.0, 6.0]).show(ui, |ui| {
             for (slug, name, icon, description) in &mut form.categories {
-                theme::narrow_text(ui, icon, "", 36.0);
+                icons::picker(ui, ("category-icon", slug.as_str()), icon);
                 theme::narrow_text(ui, name, "", 140.0);
                 theme::narrow_text(ui, description, "description", 420.0);
                 ui.label(theme::muted(slug.as_str()).small());
@@ -78,7 +77,7 @@ pub fn show(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                 ui.end_row();
             }
             let (name, icon, description) = &mut form.new_category;
-            theme::narrow_text(ui, icon, "🎯", 36.0);
+            icons::picker(ui, "new-category-icon", icon);
             theme::narrow_text(ui, name, "New category", 140.0);
             theme::narrow_text(ui, description, "description", 420.0);
             ui.label("");
@@ -95,20 +94,17 @@ pub fn show(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
 
     theme::card(ui, |ui| {
         theme::section_title(ui, "Awards");
-        theme::hint(ui, "Tournament awards are granted per tournament; career awards span all of them.");
-        egui::Grid::new("awards").num_columns(6).striped(true).spacing([10.0, 6.0]).show(ui, |ui| {
+        theme::hint(
+            ui,
+            "Awards are granted automatically by the rules, so each one is tied to a rule and new ones can't be added here. \
+             You can change their name, icon and description. Click an icon to pick a new one.",
+        );
+        egui::Grid::new("awards").num_columns(5).striped(true).spacing([10.0, 6.0]).show(ui, |ui| {
             for (slug, name, icon, description, scope) in &mut form.awards {
-                theme::narrow_text(ui, icon, "", 36.0);
+                icons::picker(ui, ("award-icon", slug.as_str()), icon);
                 theme::narrow_text(ui, name, "", 140.0);
-                theme::narrow_text(ui, description, "description", 360.0);
-                egui::ComboBox::from_id_salt(("scope", slug.as_str()))
-                    .width(100.0)
-                    .selected_text(scope.as_str())
-                    .show_ui(ui, |ui| {
-                        ui.selectable_value(scope, "tournament".to_string(), "tournament");
-                        ui.selectable_value(scope, "career".to_string(), "career");
-                    });
-                ui.label(theme::muted(slug.as_str()).small());
+                theme::narrow_text(ui, description, "description", 420.0);
+                ui.label(theme::muted(if scope == "career" { "career" } else { "per tournament" }).small());
                 if ui.small_button("Save").clicked() {
                     let (slug, name, icon, description, scope) =
                         (slug.clone(), name.clone(), icon.clone(), description.clone(), scope.clone());
@@ -118,20 +114,6 @@ pub fn show(ui: &mut egui::Ui, s: &Session, form: &mut Form, actions: &mut Vec<A
                 }
                 ui.end_row();
             }
-            let (name, icon, description, career) = &mut form.new_award;
-            theme::narrow_text(ui, icon, "🏅", 36.0);
-            theme::narrow_text(ui, name, "New award", 140.0);
-            theme::narrow_text(ui, description, "description", 360.0);
-            ui.checkbox(career, "career");
-            ui.label("");
-            if ui.add_enabled(!name.trim().is_empty(), egui::Button::new("+ Add")).clicked() {
-                let (name, icon, description, career) = std::mem::take(&mut form.new_award);
-                let scope = if career { "career" } else { "tournament" };
-                actions.push(Action::db(format!("{} added", name.trim()), move |c| {
-                    repo::save_award(c, "", &name, &icon, &description, scope, true)
-                }));
-            }
-            ui.end_row();
         });
     });
     ui.add_space(8.0);

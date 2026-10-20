@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:45:31Z",
+  "generatedAt": "2026-10-20T08:10:40Z",
   "data": {
     "awards": [
       {
@@ -13,15 +13,15 @@
           {
             "award": "ultimate-gamer",
             "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": "Won Overcooked! 2 as a Challenger"
+            "detail": "Decided in game 7"
           }
         ]
       },
@@ -35,65 +35,67 @@
           {
             "award": "challenger",
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
-            },
-            "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
-            },
-            "detail": null
-          },
-          {
-            "award": "challenger",
-            "player": {
-              "slug": "blitz",
-              "name": "Blitz"
-            },
-            "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
-            },
-            "detail": null
-          },
-          {
-            "award": "challenger",
-            "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": null
-          },
-          {
-            "award": "challenger",
-            "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
-            },
-            "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
-            },
-            "detail": null
+            "detail": "Since game 6"
           },
           {
             "award": "challenger",
             "player": {
               "slug": "tnoy",
               "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": null
+            "detail": "Since game 6"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "Since game 6"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "milo",
+              "name": "Milo",
+              "avatarUrl": "avatars/milo.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "Since game 5"
+          },
+          {
+            "award": "challenger",
+            "player": {
+              "slug": "bumbi",
+              "name": "Bumbi",
+              "avatarUrl": "avatars/bumbi.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "Since game 7"
           }
         ]
       },
@@ -107,14 +109,15 @@
           {
             "award": "dominator",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": "32 points"
+            "detail": "27 points"
           }
         ]
       },
@@ -128,14 +131,15 @@
           {
             "award": "contender",
             "player": {
-              "slug": "rook",
-              "name": "Rook"
+              "slug": "sudden94",
+              "name": "Sudden94",
+              "avatarUrl": "avatars/sudden94.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": "17 points"
+            "detail": "16 points"
           }
         ]
       },
@@ -149,14 +153,28 @@
           {
             "award": "podium",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": "6 podium finishes"
+            "detail": "4 podium finishes"
+          },
+          {
+            "award": "podium",
+            "player": {
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "4 podium finishes"
           }
         ]
       },
@@ -166,46 +184,7 @@
         "icon": "🙏",
         "description": "Won a game while using a Double Down token.",
         "scope": "tournament",
-        "recipients": [
-          {
-            "award": "believer",
-            "player": {
-              "slug": "blitz",
-              "name": "Blitz"
-            },
-            "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
-            },
-            "detail": null
-          },
-          {
-            "award": "believer",
-            "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
-            },
-            "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
-            },
-            "detail": null
-          },
-          {
-            "award": "believer",
-            "player": {
-              "slug": "echo",
-              "name": "Echo",
-              "avatarUrl": "avatars/echo.png"
-            },
-            "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
-            },
-            "detail": null
-          }
-        ]
+        "recipients": []
       },
       {
         "slug": "nominator",
@@ -217,8 +196,35 @@
           {
             "award": "nominator",
             "player": {
-              "slug": "rook",
-              "name": "Rook"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": null
+          },
+          {
+            "award": "nominator",
+            "player": {
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2026",
+              "name": "Demo LAN 2026"
+            },
+            "detail": null
+          },
+          {
+            "award": "nominator",
+            "player": {
+              "slug": "zourax",
+              "name": "Zourax",
+              "avatarUrl": "avatars/zourax.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -270,15 +276,28 @@
           {
             "award": "nemesis",
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.png"
+              "slug": "noxarn",
+              "name": "Noxarn",
+              "avatarUrl": "avatars/noxarn.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": "2 Nemesis wins"
+            "detail": "5 Nemesis wins"
+          },
+          {
+            "award": "nemesis",
+            "player": {
+              "slug": "kricka",
+              "name": "Krickä",
+              "avatarUrl": "avatars/kricka.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": "5 Nemesis wins"
           }
         ]
       },
@@ -292,14 +311,15 @@
           {
             "award": "victim",
             "player": {
-              "slug": "vex",
-              "name": "Vex"
+              "slug": "brallex",
+              "name": "Brallex",
+              "avatarUrl": "avatars/brallex.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
               "name": "Demo LAN 2025"
             },
-            "detail": null
+            "detail": "Beaten 8 times as a Nemesis"
           }
         ]
       },
@@ -313,8 +333,35 @@
           {
             "award": "ghost",
             "player": {
-              "slug": "blitz",
-              "name": "Blitz"
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          },
+          {
+            "award": "ghost",
+            "player": {
+              "slug": "brallex",
+              "name": "Brallex",
+              "avatarUrl": "avatars/brallex.discord.png"
+            },
+            "tournament": {
+              "slug": "demo-2025",
+              "name": "Demo LAN 2025"
+            },
+            "detail": null
+          },
+          {
+            "award": "ghost",
+            "player": {
+              "slug": "bumbi",
+              "name": "Bumbi",
+              "avatarUrl": "avatars/bumbi.discord.png"
             },
             "tournament": {
               "slug": "demo-2025",
@@ -330,20 +377,7 @@
         "icon": "🩹",
         "description": "Won a game while last in the overall standings.",
         "scope": "tournament",
-        "recipients": [
-          {
-            "award": "survivor",
-            "player": {
-              "slug": "vex",
-              "name": "Vex"
-            },
-            "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
-            },
-            "detail": "Won Fall Guys from last place"
-          }
-        ]
+        "recipients": []
       }
     ]
   }

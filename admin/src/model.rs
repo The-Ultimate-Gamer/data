@@ -176,21 +176,11 @@ pub enum Source {
 }
 
 impl Source {
-    pub const ALL: [Source; 3] = [Source::Winner, Source::Vote, Source::Token];
-
     pub fn as_str(self) -> &'static str {
         match self {
             Source::Winner => "winner",
             Source::Vote => "vote",
             Source::Token => "token",
-        }
-    }
-
-    pub fn label(self) -> &'static str {
-        match self {
-            Source::Winner => "Winner's pick",
-            Source::Vote => "Vote",
-            Source::Token => "Nominate token",
         }
     }
 
@@ -237,14 +227,6 @@ pub struct Grant {
     pub detail: Option<String>,
     /// The award's sort order (joined in for sorting).
     pub sort_order: i64,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Record {
-    pub position: i64,
-    pub label: String,
-    pub value: String,
-    pub player_id: Option<i64>,
 }
 
 // ------------------------------------------------------------------ queries
@@ -303,6 +285,10 @@ pub fn awards(conn: &Connection) -> Result<Vec<Award>> {
 /// Oldest first; tournaments without a start date last.
 pub fn tournaments(conn: &Connection) -> Result<Vec<Tournament>> {
     collect(conn, "SELECT * FROM tournaments ORDER BY start_date IS NULL, start_date, id", [], Tournament::from_row)
+}
+
+pub fn tournament(conn: &Connection, id: i64) -> Result<Option<Tournament>> {
+    Ok(collect(conn, "SELECT * FROM tournaments WHERE id = ?1", [id], Tournament::from_row)?.pop())
 }
 
 #[cfg(test)]
@@ -376,35 +362,6 @@ pub fn nominations(conn: &Connection, tid: i64, number: i64) -> Result<Vec<Nomin
         params![tid, number],
         Nomination::from_row,
     )
-}
-
-pub fn grants(conn: &Connection) -> Result<Vec<Grant>> {
-    collect(
-        conn,
-        "SELECT g.*, a.sort_order FROM award_grants g JOIN awards a ON a.slug = g.award_slug ORDER BY g.id",
-        [],
-        |r| {
-            Ok(Grant {
-                id: r.get("id")?,
-                award_slug: r.get("award_slug")?,
-                player_id: r.get("player_id")?,
-                tournament_id: r.get("tournament_id")?,
-                detail: r.get("detail")?,
-                sort_order: r.get("sort_order")?,
-            })
-        },
-    )
-}
-
-pub fn records(conn: &Connection, tid: i64) -> Result<Vec<Record>> {
-    collect(conn, "SELECT * FROM tournament_records WHERE tournament_id = ?1 ORDER BY position", [tid], |r| {
-        Ok(Record {
-            position: r.get("position")?,
-            label: r.get("label")?,
-            value: r.get("value")?,
-            player_id: r.get("player_id")?,
-        })
-    })
 }
 
 pub fn points_table(conn: &Connection, tid: i64) -> Result<Vec<(i64, i64)>> {

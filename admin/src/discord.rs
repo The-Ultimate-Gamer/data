@@ -102,19 +102,61 @@ impl Discord {
     }
 }
 
-/// Fetch a player's Discord profile; with `picture`, also their avatar.
-pub fn fetch(token: &str, id: &str, picture: bool) -> Result<(DiscordUser, Option<Vec<u8>>)> {
+/// A player's Discord profile and picture (None when they use Discord's default picture).
+pub type Profile = (DiscordUser, Option<Vec<u8>>);
+
+/// Fetch several players' profiles, one after the other (Discord rate-limits bursts).
+pub fn fetch_all(token: &str, players: &[(i64, String, String)]) -> Vec<(i64, String, Result<Profile>)> {
     let discord = Discord::new(token);
-    let user = discord.user(id)?;
-    let bytes = if picture { discord.picture(&user)? } else { None };
-    Ok((user, bytes))
+    players
+        .iter()
+        .map(|(id, slug, discord_id)| {
+            let result = discord.user(discord_id).and_then(|user| {
+                let bytes = discord.picture(&user)?;
+                Ok((user, bytes))
+            });
+            (*id, slug.clone(), result)
+        })
+        .collect()
 }
 
-/// Replace a player's stored picture with a PNG.
-pub fn save_picture(avatars_dir: &std::path::Path, slug: &str, png: &[u8]) -> Result<()> {
-    std::fs::create_dir_all(avatars_dir)?;
-    crate::export::remove_avatars(avatars_dir, slug);
-    std::fs::write(avatars_dir.join(format!("{slug}.png")), png)?;
+/// Store fetched profiles: names in the database, pictures next to the uploads.
+/// Returns one line per player for messages.
+pub fn apply(
+    conn: &rusqlite::Connection,
+    avatars_dir: &std::path::Path,
+    fetched: &[(i64, String, Result<Profile>)],
+) -> Result<Vec<String>> {
+    let mut lines = Vec::new();
+    for (id, slug, result) in fetched {
+        match result {
+            Ok((user, png)) => {
+                crate::repo::save_discord_names(conn, *id, user)?;
+                save_picture(avatars_dir, slug, png.as_deref())?;
+                let shown = user.global_name.as_deref().unwrap_or(&user.username);
+                lines.push(format!("{slug}: {shown} (@{})", user.username));
+            }
+            Err(e) => lines.push(format!("{slug}: {e:#}")),
+        }
+    }
+    Ok(lines)
+}
+
+/// Store (or, with None, remove) the picture copied from a player's Discord account. It sits
+/// next to uploaded pictures as `<slug>.discord.png`, which take priority over it.
+pub fn save_picture(avatars_dir: &std::path::Path, slug: &str, png: Option<&[u8]>) -> Result<()> {
+    let path = avatars_dir.join(crate::export::discord_picture_name(slug));
+    match png {
+        Some(bytes) => {
+            std::fs::create_dir_all(avatars_dir)?;
+            if std::fs::read(&path).ok().as_deref() != Some(bytes) {
+                std::fs::write(&path, bytes)?;
+            }
+        }
+        None => {
+            let _ = std::fs::remove_file(&path);
+        }
+    }
     Ok(())
 }
 

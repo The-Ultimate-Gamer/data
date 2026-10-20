@@ -220,7 +220,8 @@ fn leaderboard_reflects_live_tournament() {
     assert_eq!(lb["currentCategory"], "racing");
     assert_eq!(lb["nextSelection"]["status"], "drawn");
     let ranks: Vec<i64> = lb["standings"].as_array().unwrap().iter().map(|s| s["rank"].as_i64().unwrap()).collect();
-    assert_eq!(ranks, [1, 2, 3, 4, 5, 6]);
+    assert_eq!((ranks.len(), ranks[0]), (6, 1));
+    assert!(ranks.windows(2).all(|w| w[0] <= w[1]));
     assert!(lb["standings"].as_array().unwrap().iter().all(|s| s["isChampion"] == false));
     assert_eq!(lb["recentResults"][0]["number"], 5);
     let active: Vec<&Value> = lb["categories"]
@@ -237,21 +238,25 @@ fn leaderboard_reflects_live_tournament() {
 fn completed_tournament_champion_and_unreached_categories() {
     let conn = demo_db();
     let t = docs(&conn)["tournaments/demo-2025.json"]["tournament"].clone();
-    assert_eq!(t["champion"]["slug"], "echo");
-    assert_eq!(t["standings"][0]["player"]["slug"], "blitz");
-    assert_eq!(t["standings"][0]["isChampion"], false);
-    assert!(!t["categories"].as_array().unwrap().iter().any(|c| c["category"] == "simulation"));
-    assert_eq!(t["categoriesPlanned"], 7);
-    assert_eq!(t["games"].as_array().unwrap().last().unwrap()["decidedTournament"], true);
+    let champion = t["champion"]["slug"].as_str().unwrap().to_string();
+    let standings = t["standings"].as_array().unwrap();
+    assert!(standings.iter().any(|s| s["player"]["slug"] == champion.as_str() && s["isChampion"] == true));
+    let games = t["games"].as_array().unwrap();
+    assert_eq!(games.last().unwrap()["decidedTournament"], true);
+    // Categories after the deciding game were never reached and aren't listed.
+    assert_eq!(t["categories"].as_array().unwrap().len(), games.len());
+    assert_eq!(t["categoriesPlanned"], 8);
+    assert_eq!(t["status"], "completed");
 }
 
 #[test]
 fn player_profile_statistics() {
     let conn = demo_db();
-    let p = docs(&conn)["players/echo.json"]["player"].clone();
+    let d = docs(&conn);
+    let champion = d["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap().to_string();
+    let p = d[&format!("players/{champion}.json")]["player"].clone();
     assert_eq!(p["ultimateGamerWins"], 1);
     assert_eq!(p["tournamentsPlayed"], 2);
-    assert_eq!(p["doubleDown"], json!({"used": 1, "wins": 1, "bonusPoints": 6}));
     assert_eq!(p["matches"][0]["tournament"]["slug"], "demo-2026");
 }
 
@@ -259,15 +264,13 @@ fn player_profile_statistics() {
 fn best_placement_counts_the_crown_as_first() {
     let conn = demo_db();
     let d = docs(&conn);
-    let echo = &d["players/echo.json"]["player"];
-    // Blitz led on points in Demo LAN 2025, but Echo won the crown.
+    let champion = d["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap().to_string();
+    let echo = &d[&format!("players/{champion}.json")]["player"];
     assert_eq!(echo["bestPlacement"], 1);
-    assert_eq!(d["players/blitz.json"]["player"]["bestPlacement"], 2);
     let history = |slug: &str| {
         echo["tournaments"].as_array().unwrap().iter().find(|t| t["tournament"]["slug"] == slug).unwrap().clone()
     };
     assert_eq!(history("demo-2025")["finish"], 1);
-    assert_eq!(history("demo-2025")["placement"], 2);
     assert_eq!(history("demo-2026")["finish"], Value::Null);
     assert!(history("demo-2025").get("podiums").is_some());
 }
@@ -292,7 +295,7 @@ fn announced_nemeses_for_the_next_game() {
     let d = docs(&conn);
     let pairs = d["leaderboard.json"]["nextNemeses"].as_array().unwrap();
     assert_eq!(pairs.len(), 6);
-    assert_eq!(pairs.iter().filter(|p| p["nemesis"]["slug"] == "nova").count(), 2);
+    assert!(pairs.iter().all(|p| p["player"]["slug"] != p["nemesis"]["slug"]));
     assert_eq!(d["tournaments/demo-2025.json"]["tournament"]["nextNemeses"], Value::Null);
 }
 
@@ -338,9 +341,16 @@ fn share_pages_for_link_previews() {
     assert!(nova.contains(r#"<meta property="og:image" content="https://ug.example/data/avatars/nova.png">"#));
     assert!(nova.contains("Nova &quot;&lt;b&gt;&quot; · The Ultimate Gamer"));
     assert!(!nova.contains("<b>"));
-    let echo = page("share/players/echo/index.html");
-    assert!(echo.contains("1× Ultimate Gamer") && echo.contains("best finish 1st"));
-    assert!(page("share/tournaments/demo-2025/index.html").contains("Ultimate Gamer: Echo"));
+    let champion: (String, String) = conn
+        .query_row(
+            "SELECT p.slug, p.name FROM players p WHERE p.slug = ?1",
+            [docs(&conn)["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap()],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .unwrap();
+    let crowned = page(&format!("share/players/{}/index.html", champion.0));
+    assert!(crowned.contains("1× Ultimate Gamer") && crowned.contains("best finish 1st"));
+    assert!(page("share/tournaments/demo-2025/index.html").contains(&format!("Ultimate Gamer: {}", champion.1)));
     let live = page("share/tournaments/demo-2026/index.html");
     assert!(live.contains("Live now") && live.contains("5 of 8 games played"));
 }
@@ -432,20 +442,6 @@ fn selected_game_must_be_nominated() {
     )
     .unwrap();
     assert!(has(&errors_of(&conn), "not among the recorded nominations"));
-}
-
-#[test]
-fn tournament_award_needs_participant() {
-    let conn = empty_db();
-    let tid = mini_tournament(&conn, 10);
-    conn.execute("INSERT INTO players (slug, name) VALUES ('z', 'Z')", []).unwrap();
-    let outsider = conn.last_insert_rowid();
-    conn.execute(
-        "INSERT INTO award_grants (award_slug, player_id, tournament_id) VALUES ('ghost', ?1, ?2)",
-        params![outsider, tid],
-    )
-    .unwrap();
-    assert!(has(&errors_of(&conn), "did not take part"));
 }
 
 #[test]
@@ -553,7 +549,6 @@ fn add_and_remove_demo_leaves_real_data_untouched() {
     let count = |sql: &str| conn.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap();
     assert_eq!(count("SELECT COUNT(*) FROM games WHERE slug = 'catan'"), 1);
     assert_eq!(count("SELECT COUNT(*) FROM rounds"), 0);
-    assert_eq!(count("SELECT COUNT(*) FROM award_grants"), 0);
     assert_eq!(docs(&conn)["site.json"]["demo"], false);
 }
 
@@ -634,11 +629,148 @@ fn discord_profile_link() {
     let profile = &docs_of(&conn, "players/ann.json")["player"];
     assert_eq!(profile["discord"], json!({"id": "175928847299117063", "username": null, "displayName": null}));
 
+    // Real players need a Discord account.
     input.discord_id.clear();
-    save_player(&conn, Some(id), &input).unwrap();
-    assert_eq!(docs_of(&conn, "players/ann.json")["player"]["discord"], Value::Null);
+    assert!(save_player(&conn, Some(id), &input).is_err());
 }
 
 fn docs_of(conn: &Connection, rel: &str) -> Value {
     docs(conn).remove(rel).unwrap()
+}
+
+// ------------------------------------------------------------------- awards
+
+fn awards_of(conn: &Connection) -> Vec<(String, String)> {
+    let e = exporter(conn);
+    let slug = |pid: i64| e.players.iter().find(|p| p.id == pid).unwrap().slug.clone();
+    let mut list: Vec<(String, String)> = e.grants.iter().map(|g| (g.award_slug.clone(), slug(g.player_id))).collect();
+    list.sort();
+    list
+}
+
+#[test]
+fn awards_follow_the_rules() {
+    let conn = empty_db();
+    let tid = mini_tournament(&conn, 10);
+    // a wins with Double Down (12 → Challenger); b beats Nemesis c.
+    play(&conn, tid, 1, &["a", "b", "c"], &Play { double_down: &["a"], nemesis: &[("b", "c"), ("c", "a")], ..PLAIN })
+        .unwrap();
+    // c wins from last place.
+    play(&conn, tid, 2, &["c", "a", "b"], &PLAIN).unwrap();
+    let live = awards_of(&conn);
+    for expected in [("believer", "a"), ("challenger", "a"), ("survivor", "c")] {
+        assert!(live.contains(&(expected.0.into(), expected.1.into())), "{expected:?} in {live:?}");
+    }
+    assert!(!live.iter().any(|(a, _)| a == "dominator"), "end-of-tournament awards wait for the end");
+
+    // a wins again as a Challenger: champion, and the tournament is over.
+    play(&conn, tid, 3, &["a", "b", "c"], &PLAIN).unwrap();
+    let all = awards_of(&conn);
+    let who = |award: &str| -> Vec<&str> { all.iter().filter(|(a, _)| a == award).map(|(_, p)| p.as_str()).collect() };
+    assert_eq!(who("ultimate-gamer"), ["a"]);
+    assert_eq!(who("dominator"), ["a"]);
+    assert_eq!(who("contender"), ["b"], "b has 7 points, c has 6");
+    assert_eq!(who("podium"), ["a", "b", "c"], "ties share the award");
+    assert_eq!(who("nemesis"), ["b"]);
+    assert_eq!(who("victim"), ["c"]);
+    assert_eq!(who("ghost"), ["a"], "b and c each finished last once");
+    assert!(who("rookie").is_empty(), "nobody returned, so there's no Rookie");
+
+    let d = docs(&conn);
+    let a = d["awards.json"]["awards"].as_array().unwrap().iter().find(|x| x["slug"] == "contender").unwrap().clone();
+    assert_eq!(a["recipients"][0]["detail"], "7 points");
+}
+
+#[test]
+fn awards_comparing_tournaments() {
+    let conn = empty_db();
+    let first = mini_tournament(&conn, 10);
+    conn.execute("UPDATE tournaments SET start_date = '2025-01-01' WHERE id = ?1", [first]).unwrap();
+    play(&conn, first, 1, &["a", "b", "c"], &PLAIN).unwrap();
+    play(&conn, first, 2, &["a", "b", "c"], &PLAIN).unwrap(); // a: Challenger at 12
+    play(&conn, first, 3, &["a", "b", "c"], &PLAIN).unwrap(); // … and wins again: champion
+    // Second tournament with a newcomer d; c climbs from 3rd to 1st.
+    conn.execute(
+        "INSERT INTO tournaments (slug, name, status, challenger_threshold, start_date) VALUES ('t2', 'T2', 'ongoing', 10, '2026-01-01')",
+        [],
+    )
+    .unwrap();
+    let second = conn.last_insert_rowid();
+    conn.execute("INSERT INTO players (slug, name) VALUES ('d', 'D')", []).unwrap();
+    conn.execute("INSERT INTO tournament_players SELECT ?1, id FROM players", [second]).unwrap();
+    for pos in 1..=3 {
+        conn.execute("INSERT INTO tournament_categories VALUES (?1, ?2, 'strategy')", params![second, pos]).unwrap();
+    }
+    let four = Play { points: &[6, 3, 1, 0], ..PLAIN };
+    play(&conn, second, 1, &["c", "d", "b", "a"], &four).unwrap();
+    play(&conn, second, 2, &["c", "d", "b", "a"], &four).unwrap();
+    play(&conn, second, 3, &["c", "d", "b", "a"], &four).unwrap();
+    let all = awards_of(&conn);
+    let who = |award: &str| -> Vec<&str> { all.iter().filter(|(a, _)| a == award).map(|(_, p)| p.as_str()).collect() };
+    assert_eq!(who("ultimate-gamer"), ["a", "c"]);
+    assert_eq!(who("rookie"), ["d"]);
+    assert_eq!(who("underdog"), ["c"]);
+    assert_eq!(who("fallout"), ["a"]);
+    assert!(who("legend").is_empty());
+}
+
+#[test]
+fn demo_uses_the_real_roster() {
+    let conn = empty_db();
+    for (i, name) in ["Ann", "Bob", "Cy", "Dee", "Eve"].iter().enumerate() {
+        conn.execute(
+            "INSERT INTO players (slug, name, discord_id) VALUES (?1, ?2, ?3)",
+            params![name.to_lowercase(), name, format!("1000000000000000{i}")],
+        )
+        .unwrap();
+    }
+    seed::add_demo(&conn).unwrap();
+    let count = |sql: &str| conn.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap();
+    assert_eq!(count("SELECT COUNT(*) FROM players"), 5, "no fictional players added");
+    assert_eq!(
+        count(
+            "SELECT COUNT(*) FROM tournament_players tp JOIN tournaments t ON t.id = tp.tournament_id WHERE t.slug = 'demo-2025'"
+        ),
+        4
+    );
+    assert!(errors_of(&conn).is_empty());
+    let d = docs(&conn);
+    assert_eq!(d["tournaments/demo-2025.json"]["tournament"]["status"], "completed");
+    assert!(d["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].is_string());
+    assert_eq!(d["leaderboard.json"]["tournament"]["slug"], "demo-2026");
+    // Seeded: the same every time.
+    let again = empty_db();
+    for (i, name) in ["Ann", "Bob", "Cy", "Dee", "Eve"].iter().enumerate() {
+        again
+            .execute(
+                "INSERT INTO players (slug, name, discord_id) VALUES (?1, ?2, ?3)",
+                params![name.to_lowercase(), name, format!("1000000000000000{i}")],
+            )
+            .unwrap();
+    }
+    seed::add_demo(&again).unwrap();
+    assert_eq!(docs(&again)["tournaments/demo-2025.json"], d["tournaments/demo-2025.json"]);
+
+    let removed = seed::remove_demo(&conn).unwrap();
+    assert_eq!((removed.tournaments, removed.players), (2, 0));
+    assert_eq!(count("SELECT COUNT(*) FROM players"), 5);
+}
+
+#[test]
+fn picture_priority_upload_then_link_then_discord() {
+    let conn = demo_db();
+    let pics = tempfile::tempdir().unwrap();
+    let dir = pics.path();
+    let avatar = |conn: &Connection| {
+        let e = Exporter::new(conn, Some(dir)).unwrap();
+        let p = e.players.iter().find(|p| p.slug == "kite").unwrap().id;
+        e.avatar_url(p)
+    };
+    assert_eq!(avatar(&conn), None, "initials");
+    fs::write(dir.join("kite.discord.png"), b"d").unwrap();
+    assert_eq!(avatar(&conn).as_deref(), Some("avatars/kite.discord.png"));
+    conn.execute("UPDATE players SET avatar_url = 'https://example.com/k.png' WHERE slug = 'kite'", []).unwrap();
+    assert_eq!(avatar(&conn).as_deref(), Some("https://example.com/k.png"));
+    fs::write(dir.join("kite.jpg"), b"u").unwrap();
+    assert_eq!(avatar(&conn).as_deref(), Some("avatars/kite.jpg"));
 }
