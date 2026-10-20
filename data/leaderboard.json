@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T09:20:45Z",
+  "generatedAt": "2026-10-20T09:36:29Z",
   "data": {
     "tournament": {
-      "slug": "demo-2026",
-      "name": "Demo LAN 2026",
+      "slug": "autumn-lan-2026",
+      "name": "Autumn LAN 2026",
       "tags": [
         "LAN",
         "Digital games",
@@ -15,7 +15,7 @@
       "location": "Somewhere with good Wi-Fi",
       "status": "ongoing",
       "isDemo": true,
-      "challengerThreshold": 20,
+      "challengerThreshold": 30,
       "pointsTable": [
         {
           "placement": 1,
@@ -39,87 +39,78 @@
         }
       ],
       "playerCount": 9,
-      "gamesPlayed": 5,
-      "categoriesCompleted": 5,
-      "categoriesPlanned": 8,
-      "lap": 1,
+      "gamesPlayed": 6,
+      "categoriesCompleted": 4,
+      "categoriesPlanned": 4,
+      "lap": 2,
       "champion": null,
       "leaders": [
         {
           "rank": 1,
           "player": {
-            "slug": "mavva",
-            "name": "Mavvä",
-            "avatarUrl": "avatars/mavva.discord.png"
+            "slug": "mrbumbi",
+            "name": "mrbumbi",
+            "avatarUrl": "avatars/mrbumbi.discord.png"
           },
-          "points": 19
+          "points": 24
         },
         {
-          "rank": 1,
+          "rank": 2,
           "player": {
             "slug": "tnoy",
             "name": "Tnoy",
             "avatarUrl": "avatars/tnoy.discord.png"
           },
-          "points": 19
+          "points": 23
         },
         {
           "rank": 3,
           "player": {
-            "slug": "bumbi",
-            "name": "Bumbi",
-            "avatarUrl": "avatars/bumbi.discord.png"
+            "slug": "mavvvvvve",
+            "name": "mavvvvvve",
+            "avatarUrl": "avatars/mavvvvvve.discord.png"
           },
-          "points": 17
+          "points": 19
         }
       ],
       "awards": [
         {
           "award": "nominator",
           "player": {
-            "slug": "noxarn",
-            "name": "Noxarn",
-            "avatarUrl": "avatars/noxarn.discord.png"
-          },
-          "detail": null
-        },
-        {
-          "award": "nominator",
-          "player": {
-            "slug": "kricka",
-            "name": "Krickä",
-            "avatarUrl": "avatars/kricka.discord.png"
+            "slug": "krickeee",
+            "name": "krickeee",
+            "avatarUrl": "avatars/krickeee.discord.png"
           },
           "detail": null
         }
       ]
     },
-    "currentCategory": "racing",
+    "currentCategory": "chaos",
     "currentGame": {
-      "slug": "mario-kart-8-deluxe",
-      "name": "Mario Kart 8 Deluxe"
+      "slug": "golf-with-your-friends",
+      "name": "Golf With Your Friends"
     },
     "nextSelection": {
       "status": "drawn",
-      "category": "racing",
+      "category": "chaos",
       "nominations": [
         {
           "game": {
-            "slug": "trackmania",
-            "name": "Trackmania"
+            "slug": "fall-guys",
+            "name": "Fall Guys"
           },
           "nominatedBy": {
-            "slug": "mavva",
-            "name": "Mavvä",
-            "avatarUrl": "avatars/mavva.discord.png"
+            "slug": "mrbumbi",
+            "name": "mrbumbi",
+            "avatarUrl": "avatars/mrbumbi.discord.png"
           },
           "source": "winner",
           "entries": 1
         },
         {
           "game": {
-            "slug": "mario-kart-8-deluxe",
-            "name": "Mario Kart 8 Deluxe"
+            "slug": "golf-with-your-friends",
+            "name": "Golf With Your Friends"
           },
           "nominatedBy": null,
           "source": "vote",
@@ -127,93 +118,93 @@
         }
       ],
       "selected": {
-        "slug": "mario-kart-8-deluxe",
-        "name": "Mario Kart 8 Deluxe"
+        "slug": "golf-with-your-friends",
+        "name": "Golf With Your Friends"
       }
     },
     "nextNemeses": [
       {
         "player": {
-          "slug": "brallex",
-          "name": "Brallex",
-          "avatarUrl": "avatars/brallex.discord.png"
+          "slug": "brallexj",
+          "name": "brallexj",
+          "avatarUrl": "avatars/brallexj.discord.png"
         },
         "nemesis": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mrbumbi",
+          "name": "mrbumbi",
+          "avatarUrl": "avatars/mrbumbi.discord.png"
         }
       },
       {
         "player": {
-          "slug": "bumbi",
-          "name": "Bumbi",
-          "avatarUrl": "avatars/bumbi.discord.png"
+          "slug": "jeffaklumpen",
+          "name": "jeffaklumpen",
+          "avatarUrl": "avatars/jeffaklumpen.discord.png"
         },
         "nemesis": {
-          "slug": "kricka",
-          "name": "Krickä",
-          "avatarUrl": "avatars/kricka.discord.png"
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
         }
       },
       {
         "player": {
-          "slug": "kricka",
-          "name": "Krickä",
-          "avatarUrl": "avatars/kricka.discord.png"
+          "slug": "katzlr",
+          "name": "katzlr",
+          "avatarUrl": "avatars/katzlr.discord.png"
         },
         "nemesis": {
-          "slug": "noxarn",
-          "name": "Noxarn",
-          "avatarUrl": "avatars/noxarn.discord.png"
+          "slug": "krickeee",
+          "name": "krickeee",
+          "avatarUrl": "avatars/krickeee.discord.png"
         }
       },
       {
         "player": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "krickeee",
+          "name": "krickeee",
+          "avatarUrl": "avatars/krickeee.discord.png"
         },
         "nemesis": {
-          "slug": "zourax",
-          "name": "Zourax",
-          "avatarUrl": "avatars/zourax.discord.png"
+          "slug": "katzlr",
+          "name": "katzlr",
+          "avatarUrl": "avatars/katzlr.discord.png"
         }
       },
       {
         "player": {
-          "slug": "milo",
-          "name": "Milo",
-          "avatarUrl": "avatars/milo.discord.png"
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
         },
         "nemesis": {
-          "slug": "noxarn",
-          "name": "Noxarn",
-          "avatarUrl": "avatars/noxarn.discord.png"
+          "slug": "krickeee",
+          "name": "krickeee",
+          "avatarUrl": "avatars/krickeee.discord.png"
         }
       },
       {
         "player": {
-          "slug": "noxarn",
-          "name": "Noxarn",
-          "avatarUrl": "avatars/noxarn.discord.png"
+          "slug": "milotheflipper",
+          "name": "milotheflipper",
+          "avatarUrl": "avatars/milotheflipper.discord.png"
         },
         "nemesis": {
-          "slug": "bumbi",
-          "name": "Bumbi",
-          "avatarUrl": "avatars/bumbi.discord.png"
+          "slug": "krickeee",
+          "name": "krickeee",
+          "avatarUrl": "avatars/krickeee.discord.png"
         }
       },
       {
         "player": {
-          "slug": "sudden94",
-          "name": "Sudden94",
-          "avatarUrl": "avatars/sudden94.discord.png"
+          "slug": "mrbumbi",
+          "name": "mrbumbi",
+          "avatarUrl": "avatars/mrbumbi.discord.png"
         },
         "nemesis": {
-          "slug": "noxarn",
-          "name": "Noxarn",
-          "avatarUrl": "avatars/noxarn.discord.png"
+          "slug": "milotheflipper",
+          "name": "milotheflipper",
+          "avatarUrl": "avatars/milotheflipper.discord.png"
         }
       },
       {
@@ -223,21 +214,21 @@
           "avatarUrl": "avatars/tnoy.discord.png"
         },
         "nemesis": {
-          "slug": "sudden94",
-          "name": "Sudden94",
-          "avatarUrl": "avatars/sudden94.discord.png"
+          "slug": "krickeee",
+          "name": "krickeee",
+          "avatarUrl": "avatars/krickeee.discord.png"
         }
       },
       {
         "player": {
           "slug": "zourax",
-          "name": "Zourax",
+          "name": "zourax",
           "avatarUrl": "avatars/zourax.discord.png"
         },
         "nemesis": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mrbumbi",
+          "name": "mrbumbi",
+          "avatarUrl": "avatars/mrbumbi.discord.png"
         }
       }
     ],
@@ -245,11 +236,11 @@
       {
         "rank": 1,
         "player": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mrbumbi",
+          "name": "mrbumbi",
+          "avatarUrl": "avatars/mrbumbi.discord.png"
         },
-        "points": 19,
+        "points": 24,
         "isChallenger": false,
         "challengerSinceGame": null,
         "isChampion": false,
@@ -257,23 +248,22 @@
           "doubleDown": 0,
           "nominate": 1
         },
-        "gamesPlayed": 5,
-        "gamesWon": 2,
+        "gamesPlayed": 6,
+        "gamesWon": 1,
         "categoryWins": [
-          "platform",
-          "chaos"
+          "combat"
         ],
         "awards": [],
-        "isFirstTournament": true
+        "isFirstTournament": false
       },
       {
-        "rank": 1,
+        "rank": 2,
         "player": {
           "slug": "tnoy",
           "name": "Tnoy",
           "avatarUrl": "avatars/tnoy.discord.png"
         },
-        "points": 19,
+        "points": 23,
         "isChallenger": false,
         "challengerSinceGame": null,
         "isChampion": false,
@@ -281,11 +271,11 @@
           "doubleDown": 0,
           "nominate": 1
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
         "gamesWon": 2,
         "categoryWins": [
           "combat",
-          "puzzle"
+          "chaos"
         ],
         "awards": [],
         "isFirstTournament": false
@@ -293,11 +283,11 @@
       {
         "rank": 3,
         "player": {
-          "slug": "bumbi",
-          "name": "Bumbi",
-          "avatarUrl": "avatars/bumbi.discord.png"
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
         },
-        "points": 17,
+        "points": 19,
         "isChallenger": false,
         "challengerSinceGame": null,
         "isChampion": false,
@@ -305,20 +295,44 @@
           "doubleDown": 0,
           "nominate": 1
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
+        "gamesWon": 2,
+        "categoryWins": [
+          "racing",
+          "strategy"
+        ],
+        "awards": [],
+        "isFirstTournament": true
+      },
+      {
+        "rank": 3,
+        "player": {
+          "slug": "zourax",
+          "name": "zourax",
+          "avatarUrl": "avatars/zourax.discord.png"
+        },
+        "points": 19,
+        "isChallenger": false,
+        "challengerSinceGame": null,
+        "isChampion": false,
+        "tokens": {
+          "doubleDown": 0,
+          "nominate": 1
+        },
+        "gamesPlayed": 6,
         "gamesWon": 0,
         "categoryWins": [],
         "awards": [],
         "isFirstTournament": false
       },
       {
-        "rank": 4,
+        "rank": 5,
         "player": {
-          "slug": "milo",
-          "name": "Milo",
-          "avatarUrl": "avatars/milo.discord.png"
+          "slug": "milotheflipper",
+          "name": "milotheflipper",
+          "avatarUrl": "avatars/milotheflipper.discord.png"
         },
-        "points": 14,
+        "points": 17,
         "isChallenger": false,
         "challengerSinceGame": null,
         "isChampion": false,
@@ -326,7 +340,7 @@
           "doubleDown": 1,
           "nominate": 1
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
         "gamesWon": 1,
         "categoryWins": [
           "strategy"
@@ -335,32 +349,11 @@
         "isFirstTournament": false
       },
       {
-        "rank": 5,
-        "player": {
-          "slug": "zourax",
-          "name": "Zourax",
-          "avatarUrl": "avatars/zourax.discord.png"
-        },
-        "points": 13,
-        "isChallenger": false,
-        "challengerSinceGame": null,
-        "isChampion": false,
-        "tokens": {
-          "doubleDown": 1,
-          "nominate": 1
-        },
-        "gamesPlayed": 5,
-        "gamesWon": 0,
-        "categoryWins": [],
-        "awards": [],
-        "isFirstTournament": false
-      },
-      {
         "rank": 6,
         "player": {
-          "slug": "brallex",
-          "name": "Brallex",
-          "avatarUrl": "avatars/brallex.discord.png"
+          "slug": "brallexj",
+          "name": "brallexj",
+          "avatarUrl": "avatars/brallexj.discord.png"
         },
         "points": 11,
         "isChallenger": false,
@@ -370,7 +363,7 @@
           "doubleDown": 0,
           "nominate": 1
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
         "gamesWon": 0,
         "categoryWins": [],
         "awards": [],
@@ -379,9 +372,9 @@
       {
         "rank": 6,
         "player": {
-          "slug": "kricka",
-          "name": "Krickä",
-          "avatarUrl": "avatars/kricka.discord.png"
+          "slug": "krickeee",
+          "name": "krickeee",
+          "avatarUrl": "avatars/krickeee.discord.png"
         },
         "points": 11,
         "isChallenger": false,
@@ -391,7 +384,7 @@
           "doubleDown": 0,
           "nominate": 0
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
         "gamesWon": 0,
         "categoryWins": [],
         "awards": [
@@ -402,11 +395,11 @@
       {
         "rank": 8,
         "player": {
-          "slug": "noxarn",
-          "name": "Noxarn",
-          "avatarUrl": "avatars/noxarn.discord.png"
+          "slug": "katzlr",
+          "name": "katzlr",
+          "avatarUrl": "avatars/katzlr.discord.png"
         },
-        "points": 5,
+        "points": 7,
         "isChallenger": false,
         "challengerSinceGame": null,
         "isChampion": false,
@@ -414,20 +407,18 @@
           "doubleDown": 0,
           "nominate": 0
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
         "gamesWon": 0,
         "categoryWins": [],
-        "awards": [
-          "nominator"
-        ],
+        "awards": [],
         "isFirstTournament": false
       },
       {
         "rank": 9,
         "player": {
-          "slug": "sudden94",
-          "name": "Sudden94",
-          "avatarUrl": "avatars/sudden94.discord.png"
+          "slug": "jeffaklumpen",
+          "name": "jeffaklumpen",
+          "avatarUrl": "avatars/jeffaklumpen.discord.png"
         },
         "points": 4,
         "isChallenger": false,
@@ -437,7 +428,7 @@
           "doubleDown": 0,
           "nominate": 1
         },
-        "gamesPlayed": 5,
+        "gamesPlayed": 6,
         "gamesWon": 0,
         "categoryWins": [],
         "awards": [],
@@ -456,9 +447,9 @@
           "name": "Age of Empires II"
         },
         "winner": {
-          "slug": "milo",
-          "name": "Milo",
-          "avatarUrl": "avatars/milo.discord.png"
+          "slug": "milotheflipper",
+          "name": "milotheflipper",
+          "avatarUrl": "avatars/milotheflipper.discord.png"
         }
       },
       {
@@ -479,13 +470,13 @@
       },
       {
         "order": 3,
-        "category": "puzzle",
+        "category": "chaos",
         "lap": 1,
         "status": "completed",
         "gameNumber": 3,
         "game": {
-          "slug": "tetris-99",
-          "name": "Tetris 99"
+          "slug": "fall-guys",
+          "name": "Fall Guys"
         },
         "winner": {
           "slug": "tnoy",
@@ -495,61 +486,68 @@
       },
       {
         "order": 4,
-        "category": "platform",
+        "category": "racing",
         "lap": 1,
         "status": "completed",
         "gameNumber": 4,
         "game": {
-          "slug": "celeste",
-          "name": "Celeste"
+          "slug": "trackmania",
+          "name": "Trackmania"
         },
         "winner": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
         }
       },
       {
         "order": 5,
-        "category": "chaos",
-        "lap": 1,
+        "category": "strategy",
+        "lap": 2,
         "status": "completed",
         "gameNumber": 5,
         "game": {
-          "slug": "overcooked-2",
-          "name": "Overcooked! 2"
+          "slug": "catan",
+          "name": "Catan"
         },
         "winner": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
         }
       },
       {
         "order": 6,
-        "category": "racing",
-        "lap": 1,
-        "status": "active",
+        "category": "combat",
+        "lap": 2,
+        "status": "completed",
         "gameNumber": 6,
         "game": {
-          "slug": "mario-kart-8-deluxe",
-          "name": "Mario Kart 8 Deluxe"
+          "slug": "counter-strike-2",
+          "name": "Counter-Strike 2"
+        },
+        "winner": {
+          "slug": "mrbumbi",
+          "name": "mrbumbi",
+          "avatarUrl": "avatars/mrbumbi.discord.png"
+        }
+      },
+      {
+        "order": 7,
+        "category": "chaos",
+        "lap": 2,
+        "status": "active",
+        "gameNumber": 7,
+        "game": {
+          "slug": "golf-with-your-friends",
+          "name": "Golf With Your Friends"
         },
         "winner": null
       },
       {
-        "order": 7,
-        "category": "knowledge",
-        "lap": 1,
-        "status": "upcoming",
-        "gameNumber": null,
-        "game": null,
-        "winner": null
-      },
-      {
         "order": 8,
-        "category": "wildcard",
-        "lap": 1,
+        "category": "racing",
+        "lap": 2,
         "status": "upcoming",
         "gameNumber": null,
         "game": null,
@@ -558,28 +556,28 @@
     ],
     "recentResults": [
       {
-        "number": 5,
-        "category": "chaos",
+        "number": 6,
+        "category": "combat",
         "game": {
-          "slug": "overcooked-2",
-          "name": "Overcooked! 2"
+          "slug": "counter-strike-2",
+          "name": "Counter-Strike 2"
         },
         "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
         },
-        "playedAt": "2026-10-17T14:00:00Z",
+        "playedAt": "2026-10-17T16:00:00Z",
         "winner": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mrbumbi",
+          "name": "mrbumbi",
+          "avatarUrl": "avatars/mrbumbi.discord.png"
         },
         "results": [
           {
             "player": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "placement": 1,
             "points": 7,
@@ -587,53 +585,53 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
+            },
+            "placement": 2,
+            "points": 4,
+            "basePoints": 4,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
+            },
+            "defeatedNemesis": false
           },
           {
             "player": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
-            "placement": 2,
-            "points": 5,
-            "basePoints": 4,
-            "nemesisBonus": 1,
-            "doubleDown": false,
-            "nemesis": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
-            },
-            "defeatedNemesis": true
-          },
-          {
-            "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
-            },
             "placement": 3,
-            "points": 8,
+            "points": 6,
             "basePoints": 3,
-            "nemesisBonus": 1,
+            "nemesisBonus": 0,
             "doubleDown": true,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
-            "defeatedNemesis": true
+            "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "placement": 4,
             "points": 3,
@@ -641,35 +639,35 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "placement": 5,
-            "points": 1,
+            "points": 2,
             "basePoints": 1,
-            "nemesisBonus": 0,
+            "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
-            "defeatedNemesis": false
+            "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "placement": 6,
             "points": 0,
@@ -677,53 +675,53 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "placement": 7,
             "points": 0,
             "basePoints": 0,
             "nemesisBonus": 0,
-            "doubleDown": true,
+            "doubleDown": false,
             "nemesis": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "tnoy",
-              "name": "Tnoy",
-              "avatarUrl": "avatars/tnoy.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "placement": 8,
             "points": 0,
             "basePoints": 0,
             "nemesisBonus": 0,
-            "doubleDown": true,
+            "doubleDown": false,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "placement": 9,
             "points": 0,
@@ -731,9 +729,9 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": false
           }
@@ -742,60 +740,51 @@
         "decidedTournament": false,
         "selection": {
           "status": "drawn",
-          "category": "chaos",
+          "category": "combat",
           "nominations": [
             {
               "game": {
-                "slug": "overcooked-2",
-                "name": "Overcooked! 2"
+                "slug": "counter-strike-2",
+                "name": "Counter-Strike 2"
               },
               "nominatedBy": {
-                "slug": "mavva",
-                "name": "Mavvä",
-                "avatarUrl": "avatars/mavva.discord.png"
+                "slug": "mavvvvvve",
+                "name": "mavvvvvve",
+                "avatarUrl": "avatars/mavvvvvve.discord.png"
               },
               "source": "winner",
-              "entries": 1
-            },
-            {
-              "game": {
-                "slug": "fall-guys",
-                "name": "Fall Guys"
-              },
-              "nominatedBy": null,
-              "source": "vote",
               "entries": 1
             }
           ],
           "selected": {
-            "slug": "overcooked-2",
-            "name": "Overcooked! 2"
+            "slug": "counter-strike-2",
+            "name": "Counter-Strike 2"
           }
         }
       },
       {
-        "number": 4,
-        "category": "platform",
+        "number": 5,
+        "category": "strategy",
         "game": {
-          "slug": "celeste",
-          "name": "Celeste"
+          "slug": "catan",
+          "name": "Catan"
         },
         "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
         },
-        "playedAt": "2026-10-16T20:00:00Z",
+        "playedAt": "2026-10-17T14:00:00Z",
         "winner": {
-          "slug": "mavva",
-          "name": "Mavvä",
-          "avatarUrl": "avatars/mavva.discord.png"
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
         },
         "results": [
           {
             "player": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "placement": 1,
             "points": 7,
@@ -803,16 +792,16 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "placement": 2,
@@ -821,17 +810,233 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
+            },
+            "placement": 3,
+            "points": 8,
+            "basePoints": 3,
+            "nemesisBonus": 1,
+            "doubleDown": true,
+            "nemesis": {
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
+            },
+            "placement": 4,
+            "points": 3,
+            "basePoints": 2,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
+            },
+            "placement": 5,
+            "points": 1,
+            "basePoints": 1,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
+            },
+            "defeatedNemesis": false
+          },
+          {
+            "player": {
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
+            },
+            "placement": 6,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
+            },
+            "defeatedNemesis": false
+          },
+          {
+            "player": {
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
+            },
+            "placement": 7,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": true,
+            "nemesis": {
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
+            },
+            "defeatedNemesis": false
+          },
+          {
+            "player": {
+              "slug": "tnoy",
+              "name": "Tnoy",
+              "avatarUrl": "avatars/tnoy.discord.png"
+            },
+            "placement": 8,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": true,
+            "nemesis": {
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
+            },
+            "defeatedNemesis": false
+          },
+          {
+            "player": {
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
+            },
+            "placement": 9,
+            "points": 0,
+            "basePoints": 0,
+            "nemesisBonus": 0,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
+            },
+            "defeatedNemesis": false
+          }
+        ],
+        "newChallengers": [],
+        "decidedTournament": false,
+        "selection": {
+          "status": "drawn",
+          "category": "strategy",
+          "nominations": [
+            {
+              "game": {
+                "slug": "catan",
+                "name": "Catan"
+              },
+              "nominatedBy": {
+                "slug": "mavvvvvve",
+                "name": "mavvvvvve",
+                "avatarUrl": "avatars/mavvvvvve.discord.png"
+              },
+              "source": "winner",
+              "entries": 1
+            },
+            {
+              "game": {
+                "slug": "age-of-empires-2",
+                "name": "Age of Empires II"
+              },
+              "nominatedBy": null,
+              "source": "vote",
+              "entries": 1
+            }
+          ],
+          "selected": {
+            "slug": "catan",
+            "name": "Catan"
+          }
+        }
+      },
+      {
+        "number": 4,
+        "category": "racing",
+        "game": {
+          "slug": "trackmania",
+          "name": "Trackmania"
+        },
+        "tournament": {
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
+        },
+        "playedAt": "2026-10-16T20:00:00Z",
+        "winner": {
+          "slug": "mavvvvvve",
+          "name": "mavvvvvve",
+          "avatarUrl": "avatars/mavvvvvve.discord.png"
+        },
+        "results": [
+          {
+            "player": {
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
+            },
+            "placement": 1,
+            "points": 7,
+            "basePoints": 6,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "zourax",
+              "name": "zourax",
+              "avatarUrl": "avatars/zourax.discord.png"
+            },
+            "placement": 2,
+            "points": 5,
+            "basePoints": 4,
+            "nemesisBonus": 1,
+            "doubleDown": false,
+            "nemesis": {
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
+            },
+            "defeatedNemesis": true
+          },
+          {
+            "player": {
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "placement": 3,
             "points": 4,
@@ -839,17 +1044,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "placement": 4,
             "points": 2,
@@ -857,17 +1062,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "placement": 5,
             "points": 2,
@@ -893,17 +1098,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "placement": 7,
             "points": 0,
@@ -911,17 +1116,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "placement": 8,
             "points": 0,
@@ -930,16 +1135,16 @@
             "doubleDown": true,
             "nemesis": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "placement": 9,
             "points": 0,
@@ -947,9 +1152,9 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "defeatedNemesis": false
           }
@@ -958,12 +1163,12 @@
         "decidedTournament": false,
         "selection": {
           "status": "drawn",
-          "category": "platform",
+          "category": "racing",
           "nominations": [
             {
               "game": {
-                "slug": "celeste",
-                "name": "Celeste"
+                "slug": "trackmania",
+                "name": "Trackmania"
               },
               "nominatedBy": {
                 "slug": "tnoy",
@@ -975,8 +1180,8 @@
             },
             {
               "game": {
-                "slug": "super-mario-bros-wonder",
-                "name": "Super Mario Bros. Wonder"
+                "slug": "mario-kart-8-deluxe",
+                "name": "Mario Kart 8 Deluxe"
               },
               "nominatedBy": null,
               "source": "vote",
@@ -984,34 +1189,34 @@
             },
             {
               "game": {
-                "slug": "celeste",
-                "name": "Celeste"
+                "slug": "trackmania",
+                "name": "Trackmania"
               },
               "nominatedBy": {
-                "slug": "kricka",
-                "name": "Krickä",
-                "avatarUrl": "avatars/kricka.discord.png"
+                "slug": "krickeee",
+                "name": "krickeee",
+                "avatarUrl": "avatars/krickeee.discord.png"
               },
               "source": "token",
               "entries": 1
             }
           ],
           "selected": {
-            "slug": "celeste",
-            "name": "Celeste"
+            "slug": "trackmania",
+            "name": "Trackmania"
           }
         }
       },
       {
         "number": 3,
-        "category": "puzzle",
+        "category": "chaos",
         "game": {
-          "slug": "tetris-99",
-          "name": "Tetris 99"
+          "slug": "fall-guys",
+          "name": "Fall Guys"
         },
         "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
         },
         "playedAt": "2026-10-16T18:00:00Z",
         "winner": {
@@ -1032,17 +1237,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "placement": 2,
             "points": 5,
@@ -1050,17 +1255,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "placement": 3,
             "points": 4,
@@ -1068,17 +1273,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "placement": 4,
             "points": 3,
@@ -1086,16 +1291,16 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "placement": 5,
@@ -1112,9 +1317,9 @@
           },
           {
             "player": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "placement": 6,
             "points": 0,
@@ -1122,17 +1327,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "placement": 7,
             "points": 0,
@@ -1140,17 +1345,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "placement": 8,
             "points": 1,
@@ -1158,17 +1363,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "placement": 9,
             "points": 0,
@@ -1176,9 +1381,9 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "defeatedNemesis": false
           }
@@ -1187,12 +1392,12 @@
         "decidedTournament": false,
         "selection": {
           "status": "drawn",
-          "category": "puzzle",
+          "category": "chaos",
           "nominations": [
             {
               "game": {
-                "slug": "tetris-99",
-                "name": "Tetris 99"
+                "slug": "fall-guys",
+                "name": "Fall Guys"
               },
               "nominatedBy": {
                 "slug": "tnoy",
@@ -1204,8 +1409,8 @@
             },
             {
               "game": {
-                "slug": "portal-2",
-                "name": "Portal 2 (co-op)"
+                "slug": "mario-kart-8-deluxe",
+                "name": "Mario Kart 8 Deluxe"
               },
               "nominatedBy": null,
               "source": "vote",
@@ -1213,21 +1418,21 @@
             },
             {
               "game": {
-                "slug": "tetris-99",
-                "name": "Tetris 99"
+                "slug": "overcooked-2",
+                "name": "Overcooked! 2"
               },
               "nominatedBy": {
-                "slug": "noxarn",
-                "name": "Noxarn",
-                "avatarUrl": "avatars/noxarn.discord.png"
+                "slug": "katzlr",
+                "name": "katzlr",
+                "avatarUrl": "avatars/katzlr.discord.png"
               },
               "source": "token",
               "entries": 1
             }
           ],
           "selected": {
-            "slug": "tetris-99",
-            "name": "Tetris 99"
+            "slug": "fall-guys",
+            "name": "Fall Guys"
           }
         }
       },
@@ -1239,8 +1444,8 @@
           "name": "Counter-Strike 2"
         },
         "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
         },
         "playedAt": "2026-10-16T16:00:00Z",
         "winner": {
@@ -1262,16 +1467,16 @@
             "doubleDown": false,
             "nemesis": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "placement": 2,
             "points": 5,
@@ -1279,17 +1484,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "placement": 3,
             "points": 8,
@@ -1297,16 +1502,16 @@
             "nemesisBonus": 1,
             "doubleDown": true,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "placement": 4,
@@ -1323,9 +1528,9 @@
           },
           {
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "placement": 5,
             "points": 2,
@@ -1333,17 +1538,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "placement": 6,
             "points": 0,
@@ -1351,17 +1556,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "placement": 7,
             "points": 0,
@@ -1369,17 +1574,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "placement": 8,
             "points": 0,
@@ -1387,17 +1592,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "placement": 9,
             "points": 0,
@@ -1406,7 +1611,7 @@
             "doubleDown": false,
             "nemesis": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "defeatedNemesis": false
@@ -1424,9 +1629,9 @@
                 "name": "Counter-Strike 2"
               },
               "nominatedBy": {
-                "slug": "milo",
-                "name": "Milo",
-                "avatarUrl": "avatars/milo.discord.png"
+                "slug": "milotheflipper",
+                "name": "milotheflipper",
+                "avatarUrl": "avatars/milotheflipper.discord.png"
               },
               "source": "winner",
               "entries": 1
@@ -1446,21 +1651,21 @@
           "name": "Age of Empires II"
         },
         "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
         },
         "playedAt": "2026-10-16T14:00:00Z",
         "winner": {
-          "slug": "milo",
-          "name": "Milo",
-          "avatarUrl": "avatars/milo.discord.png"
+          "slug": "milotheflipper",
+          "name": "milotheflipper",
+          "avatarUrl": "avatars/milotheflipper.discord.png"
         },
         "results": [
           {
             "player": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "placement": 1,
             "points": 7,
@@ -1468,9 +1673,9 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
@@ -1486,17 +1691,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "placement": 3,
             "points": 4,
@@ -1505,16 +1710,16 @@
             "doubleDown": false,
             "nemesis": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "placement": 4,
             "points": 3,
@@ -1522,17 +1727,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "placement": 5,
             "points": 4,
@@ -1541,16 +1746,16 @@
             "doubleDown": true,
             "nemesis": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "placement": 6,
             "points": 1,
@@ -1558,17 +1763,17 @@
             "nemesisBonus": 1,
             "doubleDown": false,
             "nemesis": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "defeatedNemesis": true
           },
           {
             "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "placement": 7,
             "points": 0,
@@ -1576,16 +1781,16 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "placement": 8,
@@ -1594,17 +1799,17 @@
             "nemesisBonus": 0,
             "doubleDown": false,
             "nemesis": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "defeatedNemesis": false
           },
           {
             "player": {
-              "slug": "mavva",
-              "name": "Mavvä",
-              "avatarUrl": "avatars/mavva.discord.png"
+              "slug": "mavvvvvve",
+              "name": "mavvvvvve",
+              "avatarUrl": "avatars/mavvvvvve.discord.png"
             },
             "placement": 9,
             "points": 0,
@@ -1612,9 +1817,9 @@
             "nemesisBonus": 0,
             "doubleDown": true,
             "nemesis": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "defeatedNemesis": false
           }

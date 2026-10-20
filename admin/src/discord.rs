@@ -132,6 +132,18 @@ pub fn apply(
         match result {
             Ok((user, png)) => {
                 crate::repo::save_discord_names(conn, *id, user)?;
+                // A new Discord username can rename the player; their pictures follow.
+                let now: String = conn.query_row("SELECT slug FROM players WHERE id = ?1", [id], |r| r.get(0))?;
+                if now != *slug {
+                    let _ = std::fs::remove_file(avatars_dir.join(crate::export::discord_picture_name(slug)));
+                    for ext in crate::export::AVATAR_EXTENSIONS {
+                        let old = avatars_dir.join(format!("{slug}{ext}"));
+                        if old.is_file() {
+                            std::fs::rename(&old, avatars_dir.join(format!("{now}{ext}")))?;
+                        }
+                    }
+                }
+                let slug = &now;
                 save_picture(avatars_dir, slug, png.as_deref())?;
                 let shown = user.global_name.as_deref().unwrap_or(&user.username);
                 lines.push(format!("{slug}: {shown} (@{})", user.username));

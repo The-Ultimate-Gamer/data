@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T08:10:40Z",
+  "generatedAt": "2026-10-20T09:36:29Z",
   "data": {
     "player": {
-      "slug": "noxarn",
-      "name": "Noxarn",
+      "slug": "katzlr",
+      "name": "katzlr",
       "initials": null,
-      "avatarUrl": "avatars/noxarn.discord.png",
+      "avatarUrl": "avatars/katzlr.discord.png",
       "firstTournament": {
-        "slug": "demo-2025",
-        "name": "Demo LAN 2025"
+        "slug": "autumn-lan-2025",
+        "name": "Autumn LAN 2025"
       },
       "tournamentsPlayed": 2,
       "ultimateGamerWins": 1,
       "challengerAppearances": 1,
       "gameWins": 2,
       "podiumFinishes": 4,
-      "awardCount": 6,
+      "awardCount": 5,
       "bestPlacement": 1,
       "current": {
         "tournament": {
-          "slug": "demo-2026",
-          "name": "Demo LAN 2026"
+          "slug": "autumn-lan-2026",
+          "name": "Autumn LAN 2026"
         },
         "rank": 8,
-        "points": 5
+        "points": 7
       },
       "discord": {
         "id": "445666058200678403",
@@ -34,14 +34,14 @@
       "tournaments": [
         {
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
           },
           "startDate": "2026-10-16",
           "status": "ongoing",
           "placement": 8,
           "finish": null,
-          "points": 5,
+          "points": 7,
           "gamesWon": 0,
           "podiums": 0,
           "wasChallenger": false,
@@ -49,8 +49,8 @@
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "startDate": "2025-11-07",
           "status": "completed",
@@ -65,68 +65,60 @@
       ],
       "awards": [
         {
-          "award": "nominator",
-          "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
-          },
-          "detail": null
-        },
-        {
           "award": "ultimate-gamer",
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "detail": "Decided in game 7"
         },
         {
           "award": "challenger",
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "detail": "Since game 6"
         },
         {
           "award": "dominator",
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "detail": "27 points"
         },
         {
           "award": "podium",
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "detail": "4 podium finishes"
         },
         {
           "award": "nemesis",
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "detail": "5 Nemesis wins"
         }
       ],
       "categoryWins": [
         {
-          "category": "teamwork",
+          "category": "wildcard",
           "wins": 1
         },
         {
-          "category": "simulation",
+          "category": "knowledge",
           "wins": 1
         }
       ],
       "nemesis": {
-        "defeated": 7,
-        "defeatedBy": 10,
-        "timesAssigned": 12
+        "defeated": 8,
+        "defeatedBy": 12,
+        "timesAssigned": 13
       },
       "doubleDown": {
         "used": 2,
@@ -135,76 +127,97 @@
       },
       "nominate": {
         "used": 1,
-        "selected": 1
+        "selected": 0
       },
       "matches": [
         {
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
+          },
+          "gameNumber": 6,
+          "category": "combat",
+          "game": {
+            "slug": "counter-strike-2",
+            "name": "Counter-Strike 2"
+          },
+          "placement": 5,
+          "points": 2,
+          "doubleDown": false,
+          "nemesis": {
+            "slug": "jeffaklumpen",
+            "name": "jeffaklumpen",
+            "avatarUrl": "avatars/jeffaklumpen.discord.png"
+          },
+          "defeatedNemesis": true
+        },
+        {
+          "tournament": {
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
           },
           "gameNumber": 5,
-          "category": "chaos",
+          "category": "strategy",
           "game": {
-            "slug": "overcooked-2",
-            "name": "Overcooked! 2"
+            "slug": "catan",
+            "name": "Catan"
           },
           "placement": 9,
           "points": 0,
           "doubleDown": false,
           "nemesis": {
-            "slug": "brallex",
-            "name": "Brallex",
-            "avatarUrl": "avatars/brallex.discord.png"
+            "slug": "brallexj",
+            "name": "brallexj",
+            "avatarUrl": "avatars/brallexj.discord.png"
           },
           "defeatedNemesis": false
         },
         {
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
           },
           "gameNumber": 4,
-          "category": "platform",
+          "category": "racing",
           "game": {
-            "slug": "celeste",
-            "name": "Celeste"
+            "slug": "trackmania",
+            "name": "Trackmania"
           },
           "placement": 8,
           "points": 0,
           "doubleDown": true,
           "nemesis": {
             "slug": "zourax",
-            "name": "Zourax",
+            "name": "zourax",
             "avatarUrl": "avatars/zourax.discord.png"
           },
           "defeatedNemesis": false
         },
         {
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
           },
           "gameNumber": 3,
-          "category": "puzzle",
+          "category": "chaos",
           "game": {
-            "slug": "tetris-99",
-            "name": "Tetris 99"
+            "slug": "fall-guys",
+            "name": "Fall Guys"
           },
           "placement": 9,
           "points": 0,
           "doubleDown": false,
           "nemesis": {
-            "slug": "kricka",
-            "name": "Krickä",
-            "avatarUrl": "avatars/kricka.discord.png"
+            "slug": "krickeee",
+            "name": "krickeee",
+            "avatarUrl": "avatars/krickeee.discord.png"
           },
           "defeatedNemesis": false
         },
         {
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
           },
           "gameNumber": 2,
           "category": "combat",
@@ -216,16 +229,16 @@
           "points": 2,
           "doubleDown": false,
           "nemesis": {
-            "slug": "mavva",
-            "name": "Mavvä",
-            "avatarUrl": "avatars/mavva.discord.png"
+            "slug": "mavvvvvve",
+            "name": "mavvvvvve",
+            "avatarUrl": "avatars/mavvvvvve.discord.png"
           },
           "defeatedNemesis": true
         },
         {
           "tournament": {
-            "slug": "demo-2026",
-            "name": "Demo LAN 2026"
+            "slug": "autumn-lan-2026",
+            "name": "Autumn LAN 2026"
           },
           "gameNumber": 1,
           "category": "strategy",
@@ -237,22 +250,22 @@
           "points": 3,
           "doubleDown": false,
           "nemesis": {
-            "slug": "brallex",
-            "name": "Brallex",
-            "avatarUrl": "avatars/brallex.discord.png"
+            "slug": "brallexj",
+            "name": "brallexj",
+            "avatarUrl": "avatars/brallexj.discord.png"
           },
           "defeatedNemesis": true
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 7,
-          "category": "simulation",
+          "category": "knowledge",
           "game": {
-            "slug": "factorio",
-            "name": "Factorio"
+            "slug": "trivia-murder-party",
+            "name": "Trivia Murder Party"
           },
           "placement": 1,
           "points": 7,
@@ -266,14 +279,14 @@
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 6,
-          "category": "teamwork",
+          "category": "wildcard",
           "game": {
-            "slug": "portal-2",
-            "name": "Portal 2 (co-op)"
+            "slug": "golf-with-your-friends",
+            "name": "Golf With Your Friends"
           },
           "placement": 1,
           "points": 7,
@@ -287,8 +300,8 @@
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 5,
           "category": "tabletop",
@@ -300,16 +313,16 @@
           "points": 0,
           "doubleDown": true,
           "nemesis": {
-            "slug": "milo",
-            "name": "Milo",
-            "avatarUrl": "avatars/milo.discord.png"
+            "slug": "milotheflipper",
+            "name": "milotheflipper",
+            "avatarUrl": "avatars/milotheflipper.discord.png"
           },
           "defeatedNemesis": false
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 4,
           "category": "combat",
@@ -321,16 +334,16 @@
           "points": 3,
           "doubleDown": false,
           "nemesis": {
-            "slug": "sudden94",
-            "name": "Sudden94",
-            "avatarUrl": "avatars/sudden94.discord.png"
+            "slug": "jeffaklumpen",
+            "name": "jeffaklumpen",
+            "avatarUrl": "avatars/jeffaklumpen.discord.png"
           },
           "defeatedNemesis": false
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 3,
           "category": "racing",
@@ -343,15 +356,15 @@
           "doubleDown": false,
           "nemesis": {
             "slug": "zourax",
-            "name": "Zourax",
+            "name": "zourax",
             "avatarUrl": "avatars/zourax.discord.png"
           },
           "defeatedNemesis": true
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 2,
           "category": "knowledge",
@@ -364,15 +377,15 @@
           "doubleDown": false,
           "nemesis": {
             "slug": "zourax",
-            "name": "Zourax",
+            "name": "zourax",
             "avatarUrl": "avatars/zourax.discord.png"
           },
           "defeatedNemesis": true
         },
         {
           "tournament": {
-            "slug": "demo-2025",
-            "name": "Demo LAN 2025"
+            "slug": "autumn-lan-2025",
+            "name": "Autumn LAN 2025"
           },
           "gameNumber": 1,
           "category": "wildcard",
@@ -384,9 +397,9 @@
           "points": 3,
           "doubleDown": false,
           "nemesis": {
-            "slug": "brallex",
-            "name": "Brallex",
-            "avatarUrl": "avatars/brallex.discord.png"
+            "slug": "brallexj",
+            "name": "brallexj",
+            "avatarUrl": "avatars/brallexj.discord.png"
           },
           "defeatedNemesis": true
         }
@@ -394,57 +407,57 @@
       "rivals": [
         {
           "player": {
-            "slug": "brallex",
-            "name": "Brallex",
-            "avatarUrl": "avatars/brallex.discord.png"
+            "slug": "brallexj",
+            "name": "brallexj",
+            "avatarUrl": "avatars/brallexj.discord.png"
           },
           "nemesisWins": 2,
           "nemesisLosses": 0
         },
         {
           "player": {
-            "slug": "bumbi",
-            "name": "Bumbi",
-            "avatarUrl": "avatars/bumbi.discord.png"
+            "slug": "jeffaklumpen",
+            "name": "jeffaklumpen",
+            "avatarUrl": "avatars/jeffaklumpen.discord.png"
           },
-          "nemesisWins": 0,
-          "nemesisLosses": 3
+          "nemesisWins": 1,
+          "nemesisLosses": 0
         },
         {
           "player": {
-            "slug": "kricka",
-            "name": "Krickä",
-            "avatarUrl": "avatars/kricka.discord.png"
+            "slug": "krickeee",
+            "name": "krickeee",
+            "avatarUrl": "avatars/krickeee.discord.png"
           },
           "nemesisWins": 0,
           "nemesisLosses": 2
         },
         {
           "player": {
-            "slug": "mavva",
-            "name": "Mavvä",
-            "avatarUrl": "avatars/mavva.discord.png"
+            "slug": "mavvvvvve",
+            "name": "mavvvvvve",
+            "avatarUrl": "avatars/mavvvvvve.discord.png"
           },
           "nemesisWins": 1,
           "nemesisLosses": 1
         },
         {
           "player": {
-            "slug": "milo",
-            "name": "Milo",
-            "avatarUrl": "avatars/milo.discord.png"
+            "slug": "milotheflipper",
+            "name": "milotheflipper",
+            "avatarUrl": "avatars/milotheflipper.discord.png"
           },
           "nemesisWins": 0,
-          "nemesisLosses": 1
+          "nemesisLosses": 2
         },
         {
           "player": {
-            "slug": "sudden94",
-            "name": "Sudden94",
-            "avatarUrl": "avatars/sudden94.discord.png"
+            "slug": "mrbumbi",
+            "name": "mrbumbi",
+            "avatarUrl": "avatars/mrbumbi.discord.png"
           },
           "nemesisWins": 0,
-          "nemesisLosses": 0
+          "nemesisLosses": 4
         },
         {
           "player": {
@@ -458,7 +471,7 @@
         {
           "player": {
             "slug": "zourax",
-            "name": "Zourax",
+            "name": "zourax",
             "avatarUrl": "avatars/zourax.discord.png"
           },
           "nemesisWins": 2,

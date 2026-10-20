@@ -104,14 +104,16 @@ const DEMO_UNAVAILABLE: &[&str] = &["brawlhalla"];
 
 /// A demo tournament; its games are played out by a seeded random generator.
 struct DemoTournament {
-    slug: &'static str,
-    name: &'static str,
+    /// Tags; the name ("Autumn LAN 2025") and address are made from them and the date.
+    tags: &'static [&'static str],
     start: &'static str,
     end_date: Option<&'static str>,
     location: &'static str,
+    threshold: i64,
+    /// Kept short, so the games loop through the categories (lap 2) before anyone wins.
     categories: &'static [&'static str],
-    /// None: play until a Challenger wins (completed). Some(n): play n games, then leave the
-    /// next one drawn but unplayed (live).
+    /// None: play until a Challenger wins in the second lap or later (completed). Some(n): play
+    /// n games (more than one lap), then leave the next one drawn but unplayed (live).
     games_played: Option<usize>,
     /// Leave the newest player out, so the next tournament has a first-timer.
     without_newest: bool,
@@ -119,28 +121,27 @@ struct DemoTournament {
 
 const DEMO_TOURNAMENTS: &[DemoTournament] = &[
     DemoTournament {
-        slug: "demo-2025",
-        name: "Demo LAN 2025",
+        tags: &["lan", "physical", "overnight"],
         start: "2025-11-07",
         end_date: Some("2025-11-08"),
         location: "The basement",
-        categories: &["wildcard", "knowledge", "racing", "combat", "tabletop", "teamwork", "simulation", "chaos"],
+        threshold: 20,
+        categories: &["wildcard", "knowledge", "racing", "combat", "tabletop"],
         games_played: None,
         without_newest: true,
     },
     DemoTournament {
-        slug: "demo-2026",
-        name: "Demo LAN 2026",
+        tags: &["lan", "digital", "weekend"],
         start: "2026-10-16",
         end_date: None,
         location: "Somewhere with good Wi-Fi",
-        categories: &["strategy", "combat", "puzzle", "platform", "chaos", "racing", "knowledge", "wildcard"],
-        games_played: Some(5),
+        threshold: 30,
+        categories: &["strategy", "combat", "chaos", "racing"],
+        games_played: Some(6),
         without_newest: false,
     },
 ];
 
-const DEMO_THRESHOLD: i64 = 20;
 const DEMO_POINTS: &[i64] = &[6, 4, 3, 2, 1];
 
 /// The players the demo uses: the real roster when it has at least four players (so the demo
@@ -238,14 +239,15 @@ fn play_demo(
     let tx = crate::db::begin(conn)?;
     let status = if t.games_played.is_some() { "ongoing" } else { "completed" };
     tx.execute(
-        "INSERT INTO tournaments (slug, name, custom_name, start_date, end_date, location, status, challenger_threshold, is_demo)
-         VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6, ?7, 1)",
-        params![t.slug, t.name, t.start, t.end_date, t.location, status, DEMO_THRESHOLD],
+        "INSERT INTO tournaments (slug, name, start_date, end_date, location, status, challenger_threshold, is_demo)
+         VALUES ('demo', 'Demo', ?1, ?2, ?3, ?4, ?5, 1)",
+        params![t.start, t.end_date, t.location, status, t.threshold],
     )?;
     let tid = tx.last_insert_rowid();
-    for tag in ["lan", "digital", "weekend"] {
+    for tag in t.tags {
         tx.execute("INSERT INTO tournament_tags (tournament_id, tag) VALUES (?1, ?2)", params![tid, tag])?;
     }
+    crate::repo::sync_tournament_identity(&tx, tid)?;
     for p in players {
         tx.execute("INSERT INTO tournament_players (tournament_id, player_id) VALUES (?1, ?2)", params![tid, p])?;
     }
@@ -305,8 +307,9 @@ fn play_demo(
         previous_winner = Some(order[0]);
         let state = crate::rules::compute_tournament(&tx, &row, &names)?;
         if state.champion_id.is_some() {
-            if t.games_played.is_some() {
-                return Ok(false); // the live demo must still be open
+            // The live demo must still be open, and the completed one decided after a full lap.
+            if t.games_played.is_some() || i < t.categories.len() {
+                return Ok(false);
             }
             tx.commit()?;
             return Ok(true);
@@ -341,7 +344,7 @@ fn seed_demo(conn: &Connection) -> Result<()> {
             .find_map(|seed| play_demo(conn, t, players, &game, seed).map(|ok| ok.then_some(())).transpose());
         match played {
             Some(result) => result?,
-            None => bail!("couldn't play out the demo tournament {}", t.slug),
+            None => bail!("couldn't play out the demo tournament starting {}", t.start),
         }
     }
     Ok(())
@@ -359,11 +362,6 @@ pub fn add_demo(conn: &Connection) -> Result<()> {
             if conn.query_row("SELECT 1 FROM players WHERE slug = ?1", [&slug], |_| Ok(())).optional()?.is_some() {
                 clashes.push(format!("player '{slug}'"));
             }
-        }
-    }
-    for t in DEMO_TOURNAMENTS {
-        if conn.query_row("SELECT 1 FROM tournaments WHERE slug = ?1", [t.slug], |_| Ok(())).optional()?.is_some() {
-            clashes.push(format!("tournament '{}'", t.slug));
         }
     }
     if !clashes.is_empty() {

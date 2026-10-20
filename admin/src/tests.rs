@@ -174,7 +174,7 @@ fn writes_all_documents_with_envelope() {
         "players/index.json",
         "tournaments/index.json",
         "players/nova.json",
-        "tournaments/demo-2025.json",
+        "tournaments/autumn-lan-2025.json",
     ] {
         assert!(files.iter().any(|f| f == expected), "{expected} missing");
     }
@@ -216,14 +216,16 @@ fn removes_stale_documents_only() {
 fn leaderboard_reflects_live_tournament() {
     let conn = demo_db();
     let lb = &docs(&conn)["leaderboard.json"];
-    assert_eq!(lb["tournament"]["slug"], "demo-2026");
-    assert_eq!(lb["currentCategory"], "racing");
+    assert_eq!(lb["tournament"]["slug"], "autumn-lan-2026");
+    assert_eq!(lb["tournament"]["tags"], json!(["LAN", "Digital games", "Weekend"]));
+    // Six games over four categories: game 7 is the third category of lap 2.
+    assert_eq!((lb["currentCategory"].as_str(), lb["tournament"]["lap"].as_i64()), (Some("chaos"), Some(2)));
     assert_eq!(lb["nextSelection"]["status"], "drawn");
     let ranks: Vec<i64> = lb["standings"].as_array().unwrap().iter().map(|s| s["rank"].as_i64().unwrap()).collect();
     assert_eq!((ranks.len(), ranks[0]), (6, 1));
     assert!(ranks.windows(2).all(|w| w[0] <= w[1]));
     assert!(lb["standings"].as_array().unwrap().iter().all(|s| s["isChampion"] == false));
-    assert_eq!(lb["recentResults"][0]["number"], 5);
+    assert_eq!(lb["recentResults"][0]["number"], 6);
     let active: Vec<&Value> = lb["categories"]
         .as_array()
         .unwrap()
@@ -231,13 +233,13 @@ fn leaderboard_reflects_live_tournament() {
         .filter(|c| c["status"] == "active")
         .map(|c| &c["category"])
         .collect();
-    assert_eq!(active, [&json!("racing")]);
+    assert_eq!(active, [&json!("chaos")]);
 }
 
 #[test]
 fn completed_tournament_champion_and_unreached_categories() {
     let conn = demo_db();
-    let t = docs(&conn)["tournaments/demo-2025.json"]["tournament"].clone();
+    let t = docs(&conn)["tournaments/autumn-lan-2025.json"]["tournament"].clone();
     let champion = t["champion"]["slug"].as_str().unwrap().to_string();
     let standings = t["standings"].as_array().unwrap();
     assert!(standings.iter().any(|s| s["player"]["slug"] == champion.as_str() && s["isChampion"] == true));
@@ -245,7 +247,9 @@ fn completed_tournament_champion_and_unreached_categories() {
     assert_eq!(games.last().unwrap()["decidedTournament"], true);
     // Categories after the deciding game were never reached and aren't listed.
     assert_eq!(t["categories"].as_array().unwrap().len(), games.len());
-    assert_eq!(t["categoriesPlanned"], 8);
+    assert_eq!(t["categoriesPlanned"], 5);
+    assert!(games.len() > 5, "decided in the second lap");
+    assert_eq!(t["name"], "Autumn LAN 2025");
     assert_eq!(t["status"], "completed");
 }
 
@@ -253,26 +257,28 @@ fn completed_tournament_champion_and_unreached_categories() {
 fn player_profile_statistics() {
     let conn = demo_db();
     let d = docs(&conn);
-    let champion = d["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap().to_string();
+    let champion =
+        d["tournaments/autumn-lan-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap().to_string();
     let p = d[&format!("players/{champion}.json")]["player"].clone();
     assert_eq!(p["ultimateGamerWins"], 1);
     assert_eq!(p["tournamentsPlayed"], 2);
-    assert_eq!(p["matches"][0]["tournament"]["slug"], "demo-2026");
+    assert_eq!(p["matches"][0]["tournament"]["slug"], "autumn-lan-2026");
 }
 
 #[test]
 fn best_placement_counts_the_crown_as_first() {
     let conn = demo_db();
     let d = docs(&conn);
-    let champion = d["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap().to_string();
+    let champion =
+        d["tournaments/autumn-lan-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap().to_string();
     let echo = &d[&format!("players/{champion}.json")]["player"];
     assert_eq!(echo["bestPlacement"], 1);
     let history = |slug: &str| {
         echo["tournaments"].as_array().unwrap().iter().find(|t| t["tournament"]["slug"] == slug).unwrap().clone()
     };
-    assert_eq!(history("demo-2025")["finish"], 1);
-    assert_eq!(history("demo-2026")["finish"], Value::Null);
-    assert!(history("demo-2025").get("podiums").is_some());
+    assert_eq!(history("autumn-lan-2025")["finish"], 1);
+    assert_eq!(history("autumn-lan-2026")["finish"], Value::Null);
+    assert!(history("autumn-lan-2025").get("podiums").is_some());
 }
 
 #[test]
@@ -296,7 +302,7 @@ fn announced_nemeses_for_the_next_game() {
     let pairs = d["leaderboard.json"]["nextNemeses"].as_array().unwrap();
     assert_eq!(pairs.len(), 6);
     assert!(pairs.iter().all(|p| p["player"]["slug"] != p["nemesis"]["slug"]));
-    assert_eq!(d["tournaments/demo-2025.json"]["tournament"]["nextNemeses"], Value::Null);
+    assert_eq!(d["tournaments/autumn-lan-2025.json"]["tournament"]["nextNemeses"], Value::Null);
 }
 
 #[test]
@@ -344,15 +350,15 @@ fn share_pages_for_link_previews() {
     let champion: (String, String) = conn
         .query_row(
             "SELECT p.slug, p.name FROM players p WHERE p.slug = ?1",
-            [docs(&conn)["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap()],
+            [docs(&conn)["tournaments/autumn-lan-2025.json"]["tournament"]["champion"]["slug"].as_str().unwrap()],
             |r| Ok((r.get(0)?, r.get(1)?)),
         )
         .unwrap();
     let crowned = page(&format!("share/players/{}/index.html", champion.0));
     assert!(crowned.contains("1× Ultimate Gamer") && crowned.contains("best finish 1st"));
-    assert!(page("share/tournaments/demo-2025/index.html").contains(&format!("Ultimate Gamer: {}", champion.1)));
-    let live = page("share/tournaments/demo-2026/index.html");
-    assert!(live.contains("Live now") && live.contains("5 games played"));
+    assert!(page("share/tournaments/autumn-lan-2025/index.html").contains(&format!("Ultimate Gamer: {}", champion.1)));
+    let live = page("share/tournaments/autumn-lan-2026/index.html");
+    assert!(live.contains("Live now") && live.contains("6 games played"));
 }
 
 #[test]
@@ -731,15 +737,15 @@ fn demo_uses_the_real_roster() {
     assert_eq!(count("SELECT COUNT(*) FROM players"), 5, "no fictional players added");
     assert_eq!(
         count(
-            "SELECT COUNT(*) FROM tournament_players tp JOIN tournaments t ON t.id = tp.tournament_id WHERE t.slug = 'demo-2025'"
+            "SELECT COUNT(*) FROM tournament_players tp JOIN tournaments t ON t.id = tp.tournament_id WHERE t.slug = 'autumn-lan-2025'"
         ),
         4
     );
     assert!(errors_of(&conn).is_empty());
     let d = docs(&conn);
-    assert_eq!(d["tournaments/demo-2025.json"]["tournament"]["status"], "completed");
-    assert!(d["tournaments/demo-2025.json"]["tournament"]["champion"]["slug"].is_string());
-    assert_eq!(d["leaderboard.json"]["tournament"]["slug"], "demo-2026");
+    assert_eq!(d["tournaments/autumn-lan-2025.json"]["tournament"]["status"], "completed");
+    assert!(d["tournaments/autumn-lan-2025.json"]["tournament"]["champion"]["slug"].is_string());
+    assert_eq!(d["leaderboard.json"]["tournament"]["slug"], "autumn-lan-2026");
     // Seeded: the same every time.
     let again = empty_db();
     for (i, name) in ["Ann", "Bob", "Cy", "Dee", "Eve"].iter().enumerate() {
@@ -751,7 +757,7 @@ fn demo_uses_the_real_roster() {
             .unwrap();
     }
     seed::add_demo(&again).unwrap();
-    assert_eq!(docs(&again)["tournaments/demo-2025.json"], d["tournaments/demo-2025.json"]);
+    assert_eq!(docs(&again)["tournaments/autumn-lan-2025.json"], d["tournaments/autumn-lan-2025.json"]);
 
     let removed = seed::remove_demo(&conn).unwrap();
     assert_eq!((removed.tournaments, removed.players), (2, 0));

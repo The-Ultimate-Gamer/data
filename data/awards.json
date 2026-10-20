@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T08:10:40Z",
+  "generatedAt": "2026-10-20T09:36:29Z",
   "data": {
     "awards": [
       {
@@ -13,13 +13,13 @@
           {
             "award": "ultimate-gamer",
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Decided in game 7"
           }
@@ -35,13 +35,13 @@
           {
             "award": "challenger",
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Since game 6"
           },
@@ -53,47 +53,47 @@
               "avatarUrl": "avatars/tnoy.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Since game 6"
           },
           {
             "award": "challenger",
             "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Since game 6"
           },
           {
             "award": "challenger",
             "player": {
-              "slug": "milo",
-              "name": "Milo",
-              "avatarUrl": "avatars/milo.discord.png"
+              "slug": "milotheflipper",
+              "name": "milotheflipper",
+              "avatarUrl": "avatars/milotheflipper.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Since game 5"
           },
           {
             "award": "challenger",
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Since game 7"
           }
@@ -109,13 +109,13 @@
           {
             "award": "dominator",
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "27 points"
           }
@@ -131,13 +131,13 @@
           {
             "award": "contender",
             "player": {
-              "slug": "sudden94",
-              "name": "Sudden94",
-              "avatarUrl": "avatars/sudden94.discord.png"
+              "slug": "jeffaklumpen",
+              "name": "jeffaklumpen",
+              "avatarUrl": "avatars/jeffaklumpen.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "16 points"
           }
@@ -158,21 +158,21 @@
               "avatarUrl": "avatars/tnoy.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "4 podium finishes"
           },
           {
             "award": "podium",
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "4 podium finishes"
           }
@@ -196,26 +196,13 @@
           {
             "award": "nominator",
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
-            },
-            "detail": null
-          },
-          {
-            "award": "nominator",
-            "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
-            },
-            "tournament": {
-              "slug": "demo-2026",
-              "name": "Demo LAN 2026"
+              "slug": "autumn-lan-2026",
+              "name": "Autumn LAN 2026"
             },
             "detail": null
           },
@@ -223,12 +210,12 @@
             "award": "nominator",
             "player": {
               "slug": "zourax",
-              "name": "Zourax",
+              "name": "zourax",
               "avatarUrl": "avatars/zourax.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": null
           }
@@ -276,26 +263,26 @@
           {
             "award": "nemesis",
             "player": {
-              "slug": "noxarn",
-              "name": "Noxarn",
-              "avatarUrl": "avatars/noxarn.discord.png"
+              "slug": "katzlr",
+              "name": "katzlr",
+              "avatarUrl": "avatars/katzlr.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "5 Nemesis wins"
           },
           {
             "award": "nemesis",
             "player": {
-              "slug": "kricka",
-              "name": "Krickä",
-              "avatarUrl": "avatars/kricka.discord.png"
+              "slug": "krickeee",
+              "name": "krickeee",
+              "avatarUrl": "avatars/krickeee.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "5 Nemesis wins"
           }
@@ -311,13 +298,13 @@
           {
             "award": "victim",
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": "Beaten 8 times as a Nemesis"
           }
@@ -338,34 +325,34 @@
               "avatarUrl": "avatars/tnoy.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": null
           },
           {
             "award": "ghost",
             "player": {
-              "slug": "brallex",
-              "name": "Brallex",
-              "avatarUrl": "avatars/brallex.discord.png"
+              "slug": "brallexj",
+              "name": "brallexj",
+              "avatarUrl": "avatars/brallexj.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": null
           },
           {
             "award": "ghost",
             "player": {
-              "slug": "bumbi",
-              "name": "Bumbi",
-              "avatarUrl": "avatars/bumbi.discord.png"
+              "slug": "mrbumbi",
+              "name": "mrbumbi",
+              "avatarUrl": "avatars/mrbumbi.discord.png"
             },
             "tournament": {
-              "slug": "demo-2025",
-              "name": "Demo LAN 2025"
+              "slug": "autumn-lan-2025",
+              "name": "Autumn LAN 2025"
             },
             "detail": null
           }
